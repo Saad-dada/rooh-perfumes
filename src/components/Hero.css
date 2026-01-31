@@ -1,0 +1,307 @@
+:root {
+  --accent-1: #8b5cf6;
+  /* purple */
+  --accent-2: #ec4899;
+  /* pink */
+  --bg-1: #efeaf3;
+  --text-1: #222;
+}
+
+.hero.featured {
+  min-height: 100vh;
+  width: 100vw;
+  padding: 0;
+  background: var(--bg-1);
+  color: var(--text-1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.featured-grid {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side.left {
+  position: absolute;
+  left: 3vw;
+  top: 10vw;
+  z-index: 3;
+  max-width: 350px;
+  color: #fff;
+  text-align: left;
+}
+
+.product-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0
+}
+
+.product-title span {
+  display: block;
+  font-weight: 900;
+  letter-spacing: 0.08em
+}
+
+.product-lead {
+  margin-top: 1rem;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.6
+}
+
+.side.right {
+  position: absolute;
+  right: 3vw;
+  top: 10vw;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  color: #fff;
+}
+
+.price-large {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.9)
+}
+
+.btn.add {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  color: black;
+}
+
+.btn.add:hover {
+  background: rgba(0, 0, 0, 0.02)
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  z-index: 2;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.center * {
+  background: none !important;
+  box-shadow: none !important;
+}
+.center svg {
+  background: none !important;
+}
+
+.bottle-wrap {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none !important;
+  box-shadow: none !important;
+  z-index: 1;
+}
+
+.water {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 38vh;
+  z-index: 0;
+  pointer-events: none;
+    background: linear-gradient(to top, #3a7bd5 0%, #00d2ff 40%, #b3e0ff 70%, rgba(0,212,255,0.04) 100%);
+  opacity: 0.82;
+  filter: blur(6px) saturate(1);
+    filter: blur(2.5px) saturate(1.2) url(#water-ripple);
+    animation: water-ripple-move 8s linear infinite;
+  }
+
+  @keyframes water-ripple-move {
+    0% { filter: blur(2.5px) saturate(1.2) url(#water-ripple); }
+    100% { filter: blur(2.5px) saturate(1.2) url(#water-ripple); }
+  }
+
+.circle-text {
+  position: absolute;
+  width: clamp(420px, 45vw, 900px);
+  height: clamp(420px, 45vw, 900px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.circle-svg {
+  width: 100%;
+  height: 100%
+}
+
+.circ-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  letter-spacing: 0.16em;
+  fill: #111;
+  text-transform: none;
+}
+
+.circle-text {
+  animation: rotateSlow 28s linear infinite
+}
+
+@keyframes rotateSlow {
+  from {
+    transform: translate(-50%, -50%) rotate(-10deg)
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(350deg)
+  }
+}
+
+.bottle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bottle-img {
+  width: clamp(320px, 40vw, 520px);
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 40px 90px rgba(34, 23, 62, 0.14);
+  display: block;
+}
+
+.reflection {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: clamp(320px, 40vw, 520px);
+  height: auto;
+  overflow: visible;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.bottle-reflection {
+  width: 100%;
+  transform: scaleY(-1);
+  opacity: 0.6;
+  filter: blur(2.5px) saturate(0.85) contrast(1.1);
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.35) 60%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.35) 60%,
+    transparent 100%
+  );
+  /* Optional: create a wavy effect using SVG filter */
+  filter: blur(2.5px) saturate(0.85) contrast(1.1) url(#wavy-water);
+}
+
+.info-bottom {
+  width: 100vw;
+  position: absolute;
+  left: 0;
+  bottom: 2vw;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.text-left,
+.text-right {
+  width: 32vw;
+  max-width: 500px;
+  line-height: 1.7;
+  color: #000000;
+  pointer-events: auto;
+}
+
+.text-left {
+  text-align: left;
+  padding-left: 3vw
+}
+
+.text-right {
+  text-align: right;
+  padding-right: 3vw;
+}
+
+@media (max-width:980px) {
+  .featured-grid {
+    grid-template-columns: 1fr;
+    text-align: center
+  }
+
+  .side.left,
+  .side.right {
+    order: unset;
+    padding: 0
+  }
+
+  .center {
+    order: -1;
+    min-height: 420px
+  }
+
+  .circle-text {
+    width: 340px;
+    height: 340px
+  }
+
+  .bottle-img {
+    width: 260px
+  }
+
+  .info-bottom {
+    flex-direction: column;
+    gap: 1rem
+  }
+
+  .text-left,
+  .text-right {
+    width: 100%
+  }
+
+  .side.right {
+    align-items: center
+  }
+}
