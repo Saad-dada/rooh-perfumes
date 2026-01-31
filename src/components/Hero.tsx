@@ -1,6 +1,7 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useRef, useEffect } from 'react'
 import './Hero.css'
 import { Canvas } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -68,6 +69,74 @@ function Model(props: any) {
 
 useGLTF.preload('/models/perfume_bottle.glb')
 
+function ScrollRotateModel(props: any) {
+  const groupRef = useRef<THREE.Group | null>(null)
+  const velocityRef = useRef(0)
+  const lastScrollRef = useRef(typeof window !== 'undefined' ? window.scrollY : 0)
+
+  useEffect(() => {
+    function onScroll() {
+      const current = window.scrollY
+      const delta = current - lastScrollRef.current
+      lastScrollRef.current = current
+      // smaller multiplier for slower, gentler rotation
+      velocityRef.current += delta * 0.0008
+    }
+
+    function onWheel(e: WheelEvent) {
+      // use a smaller wheel impulse for subtle rotation
+      velocityRef.current += e.deltaY * 0.00012
+    }
+
+    let lastTouchY = 0
+    function onTouchStart(e: TouchEvent) {
+      lastTouchY = e.touches[0]?.clientY ?? 0
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      const y = e.touches[0]?.clientY ?? 0
+      const delta = lastTouchY - y
+      lastTouchY = y
+      // touch movements tend to be larger, scale down for control
+      velocityRef.current += delta * 0.0009
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [])
+
+  useFrame(() => {
+    const g = groupRef.current
+    if (!g) return
+    // apply velocity to rotation and decay over time for smooth effect
+    // apply velocity to rotation (gentle)
+    g.rotation.y += velocityRef.current
+    // smoother decay for longer, fluid motion
+    velocityRef.current *= 0.92
+    // clamp to prevent runaway speeds
+    const max = 0.06
+    if (velocityRef.current > max) velocityRef.current = max
+    if (velocityRef.current < -max) velocityRef.current = -max
+    // tiny threshold to zero-out very small values
+    if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0
+  })
+
+  return (
+    <group ref={groupRef}>
+      <Model {...props} />
+    </group>
+  )
+}
+
 const Hero: React.FC = () => {
   return (
     <section className="hero featured" aria-labelledby="hero-heading">
@@ -123,9 +192,9 @@ const Hero: React.FC = () => {
                   <spotLight position={[-5, 8, 5]} angle={0.35} penumbra={0.5} intensity={0.35} castShadow />
                   <Suspense fallback={null}>
                     <Environment preset="studio" background={false} />
-                    <Model scale={[2.5, 2.5, 2.5]} position={[0, -0.4, 0]} rotation={[0, Math.PI, 0]} />
+                    <ScrollRotateModel scale={[2.5, 2.5, 2.5]} position={[0, -0.4, 0]} rotation={[0, Math.PI, 0]} />
                   </Suspense>
-                  <OrbitControls enableRotate={false} enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={2} />
+                  <OrbitControls enableRotate={false} enablePan={false} enableZoom={false} autoRotate={false} />
                 </Canvas>
               </div>
             </div>
@@ -152,7 +221,7 @@ const Hero: React.FC = () => {
                     <Environment preset="studio" background={false} />
                     {/* render a mirrored, dimmer model for the reflection; flip visually via CSS */}
                     <group position={[0, 0.4, 0]} rotation={[0, Math.PI, 0]} scale={[1, 1, 1]}>
-                      <Model reflection scale={[2.5, 2.5, 2.5]} />
+                      <ScrollRotateModel reflection scale={[2.5, 2.5, 2.5]} />
                     </group>
                   </Suspense>
                 </Canvas>
