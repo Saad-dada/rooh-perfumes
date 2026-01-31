@@ -195,43 +195,69 @@
   align-items: center;
 }
 
+.bottle-canvas {
+  width: clamp(420px, 50vw, 720px);
+  height: clamp(420px, 56vh, 760px);
+  border-radius: 8px;
+  box-shadow: 0 40px 90px rgba(34, 23, 62, 0.14);
+  overflow: visible;
+}
+
+.bottle-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  border-radius: 8px;
+}
+
 .bottle-img {
   width: clamp(320px, 40vw, 520px);
   height: auto;
-  border-radius: 8px;
+  border-radius: 8px; 
   box-shadow: 0 40px 90px rgba(34, 23, 62, 0.14);
   display: block;
 }
 
 .reflection {
   position: absolute;
-  top: 60%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, 0);
-  width: clamp(320px, 40vw, 520px);
-  height: auto;
+  width: 60vw;
+  height: 60vh;
   overflow: visible;
   z-index: 2;
   pointer-events: none;
 }
 
-.bottle-reflection {
+.bottle-reflection-canvas {
   width: 100%;
-  transform: scaleY(-1);
-  opacity: 0.6;
-  filter: blur(2.5px) saturate(0.85) contrast(1.1);
+  height: 100%;
+  transform: translateY(8%) scaleY(-1);
+  opacity: 0.72;
+  filter: blur(2.2px) saturate(0.98) contrast(1.05);
   mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.35) 60%,
+    rgba(0,0,0,0.55) 28%,
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.35) 60%,
+    rgba(0,0,0,0.55) 28%,
     transparent 100%
   );
-  /* Optional: create a wavy effect using SVG filter */
-  filter: blur(2.5px) saturate(0.85) contrast(1.1) url(#wavy-water);
+  pointer-events: none;
+}
+
+.bottle-reflection-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* apply the existing SVG water-ripple filter to the reflected canvas */
+.bottle-reflection-canvas canvas {
+  filter: blur(2.2px) saturate(0.98) contrast(1.05) url(#water-ripple);
 }
 
 .info-bottom {
