@@ -39,7 +39,14 @@ const Hero: React.FC = () => {
             </div>
 
             <div className="reflection" aria-hidden>
-              <img src={img} alt="" className="bottle-reflection" style={{ filter: 'blur(2.5px) saturate(0.85) contrast(1.1) url(#wavy-water)' }} />
+              <img
+                src={img}
+                alt=""
+                className="bottle-reflection"
+                style={{
+                  filter: 'blur(2.5px) saturate(0.85) contrast(1.1) url(#water-ripple)'
+                }}
+              />
             </div>
           </div>
           {/* Animated SVG water layer with ripple filter */}
