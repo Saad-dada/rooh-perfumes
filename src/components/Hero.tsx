@@ -2,72 +2,18 @@ import React, { Suspense, useRef, useEffect } from 'react'
 import './Hero.css'
 import { Canvas } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei'
+import { useGLTF, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
 function Model(props: any) {
-  const gltf = useGLTF('/models/perfume_bottle.glb') as any
+  const gltf = useGLTF('/models/perfume.glb') as any
   const scene = gltf.scene.clone()
-
-  scene.traverse((child: any) => {
-    if (child.isMesh) {
-      child.castShadow = true
-      child.receiveShadow = true
-
-      const srcMat = child.material
-      try {
-        const params: any = {}
-        if (srcMat) {
-          if (srcMat.map) params.map = srcMat.map
-          if (srcMat.color) params.color = srcMat.color
-          if (srcMat.normalMap) params.normalMap = srcMat.normalMap
-          if (srcMat.roughnessMap) params.roughnessMap = srcMat.roughnessMap
-        }
-
-        const isReflection = !!props.reflection
-        const glass = new THREE.MeshPhysicalMaterial({
-          ...params,
-          transparent: true,
-          opacity: isReflection ? 0.72 : 1,
-          transmission: isReflection ? 0.75 : 0.96,
-          thickness: isReflection ? 0.12 : 0.24,
-          ior: 1.45,
-          roughness: isReflection ? 0.22 : 0.12,
-          metalness: 0,
-          clearcoat: isReflection ? 0.04 : 0.08,
-          clearcoatRoughness: isReflection ? 0.08 : 0.03,
-          envMapIntensity: isReflection ? 1.2 : 1.0,
-          side: THREE.DoubleSide,
-        })
-
-        glass.name = srcMat?.name ?? 'glass'
-        child.material = glass
-      } catch (e) {
-        const mat = child.material
-        if (mat) {
-          try {
-            mat.side = THREE.DoubleSide
-            if ('envMapIntensity' in mat) mat.envMapIntensity = 0.9
-            if ('metalness' in mat) mat.metalness = Math.min(0.12, mat.metalness ?? 0)
-            if ('roughness' in mat) mat.roughness = Math.max(0.12, (mat.roughness ?? 1) * 0.7)
-            mat.transparent = true
-            mat.opacity = mat.opacity ?? 1
-            mat.needsUpdate = true
-          } catch (_) {
-            // ignore
-          }
-        }
-      }
-    }
-  })
-
   const scale = props.scale ?? [1, 1, 1]
-  // prevent passing reflection down to primitive
-  const { reflection, ...rest } = props
+  const { ...rest } = props
   return <primitive object={scene} scale={scale} {...rest} />
 }
 
-useGLTF.preload('/models/perfume_bottle.glb')
+useGLTF.preload('/models/perfume.glb')
 
 function ScrollRotateModel(props: any) {
   const groupRef = useRef<THREE.Group | null>(null)
@@ -79,12 +25,10 @@ function ScrollRotateModel(props: any) {
       const current = window.scrollY
       const delta = current - lastScrollRef.current
       lastScrollRef.current = current
-      // smaller multiplier for slower, gentler rotation
       velocityRef.current += delta * 0.0008
     }
 
     function onWheel(e: WheelEvent) {
-      // use a smaller wheel impulse for subtle rotation
       velocityRef.current += e.deltaY * 0.00012
     }
 
@@ -97,7 +41,6 @@ function ScrollRotateModel(props: any) {
       const y = e.touches[0]?.clientY ?? 0
       const delta = lastTouchY - y
       lastTouchY = y
-      // touch movements tend to be larger, scale down for control
       velocityRef.current += delta * 0.0009
     }
 
@@ -117,16 +60,11 @@ function ScrollRotateModel(props: any) {
   useFrame(() => {
     const g = groupRef.current
     if (!g) return
-    // apply velocity to rotation and decay over time for smooth effect
-    // apply velocity to rotation (gentle)
     g.rotation.y += velocityRef.current
-    // smoother decay for longer, fluid motion
     velocityRef.current *= 0.92
-    // clamp to prevent runaway speeds
     const max = 0.06
     if (velocityRef.current > max) velocityRef.current = max
     if (velocityRef.current < -max) velocityRef.current = -max
-    // tiny threshold to zero-out very small values
     if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0
   })
 
@@ -186,43 +124,14 @@ const Hero: React.FC = () => {
                     }
                   }}
                 >
-                  <ambientLight intensity={0.25} />
-                  <hemisphereLight args={["#ffffff", "#444444", 0.35]} />
-                  <directionalLight castShadow position={[5, 5, 5]} intensity={0.7} />
-                  <spotLight position={[-5, 8, 5]} angle={0.35} penumbra={0.5} intensity={0.35} castShadow />
+                  <ambientLight intensity={0.28} />
+                  <hemisphereLight args={["#ffd7b5", "#3b2a1f", 0.45]} />
+                  <directionalLight position={[4, 6, 6]} intensity={1.1} />
+                  <spotLight position={[-3, 5, 4]} angle={0.4} penumbra={0.5} intensity={0.6} castShadow />
+                  <pointLight position={[2, 1, 2]} intensity={0.5} />
                   <Suspense fallback={null}>
-                    <Environment preset="studio" background={false} />
-                    <ScrollRotateModel scale={[2.5, 2.5, 2.5]} position={[0, -0.4, 0]} rotation={[0, Math.PI, 0]} />
-                  </Suspense>
-                  <OrbitControls enableRotate={false} enablePan={false} enableZoom={false} autoRotate={false} />
-                </Canvas>
-              </div>
-            </div>
-
-            <div className="reflection" aria-hidden>
-              <div className="bottle-reflection-canvas">
-                <Canvas
-                  shadows={false}
-                  dpr={[1, 1.5]}
-                  camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  gl={{ antialias: true, alpha: true }}
-                  onCreated={(state) => {
-                    try {
-                      ;(state.gl as any).physicallyCorrectLights = true
-                      ;(state.gl as any).toneMapping = (THREE as any).ACESFilmicToneMapping
-                      ;(state.gl as any).outputEncoding = (THREE as any).sRGBEncoding
-                    } catch (e) {}
-                  }}
-                >
-                  <ambientLight intensity={0.35} />
-                  <hemisphereLight args={["#ffffff", "#444444", 0.28]} />
-                  <directionalLight position={[2, 3, 2]} intensity={0.45} />
-                  <Suspense fallback={null}>
-                    <Environment preset="studio" background={false} />
-                    {/* render a mirrored, dimmer model for the reflection; flip visually via CSS */}
-                    <group position={[0, 0.4, 0]} rotation={[0, Math.PI, 0]} scale={[1, 1, 1]}>
-                      <ScrollRotateModel reflection scale={[2.5, 2.5, 2.5]} />
-                    </group>
+                    <Environment preset="sunset" background={false} />
+                    <ScrollRotateModel scale={[0.8, 0.8, 0.8]} position={[0, -0.4, 0]} rotation={[0, Math.PI, 0]} />
                   </Suspense>
                 </Canvas>
               </div>
