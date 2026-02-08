@@ -1,0 +1,55 @@
+/* ── Shop By Category ── */
+.cat-grid {
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.cat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.25s;
+}
+
+.cat-item:hover {
+  transform: translateY(-4px);
+}
+
+.cat-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  transition: box-shadow 0.25s;
+}
+
+.cat-item:hover .cat-circle {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.cat-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+@media (max-width: 768px) {
+  .cat-grid {
+    gap: 24px;
+  }
+
+  .cat-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .cat-name {
+    font-size: 0.65rem;
+  }
+}

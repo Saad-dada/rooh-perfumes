@@ -1,0 +1,57 @@
+/* ── Quote / testimonial ── */
+.quote-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius);
+  padding: 40px 36px;
+  margin: 0;
+  text-align: center;
+}
+
+.quote-card p {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--ink);
+  margin: 0 0 28px;
+}
+
+.quote-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.quote-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0ccbe 0%, #c5a68a 100%);
+}
+
+.quote-card footer strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.quote-card footer span {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 768px) {
+  .quote-card {
+    padding: 28px 20px;
+  }
+
+  .quote-card p {
+    font-size: 0.95rem;
+  }
+
+  .quote-card footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

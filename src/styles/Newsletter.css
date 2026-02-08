@@ -1,0 +1,55 @@
+/* ── Newsletter ── */
+.nl-form {
+  display: flex;
+  gap: 10px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.nl-form input {
+  flex: 1;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.nl-form input:focus {
+  border-color: var(--accent);
+}
+
+.btn-fill {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 26px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-fill:hover {
+  background: var(--accent-2);
+}
+
+@media (max-width: 768px) {
+  .nl-form {
+    flex-direction: column;
+  }
+
+  .nl-form input {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .btn-fill {
+    padding: 10px 20px;
+    font-size: 0.8rem;
+  }
+}

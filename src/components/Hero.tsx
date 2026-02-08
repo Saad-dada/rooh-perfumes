@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react'
-import './Hero.css'
+import '../styles/Hero.css'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, Environment } from '@react-three/drei'
 import * as THREE from 'three'

@@ -1,0 +1,62 @@
+/* ── Footer ── */
+.ft {
+  background-color: #4D193A;
+  padding: 32px 5vw;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ft-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ft-brand {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.05rem;
+}
+
+.ft-links {
+  display: flex;
+  gap: 24px;
+}
+
+.ft-links a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.ft-links a:hover {
+  color: var(--accent);
+}
+
+.ft-copy {
+  font-size: 0.78rem;
+  color: #fff;;
+}
+
+@media (max-width: 768px) {
+  .ft-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .ft-brand {
+    font-size: 0.95rem;
+  }
+
+  .ft-links {
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  .ft-copy {
+    font-size: 0.7rem;
+  }
+}

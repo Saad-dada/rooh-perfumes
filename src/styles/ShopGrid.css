@@ -1,0 +1,80 @@
+/* ── Product grid ── */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+.prod-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 28px 24px 24px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.prod-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.07);
+}
+
+.prod-img {
+  width: 140px;
+  height: 180px;
+  border-radius: 80px 80px 40px 40px;
+  margin: 0 auto 20px;
+}
+
+.prod-card h4 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.prod-price {
+  display: block;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 8px 22px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Shade gradients */
+.shade-rose     { background: linear-gradient(135deg, #f5ddd5 0%, #e8bfb7 100%); }
+.shade-amber    { background: linear-gradient(135deg, #f0dcc4 0%, #d4b48f 100%); }
+.shade-citrus   { background: linear-gradient(135deg, #f2ecd0 0%, #d6c990 100%); }
+.shade-florence { background: linear-gradient(135deg, #e8d5e8 0%, #c9a5c9 100%); }
+
+@media (max-width: 768px) {
+  .grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .prod-img {
+    width: 100px;
+    height: 130px;
+  }
+
+  .prod-card h4 {
+    font-size: 0.95rem;
+  }
+}
