@@ -1,24 +1,25 @@
 import React, { Suspense, useRef, useEffect } from 'react'
 import './Hero.css'
-import { Canvas } from '@react-three/fiber'
-import { useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
 function Model(props: any) {
   const gltf = useGLTF('/models/perfume-.glb') as any
   const scene = gltf.scene.clone()
+  scene.rotation.set(0, 0, 0)
   const scale = props.scale ?? [1, 1, 1]
   const { ...rest } = props
   return <primitive object={scene} scale={scale} {...rest} />
 }
 
-useGLTF.preload('/models/perfume.glb')
+useGLTF.preload('/models/perfume-.glb')
 
 function ScrollRotateModel(props: any) {
   const groupRef = useRef<THREE.Group | null>(null)
   const velocityRef = useRef(0)
   const lastScrollRef = useRef(typeof window !== 'undefined' ? window.scrollY : 0)
+  const invalidate = useThree((state) => state.invalidate)
 
   useEffect(() => {
     function onScroll() {
@@ -26,10 +27,12 @@ function ScrollRotateModel(props: any) {
       const delta = current - lastScrollRef.current
       lastScrollRef.current = current
       velocityRef.current += delta * 0.0008
+      invalidate()
     }
 
     function onWheel(e: WheelEvent) {
       velocityRef.current += e.deltaY * 0.00012
+      invalidate()
     }
 
     let lastTouchY = 0
@@ -42,6 +45,7 @@ function ScrollRotateModel(props: any) {
       const delta = lastTouchY - y
       lastTouchY = y
       velocityRef.current += delta * 0.0009
+      invalidate()
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -60,19 +64,17 @@ function ScrollRotateModel(props: any) {
   useFrame(() => {
     const g = groupRef.current
     if (!g) return
+    if (Math.abs(velocityRef.current) < 1e-6) return
     g.rotation.y += velocityRef.current
     velocityRef.current *= 0.92
     const max = 0.06
     if (velocityRef.current > max) velocityRef.current = max
     if (velocityRef.current < -max) velocityRef.current = -max
     if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0
+    invalidate()
   })
 
-  return (
-    <group ref={groupRef}>
-      <Model {...props} />
-    </group>
-  )
+  return <group ref={groupRef} rotation={props.rotation}><Model {...props} /></group>
 }
 
 const Hero: React.FC = () => {
@@ -109,10 +111,11 @@ const Hero: React.FC = () => {
             <div className="bottle">
               <div className="bottle-canvas">
                 <Canvas
-                  shadows
-                  dpr={[1, 2]}
+                  shadows={false}
+                  dpr={1}
+                  frameloop="demand"
                   camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  gl={{ antialias: true }}
+                  gl={{ antialias: true, powerPreference: 'high-performance' }}
                   onCreated={(state) => {
                     // set renderer properties at runtime to avoid GLProps typing issues
                     try {
@@ -130,7 +133,7 @@ const Hero: React.FC = () => {
                   <spotLight position={[-3, 5, 4]} angle={0.4} penumbra={0.5} intensity={0.6} castShadow />
                   <pointLight position={[2, 1, 2]} intensity={0.5} />
                   <Suspense fallback={null}>
-                    <Environment preset="sunset" background={false} />
+                    <Environment preset="sunset" background={false} resolution={256} />
                     <ScrollRotateModel scale={[0.8, 0.8, 0.8]} position={[0, -0.4, 0]} rotation={[0, Math.PI, 0]} />
                   </Suspense>
                 </Canvas>
@@ -141,9 +144,10 @@ const Hero: React.FC = () => {
               <div className="bottle-reflection-canvas">
                 <Canvas
                   shadows={false}
-                  dpr={[1, 1.5]}
+                  dpr={1}
+                  frameloop="demand"
                   camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  gl={{ antialias: true, alpha: true }}
+                  gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
                   onCreated={(state) => {
                     try {
                       ;(state.gl as any).physicallyCorrectLights = true
@@ -157,7 +161,7 @@ const Hero: React.FC = () => {
                   <directionalLight position={[3, 5, 5]} intensity={0.8} />
                   <pointLight position={[2, 1, 2]} intensity={0.4} />
                   <Suspense fallback={null}>
-                    <Environment preset="sunset" background={false} />
+                    <Environment preset="sunset" background={false} resolution={256} />
                     <group position={[0, 0, 0]} rotation={[0, Math.PI, 0]} scale={[1, 1, 1]}>
                       <ScrollRotateModel reflection scale={[1.2, 1.2, 1.2]} position={[0, 0.1, 0]} />
                     </group>
