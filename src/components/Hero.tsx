@@ -5,7 +5,7 @@ import { useGLTF, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
 function Model(props: any) {
-  const gltf = useGLTF('/models/perfume-.glb') as any
+  const gltf = useGLTF('/models/perfume_bottle.glb') as any
   const scene = gltf.scene.clone()
   scene.rotation.set(0, 0, 0)
   const scale = props.scale ?? [1, 1, 1]
@@ -13,13 +13,11 @@ function Model(props: any) {
   return <primitive object={scene} scale={scale} {...rest} />
 }
 
-useGLTF.preload('/models/perfume-.glb')
-
+useGLTF.preload('/models/perfume_bottle.glb')
 function ScrollRotateModel(props: any) {
   const groupRef = useRef<THREE.Group | null>(null)
   const velocityRef = useRef(0)
   const lastScrollRef = useRef(typeof window !== 'undefined' ? window.scrollY : 0)
-  const invalidate = useThree((state) => state.invalidate)
 
   useEffect(() => {
     function onScroll() {
@@ -27,12 +25,10 @@ function ScrollRotateModel(props: any) {
       const delta = current - lastScrollRef.current
       lastScrollRef.current = current
       velocityRef.current += delta * 0.0008
-      invalidate()
     }
 
     function onWheel(e: WheelEvent) {
       velocityRef.current += e.deltaY * 0.00012
-      invalidate()
     }
 
     let lastTouchY = 0
@@ -45,7 +41,6 @@ function ScrollRotateModel(props: any) {
       const delta = lastTouchY - y
       lastTouchY = y
       velocityRef.current += delta * 0.0009
-      invalidate()
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -71,7 +66,6 @@ function ScrollRotateModel(props: any) {
     if (velocityRef.current > max) velocityRef.current = max
     if (velocityRef.current < -max) velocityRef.current = -max
     if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0
-    invalidate()
   })
 
   return <group ref={groupRef} rotation={props.rotation}><Model {...props} /></group>
@@ -113,9 +107,9 @@ const Hero: React.FC = () => {
                 <Canvas
                   shadows={false}
                   dpr={1}
-                  frameloop="demand"
+                  frameloop="always"
                   camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  gl={{ antialias: true, powerPreference: 'high-performance' }}
+                  gl={{ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: false }}
                   onCreated={(state) => {
                     // set renderer properties at runtime to avoid GLProps typing issues
                     try {
@@ -145,9 +139,9 @@ const Hero: React.FC = () => {
                 <Canvas
                   shadows={false}
                   dpr={1}
-                  frameloop="demand"
+                  frameloop="always"
                   camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+                  gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: false }}
                   onCreated={(state) => {
                     try {
                       ;(state.gl as any).physicallyCorrectLights = true
