@@ -6,7 +6,7 @@ import { useGLTF, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
 function Model(props: any) {
-  const gltf = useGLTF('/models/perfume.glb') as any
+  const gltf = useGLTF('/models/perfume-.glb') as any
   const scene = gltf.scene.clone()
   const scale = props.scale ?? [1, 1, 1]
   const { ...rest } = props
@@ -132,6 +132,35 @@ const Hero: React.FC = () => {
                   <Suspense fallback={null}>
                     <Environment preset="sunset" background={false} />
                     <ScrollRotateModel scale={[0.8, 0.8, 0.8]} position={[0, -0.4, 0]} rotation={[0, Math.PI, 0]} />
+                  </Suspense>
+                </Canvas>
+              </div>
+            </div>
+
+            <div className="reflection" aria-hidden>
+              <div className="bottle-reflection-canvas">
+                <Canvas
+                  shadows={false}
+                  dpr={[1, 1.5]}
+                  camera={{ position: [0, 0, 3.2], fov: 35 }}
+                  gl={{ antialias: true, alpha: true }}
+                  onCreated={(state) => {
+                    try {
+                      ;(state.gl as any).physicallyCorrectLights = true
+                      ;(state.gl as any).toneMapping = (THREE as any).ACESFilmicToneMapping
+                      ;(state.gl as any).outputEncoding = (THREE as any).sRGBEncoding
+                    } catch (e) {}
+                  }}
+                >
+                  <ambientLight intensity={0.22} />
+                  <hemisphereLight args={["#ffd7b5", "#3b2a1f", 0.35]} />
+                  <directionalLight position={[3, 5, 5]} intensity={0.8} />
+                  <pointLight position={[2, 1, 2]} intensity={0.4} />
+                  <Suspense fallback={null}>
+                    <Environment preset="sunset" background={false} />
+                    <group position={[0, 0, 0]} rotation={[0, Math.PI, 0]} scale={[1, 1, 1]}>
+                      <ScrollRotateModel reflection scale={[1.2, 1.2, 1.2]} position={[0, 0.1, 0]} />
+                    </group>
                   </Suspense>
                 </Canvas>
               </div>
