@@ -214,11 +214,6 @@ const Hero: React.FC = () => {
           <button className="btn add" aria-label="Add to cart">ADD TO CART</button>
         </div>
       </div>
-
-      <div className="info-bottom">
-        <div className="text-left">Top notes of juicy black currant and fresh mandarin create a bright, enticing opening. The heart reveals a bouquet of orange blossom.</div>
-        <div className="text-right">Base notes of patchouli and musk provide a warm, sensual finish, leaving the alluring essence of Florence to linger on the skin.</div>
-      </div>
     </section>
   )
 }

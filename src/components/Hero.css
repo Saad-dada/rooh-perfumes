@@ -8,17 +8,13 @@
 }
 
 .hero.featured {
-  min-height: 100vh;
   width: 100vw;
+  height: 90vh;
   padding: 0;
   background: var(--bg-1);
   color: var(--text-1);
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .featured-grid {
@@ -146,9 +142,8 @@
 
 .circle-text {
   position: absolute;
-  width: clamp(420px, 45vw, 900px);
-  height: clamp(420px, 45vw, 900px);
-  top: 50%;
+  width: clamp(420px, 40vw, 900px);
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-10deg);
   pointer-events: none;
@@ -219,7 +214,7 @@
 
 .reflection {
   position: absolute;
-  top: 40%;
+  top: 35%;
   left: 50%;
   transform: translate(-50%, 0);
   width: 60vw;

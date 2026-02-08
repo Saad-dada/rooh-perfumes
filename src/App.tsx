@@ -1,9 +1,9 @@
-import Hero from './components/Hero'
+import Home from './Home'
 
 function App() {
   return (
-    <div className="app-root" style={{ fontFamily: "Inter, system-ui, sans-serif", padding: 0 }}>
-      <Hero />
+    <div className="app-root">
+      <Home />
     </div>
   )
 }
