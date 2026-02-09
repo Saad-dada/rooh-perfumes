@@ -1,15 +1,48 @@
 /* ── Quote / testimonial ── */
+.sec-testimonial {
+  background: linear-gradient(180deg, #faf6f2 0%, #fff 50%, #faf6f2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.sec-testimonial::before {
+  content: '\201C';
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 12rem;
+  color: rgba(77, 25, 58, 0.04);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.sec-testimonial::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 1px solid rgba(77, 25, 58, 0.06);
+  pointer-events: none;
+}
+
 .quote-card {
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(77, 25, 58, 0.08);
   border-radius: var(--radius);
-  padding: 40px 36px;
+  padding: 48px 44px;
   margin: 0;
   text-align: center;
+  box-shadow: 0 8px 40px rgba(77, 25, 58, 0.05);
+  position: relative;
 }
 
 .quote-card p {
-  font-family: 'Instrument Sans', Georgia, serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-style: italic;
   font-size: 1.15rem;
   line-height: 1.65;

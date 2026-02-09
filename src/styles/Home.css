@@ -4,9 +4,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 .home {
-  --bg:      #faf8f5;
-  --bg-alt:  #f3efe9;
-  --ink:     #1a1a1a;
+  --bg:      #ffffff;
+  --bg-alt:  #4D193A;
+  --ink:     #682B52;
   --ink-2:   #555;
   --accent:  #4D193A;
   --accent-2:#000000cc;
@@ -15,7 +15,7 @@
 
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-weight: 400;
   line-height: 1.6;
   overflow-x: hidden;
@@ -23,7 +23,8 @@
 
 /* ── Generic section ── */
 .sec {
-  padding: 100px 5vw;
+  padding: 100px 2vw;
+  position: relative;
 }
 
 .categories-sec {
@@ -32,6 +33,80 @@
 
 .sec-alt {
   background: var(--bg-alt);
+  color: white;
+}
+
+/* ── Decorative section divider ── */
+.sec-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  position: relative;
+  background: var(--bg);
+}
+
+.sec-divider::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 180px;
+  height: 180px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(77, 25, 58, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.sec-divider-ornament {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--accent);
+  opacity: 0.35;
+}
+
+.sec-divider-line {
+  width: 60px;
+  height: 1px;
+  background: currentColor;
+}
+
+.sec-divider-diamond {
+  width: 8px;
+  height: 8px;
+  border: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* ── Decorative background shapes ── */
+.sec-decorated {
+  position: relative;
+  overflow: hidden;
+}
+
+.sec-decorated::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(77, 25, 58, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sec-decorated::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: -40px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(77, 25, 58, 0.025) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .sec-inner {
@@ -50,15 +125,23 @@
 .sec-label {
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 0.72rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--accent);
   margin-bottom: 8px;
 }
 
+.sec-alt .sec-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sec-alt .sec-sub {
+  color: rgba(255, 255, 255, 0.55);
+}
+
 .sec-title {
-  font-family: 'Instrument Sans', Georgia, serif;
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
   font-weight: 400;
   margin: 0 0 48px;
   line-height: 1.15;

@@ -1,25 +1,40 @@
 /* ── Shop By Category ── */
 .categories-sec {
   padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.categories-sec::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(77, 25, 58, 0.03) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .cat-header {
-  text-align: left;
+  text-align: center;
   margin-bottom: 3rem;
 }
 
 .cat-section-title {
-  font-family: 'Georgia', serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-style: italic;
   font-size: 2.5rem;
   letter-spacing: 0.1em;
   color: rgba(0, 0, 0, 0.85);
   margin: 0 0 0.5rem 0;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .cat-subtitle {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: rgba(0, 0, 0, 0.6);
   margin: 0;
   font-weight: 400;
@@ -28,9 +43,9 @@
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 0 0 30rem;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .cat-card {

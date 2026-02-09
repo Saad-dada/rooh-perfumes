@@ -1,4 +1,33 @@
 /* ── Newsletter ── */
+.sec-newsletter {
+  position: relative;
+  overflow: hidden;
+}
+
+.sec-newsletter::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: -100px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+.sec-newsletter::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  right: -60px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
 .nl-form {
   display: flex;
   gap: 10px;

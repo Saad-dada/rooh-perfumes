@@ -9,6 +9,16 @@ import Newsletter from './components/Newsletter'
 import Footer from './components/Footer'
 import './styles/Home.css'
 
+const SectionDivider = () => (
+  <div className="sec-divider">
+    <div className="sec-divider-ornament">
+      <span className="sec-divider-line" />
+      <span className="sec-divider-diamond" />
+      <span className="sec-divider-line" />
+    </div>
+  </div>
+)
+
 const Home = () => {
   return (
     <div className="home">
@@ -18,6 +28,7 @@ const Home = () => {
       <MarqueeBanner />
       <PopularSection />
       <ShopGrid />
+      <SectionDivider />
       <Testimonial />
       <Newsletter />
       <Footer />
