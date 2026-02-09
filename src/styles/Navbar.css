@@ -1,5 +1,5 @@
 .nav {
-  background-color: #4D193A;
+  background: radial-gradient(circle at 50% 50%, #72325b, #4D193A);
   padding: 1rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }

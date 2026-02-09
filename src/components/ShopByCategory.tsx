@@ -1,24 +1,44 @@
 import '../styles/ShopByCategory.css'
 
 const ShopByCategory = () => {
+  const categories = [
+    {
+      id: 1,
+      name: 'PERFUME',
+      description: 'Timeless elegance in every spray',
+      image: '/categories/perfume.jpg',
+    },
+    {
+      id: 2,
+      name: 'BAKHOOR',
+      description: 'Traditional luxury fragrance',
+      image: '/categories/bakhoor.jpg',
+    },
+    {
+      id: 3,
+      name: 'BODY MIST',
+      description: 'Light and refreshing scents',
+      image: '/categories/bodymist.jpg',
+    },
+  ]
+
   return (
     <section className="sec categories-sec">
       <div className="sec-inner">
-        <h2 className="sec-title center-text">Shop By Category</h2>
+        <div className="cat-header">
+          <h2 className="cat-section-title">PRODUCT CATEGORIES</h2>
+          <p className="cat-subtitle">To make things easier, we've gathered your favorites here.</p>
+        </div>
         <div className="cat-grid">
-          {[
-            { name: 'BESTSELLERS', color: '#f5ddd5' },
-            { name: 'NEW ARRIVALS', color: '#f0dcc4' },
-            { name: 'FLORAL', color: '#e8d5e8' },
-            { name: 'WOODY', color: '#d4b48f' },
-            { name: 'ORIENTAL', color: '#c9956b' },
-            { name: 'FRESH', color: '#d5e8d5' },
-            { name: 'OUD', color: '#b08968' },
-            { name: 'GIFT SETS', color: '#f2ecd0' },
-          ].map((cat) => (
-            <a key={cat.name} href="#shop" className="cat-item">
-              <div className="cat-circle" style={{ background: cat.color }} />
-              <span className="cat-name">{cat.name}</span>
+          {categories.map((cat) => (
+            <a key={cat.id} href="#shop" className="cat-card">
+              <div className="cat-image-wrapper">
+                <img src={cat.image} alt={cat.name} className="cat-image" />
+              </div>
+              <div className="cat-content">
+                <h3 className="cat-card-title">{cat.name}</h3>
+                <p className="cat-card-desc">{cat.description}</p>
+              </div>
             </a>
           ))}
         </div>

@@ -1,17 +1,17 @@
 /* ═══════════════════════════════════════════
    Home – shared styles & layout
    ═══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 .home {
   --bg:      #faf8f5;
   --bg-alt:  #f3efe9;
   --ink:     #1a1a1a;
   --ink-2:   #555;
-  --accent:  #b08968;
-  --accent-2:#c9956b;
+  --accent:  #4D193A;
+  --accent-2:#000000cc;
   --radius:  16px;
-  --max:     1140px;
+  --max:     1400px;
 
   background: var(--bg);
   color: var(--ink);
@@ -57,7 +57,7 @@
 }
 
 .sec-title {
-  font-family: 'DM Serif Display', Georgia, serif;
+  font-family: 'Instrument Sans', Georgia, serif;
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
   font-weight: 400;
   margin: 0 0 48px;

@@ -1,55 +1,103 @@
 /* ── Shop By Category ── */
-.cat-grid {
-  display: flex;
-  justify-content: center;
-  gap: 36px;
-  flex-wrap: wrap;
+.categories-sec {
+  padding: 0;
 }
 
-.cat-item {
+.cat-header {
+  text-align: left;
+  margin-bottom: 3rem;
+}
+
+.cat-section-title {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-size: 2.5rem;
+  letter-spacing: 0.1em;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0 0 0.5rem 0;
+  font-weight: 400;
+}
+
+.cat-subtitle {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0;
+  font-weight: 400;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 0 0 30rem;
+}
+
+.cat-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
   text-decoration: none;
-  color: var(--ink);
-  transition: transform 0.25s;
+  color: inherit;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
-.cat-item:hover {
-  transform: translateY(-4px);
+.cat-card:hover {
+  transform: translateY(-8px);
 }
 
-.cat-circle {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  transition: box-shadow 0.25s;
+.cat-image-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  aspect-ratio: 4 / 5;
 }
 
-.cat-item:hover .cat-circle {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+.cat-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
-.cat-name {
-  font-size: 0.72rem;
+.cat-card:hover .cat-image {
+  transform: scale(1.05);
+}
+
+.cat-content {
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.cat-card-title {
+  font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0 0 0.5rem 0;
+}
+
+.cat-card-desc {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+  margin: 0;
+  font-weight: 400;
 }
 
 @media (max-width: 768px) {
+  .categories-sec {
+    padding: 3rem 1rem;
+  }
+
+  .cat-section-title {
+    font-size: 2rem;
+  }
+
   .cat-grid {
-    gap: 24px;
-  }
-
-  .cat-circle {
-    width: 80px;
-    height: 80px;
-  }
-
-  .cat-name {
-    font-size: 0.65rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }

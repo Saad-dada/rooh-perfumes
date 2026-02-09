@@ -9,6 +9,7 @@ const PopularSection = () => {
       desc: 'Ashq is the scent of a feeling you cannot hide. Cool bergamot and cardamom sparkle at the top, melting into a tender heart of iris and violet. A soft base of vetiver and white musk leaves a gentle, emotional trail – like a single tear that says everything.',
       longevity: '7–9 hrs',
       shade: 'shade-ashq',
+      image: 'https://images.unsplash.com/photo-1588405748855-03d5c1dcb318?w=400&h=500&fit=crop',
     },
     {
       name: 'Qalb',
@@ -17,6 +18,7 @@ const PopularSection = () => {
       desc: 'Warm, rich and deeply comforting. Juicy dried fig and a pinch of pink pepper open the story, flowing into cinnamon and rose absolute at the heart. Creamy sandalwood, tonka and soft musks rest on a whisper of oakmoss – a fragrance that feels like home.',
       longevity: '8–10 hrs',
       shade: 'shade-qalb',
+      image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=500&fit=crop',
     },
     {
       name: 'Sifr',
@@ -25,6 +27,7 @@ const PopularSection = () => {
       desc: 'Minimalism with an edge. A crisp hit of black pepper and incense glows at the top, glossed with a modern leather accord and violet at the heart. Clean musk and dry vetiver create an abstract, skin-like aura that feels both present and elusive.',
       longevity: '7–9 hrs',
       shade: 'shade-sifr',
+      image: 'https://images.unsplash.com/photo-1624293677212-ab6da0b5b47c?w=400&h=500&fit=crop',
     },
     {
       name: 'Sahara Saffron',
@@ -33,6 +36,7 @@ const PopularSection = () => {
       desc: 'The heat of the dunes caught in a single breath. Fiery saffron and pink pepper shimmer at the top, settling into a heart of desert rose and calming chamomile. A molten base of amber resin and labdanum glows on the skin like the last light on the horizon.',
       longevity: '8–12 hrs',
       shade: 'shade-sahara',
+      image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&h=500&fit=crop',
     },
   ]
 
@@ -56,7 +60,9 @@ const PopularSection = () => {
                 </a>
               </div>
               <div className="pop-visual">
-                <div className={`pop-circle ${item.shade}`} />
+                <div className={`pop-circle ${item.shade}`}>
+                  <img src={item.image} alt={item.name} className="pop-image" />
+                </div>
               </div>
             </article>
           ))}
