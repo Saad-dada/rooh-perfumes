@@ -143,7 +143,19 @@ const Hero: React.FC = () => {
   return (
     <section className="hero featured" aria-labelledby="hero-heading">
       <div className="hero-inner featured-grid">
-        <div className="side left"></div>
+        <div className="side left">
+          <p className="hero-label">Eau de Parfum</p>
+          <h1 className="hero-brand" id="hero-heading">Rooh</h1>
+          <p className="hero-tagline">Fragrance that touches the soul</p>
+          <p className="hero-desc">
+            Handcrafted oriental perfumes inspired by heritage, 
+            designed for those who seek depth in every note.
+          </p>
+          <a href="#shop" className="hero-cta">
+            Explore Collection
+            <span className="hero-cta-arrow">→</span>
+          </a>
+        </div>
 
         <div className="center" role="img" aria-label="Perfume spotlight">
           <div className="bottle-wrap">
@@ -322,10 +334,16 @@ const Hero: React.FC = () => {
         </div>
 
         <div className="side right">
-          <h3 className="cta-title">Discover Your Signature Scent</h3>
-          <a href="#" className="pop-buy cta-buy">
-            Discover
-          </a>
+          <span className="hero-right-text">Eau de Parfum — 2026 Collection</span>
+
+          <div className="hero-scroll-hint">
+            <div className="hero-scroll-circle">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M7 1v10M3 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="hero-scroll-text">Scroll</span>
+          </div>
         </div>
       </div>
     </section>
