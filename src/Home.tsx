@@ -25,11 +25,14 @@ const Home = () => {
       <Navbar />
       <Hero />
       <ShopByCategory />
+      <SectionDivider />
       <MarqueeBanner />
       <PopularSection />
+      <SectionDivider />
       <ShopGrid />
       <SectionDivider />
       <Testimonial />
+      <SectionDivider />
       <Newsletter />
       <Footer />
     </div>

@@ -1,90 +1,149 @@
-import React, { Suspense, useRef, useEffect } from "react";
+import React, { Suspense, useRef, useEffect, useState } from "react";
 import "../styles/Hero.css";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
 
-function Model(props: any) {
-  // const gltf = useGLTF("/models/perfume_bottle.glb") as any;
-  const gltf = useGLTF("/models/perfume-.glb") as any;
-  const scene = gltf.scene.clone();
-  scene.rotation.set(0, 0, 0);
-  const scale = props.scale ?? [1, 1, 1];
-  const { ...rest } = props;
-  return <primitive object={scene} scale={scale} {...rest} />;
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+const MODEL_PATH = "/models/perfume-.glb";
+
+// Lerp smoothing (0.3 = responsive, smooth ~0.2s lag)
+const LERP_SMOOTHING = 0.3;
+
+// ============================================================================
+// OPTIMIZED MODEL COMPONENT
+// ============================================================================
+
+/**
+ * Optimize materials for performance — called once on mount
+ */
+function optimizeScene(scene: THREE.Group | THREE.Scene, isMobile: boolean): void {
+  scene.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    child.frustumCulled = true;
+    child.castShadow = false;
+    child.receiveShadow = false;
+    if (child.material) {
+      (child.material as THREE.Material).precision = "mediump";
+    }
+    if (isMobile && child.geometry && !child.geometry.attributes.normal) {
+      child.geometry.computeVertexNormals();
+    }
+  });
 }
 
-// useGLTF.preload("/models/perfume_bottle.glb");
-useGLTF.preload("/models/perfume-.glb");
-function ScrollRotateModel(props: any) {
+function ScrollRotateModel({ isMobile, useClone = false }: { isMobile: boolean; useClone?: boolean }) {
+  const { scene: originalScene } = useGLTF(MODEL_PATH);
+  // Clone the scene for the reflection so it doesn't steal the original from the main canvas
+  const scene = React.useMemo(
+    () => (useClone ? originalScene.clone(true) : originalScene),
+    [originalScene, useClone]
+  );
   const groupRef = useRef<THREE.Group | null>(null);
   const velocityRef = useRef(0);
-  const lastScrollRef = useRef(
-    typeof window !== "undefined" ? window.scrollY : 0,
-  );
+  const currentRotation = useRef(0);
+  const lastScrollRef = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+
+  // Optimize scene once on mount
+  useEffect(() => {
+    optimizeScene(scene, isMobile);
+  }, [scene, isMobile]);
 
   useEffect(() => {
     function onScroll() {
       const current = window.scrollY;
       const delta = current - lastScrollRef.current;
       lastScrollRef.current = current;
-      velocityRef.current += delta * 0.0008;
+      velocityRef.current += delta * 0.08;
     }
 
+    // Wheel listener catches scroll-up intent even when already at top (scrollY=0)
     function onWheel(e: WheelEvent) {
-      velocityRef.current += e.deltaY * 0.00012;
-    }
-
-    let lastTouchY = 0;
-    function onTouchStart(e: TouchEvent) {
-      lastTouchY = e.touches[0]?.clientY ?? 0;
-    }
-
-    function onTouchMove(e: TouchEvent) {
-      const y = e.touches[0]?.clientY ?? 0;
-      const delta = lastTouchY - y;
-      lastTouchY = y;
-      velocityRef.current += delta * 0.0009;
+      if (window.scrollY <= 0 && e.deltaY < 0) {
+        velocityRef.current += e.deltaY * 0.012;
+      }
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("wheel", onWheel, { passive: true });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
-
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
     };
   }, []);
 
   useFrame(() => {
     const g = groupRef.current;
     if (!g) return;
-    if (Math.abs(velocityRef.current) < 1e-6) return;
-    g.rotation.y += velocityRef.current;
-    velocityRef.current *= 0.92;
+
+    // Apply velocity and clamp
     const max = 0.06;
-    if (velocityRef.current > max) velocityRef.current = max;
-    if (velocityRef.current < -max) velocityRef.current = -max;
+    velocityRef.current = Math.max(-max, Math.min(max, velocityRef.current));
+
+    // Target = current + velocity, then decay velocity
+    const target = currentRotation.current + velocityRef.current;
+    velocityRef.current *= 0.92;
     if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0;
+
+    // Smooth interpolation instead of direct assignment
+    currentRotation.current = THREE.MathUtils.lerp(
+      currentRotation.current,
+      target,
+      LERP_SMOOTHING
+    );
+
+    g.rotation.y = currentRotation.current;
   });
 
   return (
-    <group ref={groupRef} rotation={props.rotation}>
-      <Model {...props} />
+    <group ref={groupRef} rotation={[0, Math.PI, 0]}>
+      <primitive
+        object={scene}
+        scale={[0.8, 0.8, 0.8]}
+        position={[0, -0.4, 0]}
+      />
     </group>
   );
 }
 
+// Preload model for instant rendering
+useGLTF.preload(MODEL_PATH);
+
+// ============================================================================
+// MAIN HERO COMPONENT
+// ============================================================================
+
 const Hero: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isCanvasVisible, setIsCanvasVisible] = useState(true);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // ── Device detection ──────────────────────────────────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // ── Pause rendering when off-screen (IntersectionObserver) ────────────
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsCanvasVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="hero featured" aria-labelledby="hero-heading">
       <div className="hero-inner featured-grid">
-        <div className="side left">
-        </div>
+        <div className="side left"></div>
 
         <div className="center" role="img" aria-label="Perfume spotlight">
           <div className="bottle-wrap">
@@ -138,111 +197,84 @@ const Hero: React.FC = () => {
               </svg>
             </div>
 
-            <div className="bottle">
+            {/* SINGLE Canvas — no more second canvas for reflection */}
+            <div className="bottle" ref={canvasRef}>
               <div className="bottle-canvas">
                 <Canvas
                   shadows={false}
-                  dpr={1}
-                  frameloop="always"
+                  dpr={isMobile ? [0.75, 1] : [1, 1.5]}
+                  frameloop={isCanvasVisible ? "always" : "never"}
                   camera={{ position: [0, 0, 3.2], fov: 35 }}
+                  performance={{ min: 0.5 }}
                   gl={{
-                    antialias: true,
+                    alpha: true,
+                    antialias: !isMobile,
                     powerPreference: "high-performance",
+                    stencil: false,
+                    depth: true,
                     preserveDrawingBuffer: false,
                   }}
-                  onCreated={(state) => {
-                    // set renderer properties at runtime to avoid GLProps typing issues
-                    try {
-                      (state.gl as any).physicallyCorrectLights = true;
-                      (state.gl as any).toneMapping = (
-                        THREE as any
-                      ).ACESFilmicToneMapping;
-                      (state.gl as any).outputEncoding = (
-                        THREE as any
-                      ).sRGBEncoding;
-                    } catch (e) {
-                      // ignore in environments where these props are not available
-                    }
-                  }}
                 >
-                  <ambientLight intensity={0.28} />
-                  <hemisphereLight args={["#ffd7b5", "#3b2a1f", 0.45]} />
-                  <directionalLight position={[4, 6, 6]} intensity={1.1} />
-                  <spotLight
-                    position={[-3, 5, 4]}
-                    angle={0.4}
-                    penumbra={0.5}
-                    intensity={0.6}
-                    castShadow
+                  {/* Lighting: ambient + key + fill + front */}
+                  <ambientLight intensity={0.5} />
+                  <directionalLight
+                    position={[4, 6, 6]}
+                    intensity={1.2}
+                    castShadow={false}
                   />
-                  <pointLight position={[2, 1, 2]} intensity={0.5} />
+                  <directionalLight
+                    position={[-3, 4, -4]}
+                    intensity={0.6}
+                    castShadow={false}
+                  />
+                  {/* Front fill light — illuminates the face towards camera */}
+                  <directionalLight
+                    position={[0, 2, 5]}
+                    intensity={0.2}
+                    castShadow={false}
+                  />
+
                   <Suspense fallback={null}>
                     <Environment
-                      preset="sunset"
+                      preset="park"
                       background={false}
-                      resolution={256}
+                      resolution={isMobile ? 64 : 128}
                     />
-                    <ScrollRotateModel
-                      scale={[0.8, 0.8, 0.8]}
-                      position={[0, -0.4, 0]}
-                      rotation={[0, Math.PI, 0]}
-                    />
+                    <ScrollRotateModel isMobile={isMobile} />
                   </Suspense>
                 </Canvas>
               </div>
             </div>
 
+            {/* Reflection — mirrors the bottle canvas via CSS */}
             <div className="reflection" aria-hidden>
-              <div className="bottle-reflection-canvas">
+              <div className="bottle-reflection-mirror">
                 <Canvas
                   shadows={false}
-                  dpr={1}
-                  frameloop="always"
+                  dpr={isMobile ? [0.5, 0.75] : [0.75, 1]}
+                  frameloop={isCanvasVisible ? "always" : "never"}
                   camera={{ position: [0, 0, 3.2], fov: 35 }}
+                  performance={{ min: 0.3 }}
                   gl={{
-                    antialias: true,
                     alpha: true,
+                    antialias: false,
                     powerPreference: "high-performance",
+                    stencil: false,
+                    depth: true,
                     preserveDrawingBuffer: false,
                   }}
-                  onCreated={(state) => {
-                    try {
-                      (state.gl as any).physicallyCorrectLights = true;
-                      (state.gl as any).toneMapping = (
-                        THREE as any
-                      ).ACESFilmicToneMapping;
-                      (state.gl as any).outputEncoding = (
-                        THREE as any
-                      ).sRGBEncoding;
-                    } catch (e) {}
-                  }}
                 >
-                  <ambientLight intensity={0.22} />
-                  <hemisphereLight args={["#ffd7b5", "#3b2a1f", 0.35]} />
-                  <directionalLight position={[3, 5, 5]} intensity={0.8} />
-                  <pointLight position={[2, 1, 2]} intensity={0.4} />
+                  <ambientLight intensity={0.2} />
+                  <directionalLight position={[3, 5, 5]} intensity={0.2} castShadow={false} />
                   <Suspense fallback={null}>
-                    <Environment
-                      preset="sunset"
-                      background={false}
-                      resolution={256}
-                    />
-                    <group
-                      position={[0, 0, 0]}
-                      rotation={[0, Math.PI, 0]}
-                      scale={[1, 1, 1]}
-                    >
-                      <ScrollRotateModel
-                        reflection
-                        scale={[1.2, 1.2, 1.2]}
-                        position={[0, 0.1, 0]}
-                      />
-                    </group>
+                    <Environment preset="park" background={false} resolution={64} />
+                    <ScrollRotateModel isMobile={isMobile} useClone />
                   </Suspense>
                 </Canvas>
               </div>
             </div>
           </div>
+
           {/* Animated SVG water layer with ripple filter */}
           <svg
             className="water-svg"
