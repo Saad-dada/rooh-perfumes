@@ -7,6 +7,7 @@ import ShopGrid from './components/ShopGrid'
 import Testimonial from './components/Testimonial'
 import Newsletter from './components/Newsletter'
 import Footer from './components/Footer'
+import { FloralDividerA, FloralDividerB } from './components/FloralAccents'
 import './styles/Home.css'
 
 const SectionDivider = () => (
@@ -25,9 +26,11 @@ const Home = () => {
       <Navbar />
       <Hero />
       <ShopByCategory />
+      <FloralDividerA />
       <SectionDivider />
       <MarqueeBanner />
       <PopularSection />
+      <FloralDividerB />
       <SectionDivider />
       <ShopGrid />
       <SectionDivider />

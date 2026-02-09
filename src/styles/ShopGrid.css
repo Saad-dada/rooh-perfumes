@@ -6,6 +6,30 @@
   overflow: hidden;
 }
 
+.sec-shop::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -100px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(77, 25, 58, 0.10) 0%, rgba(77, 25, 58, 0.03) 50%, transparent 75%);
+  pointer-events: none;
+}
+
+.sec-shop::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -80px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(77, 25, 58, 0.08) 0%, rgba(77, 25, 58, 0.02) 50%, transparent 75%);
+  pointer-events: none;
+}
+
 .shop-inner {
   max-width: 1200px;
   margin: 0 auto;

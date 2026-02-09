@@ -1,4 +1,5 @@
 import '../styles/PopularSection.css'
+import { PopularFloral } from './FloralAccents'
 
 const PopularSection = () => {
   const products = [
@@ -34,6 +35,7 @@ const PopularSection = () => {
 
   return (
     <section id="popular" className="sec sec-popular">
+      <PopularFloral />
       <div className="pop-header">
         <p className="pop-label">Our collection</p>
         <h2 className="pop-heading">The Rooh Range</h2>

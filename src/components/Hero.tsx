@@ -3,6 +3,7 @@ import "../styles/Hero.css";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
+import { HeroFloral } from "./FloralAccents";
 
 // ============================================================================
 // CONSTANTS
@@ -142,6 +143,7 @@ const Hero: React.FC = () => {
 
   return (
     <section className="hero featured" aria-labelledby="hero-heading">
+      <HeroFloral />
       <div className="hero-inner featured-grid">
         <div className="side left">
           <p className="hero-label">Eau de Parfum</p>

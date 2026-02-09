@@ -1,8 +1,10 @@
 import '../styles/Newsletter.css'
+import { NewsletterFloral } from './FloralAccents'
 
 const Newsletter = () => {
   return (
     <section className="sec sec-alt sec-newsletter">
+      <NewsletterFloral />
       <div className="sec-inner narrow center-text">
         <h2 className="sec-title">Stay in the loop</h2>
         <p className="sec-sub">
