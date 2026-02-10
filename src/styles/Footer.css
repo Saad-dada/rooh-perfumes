@@ -1,8 +1,8 @@
 /* ── Footer ── */
 .ft {
-  background: radial-gradient(circle at 50% 50%, #72325b, #4D193A);
-  padding: 60px 5vw 0;
-  color: #fff;
+  background: linear-gradient(135deg, #602349 0%, #491837 40%, #64214b 100%);
+  padding: 48px 5vw 0;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .ft-inner {
@@ -10,146 +10,108 @@
   margin: 0 auto;
 }
 
-/* ── Top section: brand + nav columns ── */
-.ft-top {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr;
-  gap: 40px;
-  padding-bottom: 48px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.ft-logo {
-  height: 60px;
-  width: auto;
-  margin-bottom: 16px;
-  filter: brightness(1.1);
-}
-
-.ft-tagline {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7);
-  max-width: 280px;
-  margin-bottom: 20px;
-}
-
-/* Social icons */
-.ft-socials {
-  display: flex;
-  gap: 14px;
-}
-
-.ft-socials a {
+/* ── Navigation row ── */
+.ft-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.75);
-  transition: all 0.3s ease;
+  gap: 3.5rem;
+  padding-bottom: 40px;
+}
+
+.ft-nav a {
   text-decoration: none;
-}
-
-.ft-socials a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-/* Navigation columns */
-.ft-nav-col {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.ft-col-title {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.3s ease;
+}
+
+.ft-nav a:hover {
   color: #fff;
 }
 
-.ft-nav-col a {
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.88rem;
-  font-weight: 400;
-  transition: color 0.3s ease, padding-left 0.3s ease;
-}
-
-.ft-nav-col a:hover {
-  color: #fff;
-  padding-left: 4px;
+/* ── Divider ── */
+.ft-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ── Bottom bar ── */
 .ft-bottom {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   padding: 24px 0;
-  margin-top: 0;
 }
 
 .ft-copy {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.3px;
+}
+
+/* Social icons */
+.ft-socials {
+  display: flex;
+  gap: 16px;
+}
+
+.ft-socials a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+}
+
+.ft-socials a:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Legal links */
+.ft-legal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.ft-legal a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.3s ease;
+}
+
+.ft-legal a:hover {
+  color: #fff;
+}
+
+.ft-legal-sep {
+  color: rgba(255, 255, 255, 0.25);
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
-  .ft-top {
-    grid-template-columns: 1fr 1fr;
-    gap: 36px;
-  }
-
-  .ft-brand-col {
-    grid-column: 1 / -1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .ft-tagline {
-    max-width: 360px;
-  }
-
-  .ft-socials {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 560px) {
-  .ft {
-    padding: 40px 5vw 0;
-  }
-
-  .ft-top {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    text-align: center;
-  }
-
-  .ft-nav-col {
-    align-items: center;
-  }
-
-  .ft-nav-col a:hover {
-    padding-left: 0;
+@media (max-width: 768px) {
+  .ft-nav {
+    flex-wrap: wrap;
+    gap: 1.5rem;
   }
 
   .ft-bottom {
     flex-direction: column;
-    gap: 8px;
-    padding: 20px 0;
+    gap: 16px;
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .ft-legal {
+    justify-content: center;
+  }
+
+  .ft-socials {
+    justify-content: center;
   }
 }

@@ -17,32 +17,6 @@
   overflow: hidden;
 }
 
-.hero.featured::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  left: -150px;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(77, 25, 58, 0.12) 0%, rgba(77, 25, 58, 0.04) 50%, transparent 75%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.hero.featured::after {
-  content: '';
-  position: absolute;
-  bottom: -80px;
-  right: -100px;
-  width: 450px;
-  height: 450px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(77, 25, 58, 0.10) 0%, rgba(77, 25, 58, 0.03) 50%, transparent 75%);
-  pointer-events: none;
-  z-index: 0;
-}
-
 .featured-grid {
   width: 100vw;
   height: 100%;

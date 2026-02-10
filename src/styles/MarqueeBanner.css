@@ -7,30 +7,6 @@
   position: relative;
 }
 
-.marquee-banner::before {
-  content: '';
-  position: absolute;
-  top: -50px;
-  left: -80px;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 75%);
-  pointer-events: none;
-}
-
-.marquee-banner::after {
-  content: '';
-  position: absolute;
-  bottom: -60px;
-  right: -50px;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 50%, transparent 75%);
-  pointer-events: none;
-}
-
 .marquee-track {
   display: flex;
   width: max-content;

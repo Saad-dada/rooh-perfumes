@@ -76,6 +76,9 @@ const ShopByCategory = () => {
       <div className="sec-inner">
         <div className="cat-header">
           <h2 className="cat-section-title">Product Categories</h2>
+          <div className="cat-header-image">
+            <img src="/elements/6.png" alt="" />
+          </div>
           <p className="cat-subtitle">
             Explore our world of fragrance, thoughtfully organized for you.
           </p>

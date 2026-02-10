@@ -5,31 +5,6 @@
   overflow: hidden;
 }
 
-.sec-testimonial::before {
-  content: '\201C';
-  position: absolute;
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 12rem;
-  color: rgba(77, 25, 58, 0.04);
-  line-height: 1;
-  pointer-events: none;
-}
-
-.sec-testimonial::after {
-  content: '';
-  position: absolute;
-  bottom: -100px;
-  right: -100px;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  border: 1px solid rgba(77, 25, 58, 0.06);
-  pointer-events: none;
-}
-
 .quote-card {
   background: #fff;
   border: 1px solid rgba(77, 25, 58, 0.08);

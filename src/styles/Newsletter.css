@@ -1,31 +1,8 @@
 /* ── Newsletter ── */
 .sec-newsletter {
   position: relative;
+  padding-top: 0 !important; 
   overflow: hidden;
-}
-
-.sec-newsletter::before {
-  content: '';
-  position: absolute;
-  top: -80px;
-  left: -140px;
-  width: 480px;
-  height: 480px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 75%);
-  pointer-events: none;
-}
-
-.sec-newsletter::after {
-  content: '';
-  position: absolute;
-  bottom: -120px;
-  right: -100px;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 75%);
-  pointer-events: none;
 }
 
 .nl-form {
@@ -57,6 +34,7 @@
   border: none;
   border-radius: 999px;
   padding: 12px 26px;
+  margin: 0;
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
