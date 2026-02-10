@@ -1,6 +1,10 @@
 /* ── Quote / testimonial ── */
 .sec-testimonial {
-  background: linear-gradient(180deg, #faf6f2 0%, #fff 50%, #faf6f2 100%);
+  background: linear-gradient(135deg,
+      #f7edf3 0%,
+      #f1e6ee 40%,
+      #f8eef4 100%);
+
   position: relative;
   overflow: hidden;
 }
