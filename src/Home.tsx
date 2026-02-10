@@ -2,12 +2,10 @@ import Hero from './components/Hero'
 import Navbar from './components/Navbar'
 import ShopByCategory from './components/ShopByCategory'
 import MarqueeBanner from './components/MarqueeBanner'
-import PopularSection from './components/PopularSection'
 import ShopGrid from './components/ShopGrid'
 import Testimonial from './components/Testimonial'
 import Newsletter from './components/Newsletter'
 import Footer from './components/Footer'
-import { FloralDividerA } from './components/FloralAccents'
 import './styles/Home.css'
 
 const SectionDivider = () => (
@@ -26,10 +24,8 @@ const Home = () => {
       <Navbar />
       <Hero />
       <ShopByCategory />
-      <FloralDividerA />
       <SectionDivider />
       <MarqueeBanner />
-      <PopularSection />
       <SectionDivider />
       <ShopGrid />
       <SectionDivider />

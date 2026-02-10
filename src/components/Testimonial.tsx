@@ -1,10 +1,8 @@
 import '../styles/Testimonial.css'
-import { TestimonialFloral } from './FloralAccents'
 
 const Testimonial = () => {
   return (
     <section id="testimonial" className="sec sec-testimonial sec-decorated">
-      <TestimonialFloral />
       <div className="sec-inner narrow">
         <p className="sec-label">What people say</p>
         <h2 className="sec-title">Testimonial</h2>

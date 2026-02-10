@@ -1,5 +1,4 @@
 import '../styles/ShopGrid.css'
-import { ShopGridFloral } from './FloralAccents'
 
 const ShopGrid = () => {
   const products = [
@@ -11,7 +10,6 @@ const ShopGrid = () => {
 
   return (
     <section id="shop" className="sec sec-shop">
-      <ShopGridFloral />
       <div className="shop-inner">
         <h2 className="shop-title">Our shop</h2>
 
@@ -30,10 +28,6 @@ const ShopGrid = () => {
           ))}
         </div>
       </div>
-
-      {/* Decorative elements */}
-      <div className="shop-decor shop-decor-left" />
-      <div className="shop-decor shop-decor-right" />
     </section>
   )
 }

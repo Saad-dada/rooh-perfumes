@@ -3,7 +3,6 @@ import "../styles/Hero.css";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment } from "@react-three/drei";
 import * as THREE from "three";
-import { HeroFloral } from "./FloralAccents";
 
 // ============================================================================
 // CONSTANTS
@@ -11,15 +10,13 @@ import { HeroFloral } from "./FloralAccents";
 const MODEL_PATH = "/models/perfume-.glb";
 
 // Lerp smoothing (0.3 = responsive, smooth ~0.2s lag)
-const LERP_SMOOTHING = 0.3;
+const LERP_SMOOTHING = 0.2;
+
+const PRESET = "sunset"; // Environment preset for reflections (can be 'city', 'dawn', 'night', 'forest', 'apartment', 'studio', 'sunset' or a custom HDRI path)
 
 // ============================================================================
 // OPTIMIZED MODEL COMPONENT
 // ============================================================================
-
-/**
- * Optimize materials for performance — called once on mount
- */
 function optimizeScene(scene: THREE.Group | THREE.Scene, isMobile: boolean): void {
   scene.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return;
@@ -80,7 +77,7 @@ function ScrollRotateModel({ isMobile, useClone = false }: { isMobile: boolean; 
     if (!g) return;
 
     // Apply velocity and clamp
-    const max = 0.06;
+    const max = 0.16;
     velocityRef.current = Math.max(-max, Math.min(max, velocityRef.current));
 
     // Target = current + velocity, then decay velocity
@@ -143,7 +140,6 @@ const Hero: React.FC = () => {
 
   return (
     <section className="hero featured" aria-labelledby="hero-heading">
-      <HeroFloral />
       <div className="hero-inner featured-grid">
         <div className="side left">
           <p className="hero-label">Eau de Parfum</p>
@@ -218,7 +214,7 @@ const Hero: React.FC = () => {
                   shadows={false}
                   dpr={isMobile ? [0.75, 1] : [1, 1.5]}
                   frameloop={isCanvasVisible ? "always" : "never"}
-                  camera={{ position: [0, 0, 3.2], fov: 35 }}
+                  camera={{ position: [0, 0.2, 3], fov: 35 }}
                   performance={{ min: 0.5 }}
                   gl={{
                     alpha: true,
@@ -250,7 +246,7 @@ const Hero: React.FC = () => {
 
                   <Suspense fallback={null}>
                     <Environment
-                      preset="park"
+                      preset={PRESET}
                       background={false}
                       resolution={isMobile ? 64 : 128}
                     />
@@ -281,7 +277,7 @@ const Hero: React.FC = () => {
                   <ambientLight intensity={0.2} />
                   <directionalLight position={[3, 5, 5]} intensity={0.2} castShadow={false} />
                   <Suspense fallback={null}>
-                    <Environment preset="park" background={false} resolution={64} />
+                    <Environment preset={PRESET} background={false} resolution={64} />
                     <ScrollRotateModel isMobile={isMobile} useClone />
                   </Suspense>
                 </Canvas>

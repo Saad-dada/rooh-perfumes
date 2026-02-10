@@ -1,45 +1,85 @@
 import '../styles/ShopByCategory.css'
+import { useEffect, useCallback } from 'react'
+
+const categories = [
+  {
+    id: 1,
+    name: 'Perfume',
+    subtitle: 'Timeless Elegance',
+    description:
+      'Discover our curated collection of luxury perfumes — each bottle crafted to capture moments, memories, and emotions. From bold ouds to delicate florals, find the scent that speaks your soul.',
+    image: '/categories/perfume.png',
+    bg: '/categories/elements/bg.png',
+    decor: '/categories/elements/decor.png',
+  },
+  {
+    id: 2,
+    name: 'Bakhoor',
+    subtitle: 'Traditional Luxury',
+    description:
+      'Immerse your space in the rich, aromatic warmth of authentic bakhoor. Hand-blended with rare resins and precious woods, our bakhoor transforms any room into a sanctuary of calm and tradition.',
+    image: '/categories/bakhoor.png',
+    bg: '/categories/elements/bg.png',
+    decor: '/categories/elements/decor.png',
+  },
+  {
+    id: 3,
+    name: 'Body Mist',
+    subtitle: 'Light & Refreshing',
+    description:
+      'Embrace everyday freshness with our collection of body mists — light, airy, and perfectly balanced. Ideal for layering or wearing alone, these scents add a subtle touch of luxury to your daily routine.',
+    image: '/categories/bodymist.png',
+    bg: '/categories/elements/bg.png',
+    decor: '/categories/elements/decor.png',
+  },
+]
 
 const ShopByCategory = () => {
-  const categories = [
-    {
-      id: 1,
-      name: 'PERFUME',
-      description: 'Timeless elegance in every spray',
-      image: '/categories/perfume.jpg',
-    },
-    {
-      id: 2,
-      name: 'BAKHOOR',
-      description: 'Traditional luxury fragrance',
-      image: '/categories/bakhoor.jpg',
-    },
-    {
-      id: 3,
-      name: 'BODY MIST',
-      description: 'Light and refreshing scents',
-      image: '/categories/bodymist.jpg',
-    },
-  ]
+  const handleScroll = useCallback(() => {
+    const scrollY = window.scrollY
+    categories.forEach(({ id }) => {
+      const bg = document.getElementById(`cat-bg-${id}`)
+      const decor = document.getElementById(`cat-decor-${id}`)
+      if (bg) bg.style.transform = `rotate(${scrollY * 0.03}deg)`
+      if (decor) decor.style.transform = `rotate(${-scrollY * 0.05}deg)`
+    })
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
 
   return (
     <section className="sec categories-sec">
       <div className="sec-inner">
         <div className="cat-header">
-          <h2 className="cat-section-title">PRODUCT CATEGORIES</h2>
-          <p className="cat-subtitle">To make things easier, we've gathered your favorites here.</p>
+          <h2 className="cat-section-title">Product Categories</h2>
+          <p className="cat-subtitle">
+            Explore our world of fragrance, thoughtfully organized for you.
+          </p>
         </div>
-        <div className="cat-grid">
-          {categories.map((cat) => (
-            <a key={cat.id} href="#shop" className="cat-card">
-              <div className="cat-image-wrapper">
-                <img src={cat.image} alt={cat.name} className="cat-image" />
+        <div className="cat-rows">
+          {categories.map((cat, index) => (
+            <div
+              key={cat.id}
+              className={`cat-row ${index % 2 !== 0 ? 'cat-row--reversed' : ''}`}
+            >
+              <div className="cat-row__content">
+                <h3 className="cat-row__title">{cat.name}</h3>
+                <p className="cat-row__subtitle">{cat.subtitle}</p>
+                <p className="cat-row__desc">{cat.description}</p>
+                <a href="#shop" className="cat-row__btn hero-cta">
+                  Explore Collection
+                  <span className="cat-row__btn-arrow">→</span>
+                </a>
               </div>
-              <div className="cat-content">
-                <h3 className="cat-card-title">{cat.name}</h3>
-                <p className="cat-card-desc">{cat.description}</p>
+              <div className="cat-row__image-wrapper">
+                <img src={cat.bg} alt="" className="cat-row__image-bg" id={`cat-bg-${cat.id}`} />
+                <img src={cat.image} alt={cat.name} className="cat-row__image-main" />
+                <img src={cat.decor} alt="" className="cat-row__image-decor" id={`cat-decor-${cat.id}`} />
               </div>
-            </a>
+            </div>
           ))}
         </div>
       </div>

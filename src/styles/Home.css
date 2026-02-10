@@ -33,7 +33,7 @@
 
 .sec-alt {
   background: var(--bg-alt);
-  color: white;
+  color: rgb(255, 255, 255);
 }
 
 /* ── Decorative section divider ── */
