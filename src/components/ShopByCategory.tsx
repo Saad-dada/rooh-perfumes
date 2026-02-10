@@ -1,5 +1,5 @@
 import '../styles/ShopByCategory.css'
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 
 const categories = [
   {
@@ -35,6 +35,8 @@ const categories = [
 ]
 
 const ShopByCategory = () => {
+  const rowsRef = useRef<HTMLDivElement>(null)
+
   const handleScroll = useCallback(() => {
     const scrollY = window.scrollY
     categories.forEach(({ id }) => {
@@ -50,6 +52,25 @@ const ShopByCategory = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
+  // Intersection Observer for pop-in effect
+  useEffect(() => {
+    const rows = rowsRef.current?.querySelectorAll('.cat-row')
+    if (!rows) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15 }
+    )
+    rows.forEach((row) => observer.observe(row))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section className="sec categories-sec">
       <div className="sec-inner">
@@ -59,7 +80,7 @@ const ShopByCategory = () => {
             Explore our world of fragrance, thoughtfully organized for you.
           </p>
         </div>
-        <div className="cat-rows">
+        <div className="cat-rows" ref={rowsRef}>
           {categories.map((cat, index) => (
             <div
               key={cat.id}
