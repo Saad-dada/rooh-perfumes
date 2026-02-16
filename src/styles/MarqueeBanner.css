@@ -33,6 +33,10 @@
 }
 
 @media (max-width: 768px) {
+  .marquee-banner {
+    padding: 14px 0;
+  }
+
   .marquee-content {
     gap: 24px;
     padding-right: 24px;
@@ -41,5 +45,21 @@
   .marquee-item {
     font-size: 0.7rem;
     letter-spacing: 0.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .marquee-banner {
+    padding: 10px 0;
+  }
+
+  .marquee-content {
+    gap: 16px;
+    padding-right: 16px;
+  }
+
+  .marquee-item {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
   }
 }

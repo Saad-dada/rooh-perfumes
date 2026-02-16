@@ -18,7 +18,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="ft-bottom">
           <span className="ft-copy">
-            &copy; Terms 2025 All Right Reserved
+            &copy; Terms 2026 All Right Reserved
           </span>
 
           <div className="ft-socials">

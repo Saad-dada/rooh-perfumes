@@ -35,6 +35,12 @@
   transition: transform 0.35s ease;
 }
 
+.shop-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .shop-card:hover {
   transform: translateY(-6px);
 }
@@ -69,7 +75,6 @@
   object-fit: contain;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12));
   transition: transform 0.35s ease;
 }
 
@@ -100,6 +105,7 @@
 /* CTA button */
 .shop-card-btn {
   font-family: 'Cormorant Garamond', Georgia, serif;
+  text-decoration: none;
   font-size: 1rem;
   font-style: italic;
   background: transparent;
@@ -122,23 +128,80 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 28px;
   }
+
+  .sec-shop {
+    padding: 0 4vw 80px !important;
+  }
 }
 
-@media (max-width: 540px) {
-  .shop-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-
-  .shop-card-arch {
-    border-radius: 999px 999px 24px 24px;
-  }
-
-  .shop-card-name {
-    font-size: 1.1rem;
+@media (max-width: 768px) {
+  .sec-shop {
+    padding: 0 3vw 60px !important;
   }
 
   .shop-title {
+    font-size: 2.2rem;
     margin-bottom: 40px;
+  }
+
+  .shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .shop-card-arch {
+    border-radius: 999px 999px 28px 28px;
+    margin-bottom: 14px;
+  }
+
+  .shop-card-name {
+    font-size: 1.15rem;
+  }
+
+  .shop-card-price {
+    font-size: 0.9rem;
+  }
+
+  .shop-card-btn {
+    font-size: 0.88rem;
+    padding: 7px 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sec-shop {
+    padding: 0 2.5vw 50px !important;
+  }
+
+  .shop-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+
+  .shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .shop-card-arch {
+    border-radius: 999px 999px 20px 20px;
+    margin-bottom: 10px;
+  }
+
+  .shop-card-name {
+    font-size: 1rem;
+  }
+
+  .shop-card-price {
+    font-size: 0.82rem;
+  }
+
+  .shop-card-info {
+    margin-bottom: 8px;
+  }
+
+  .shop-card-btn {
+    font-size: 0.8rem;
+    padding: 6px 18px;
   }
 }

@@ -1,0 +1,297 @@
+/* ═══════════════════════════════════════════
+   Product Detail Page
+   ═══════════════════════════════════════════ */
+
+.product-page {
+  background: var(--bg, #ffffff);
+  color: var(--ink, #000000);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+}
+
+.product-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 5vw 80px;
+}
+
+.product-back-link {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--accent, #4D193A);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 40px;
+  transition: opacity 0.3s;
+}
+
+.product-back-link:hover {
+  opacity: 0.7;
+}
+
+/* ── Layout ── */
+.product-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+/* ── Gallery ── */
+.product-gallery {
+  position: sticky;
+  top: 120px;
+}
+
+.product-image-main {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px 40px 40px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.product-hero-img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12));
+}
+
+.product-thumbs {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.product-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.product-thumb:hover {
+  border-color: var(--accent, #4D193A);
+}
+
+.product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Product Info ── */
+.product-info {
+  padding-top: 20px;
+}
+
+.product-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  margin: 0 0 12px;
+  color: var(--ink, #000);
+  line-height: 1.1;
+}
+
+.product-price {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--accent, #4D193A);
+  margin: 0 0 28px;
+}
+
+.product-description {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #555;
+  margin: 0 0 28px;
+}
+
+.product-description p {
+  margin: 0 0 12px;
+}
+
+/* ── Stock ── */
+.product-stock {
+  margin-bottom: 32px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+}
+
+.product-stock-in {
+  color: #2d8a4e;
+}
+
+.product-stock-out {
+  color: #c0392b;
+}
+
+/* ── Actions ── */
+.product-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.product-btn {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  padding: 14px 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+  border: 1.5px solid var(--accent, #4D193A);
+}
+
+.product-btn:hover {
+  transform: translateY(-2px);
+}
+
+.product-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.product-btn-primary {
+  background: var(--accent, #4D193A);
+  color: #fff;
+  border-color: var(--accent, #4D193A);
+}
+
+.product-btn-primary:hover:not(:disabled) {
+  background: #3a1230;
+}
+
+.product-btn-secondary {
+  background: transparent;
+  color: var(--accent, #4D193A);
+}
+
+.product-btn-secondary:hover:not(:disabled) {
+  background: var(--accent, #4D193A);
+  color: #fff;
+}
+
+.product-woo-note {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #888;
+  font-style: italic;
+}
+
+/* ── Not found ── */
+.product-not-found {
+  text-align: center;
+  padding: 200px 2rem;
+}
+
+.product-not-found h2 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+/* ── Loading / Error ── */
+.product-loading,
+.product-error {
+  text-align: center;
+  padding: 40px;
+  font-family: 'Instrument Sans', sans-serif;
+  color: #888;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 1024px) {
+  .product-layout {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-main {
+    padding: 100px 4vw 60px;
+  }
+
+  .product-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .product-gallery {
+    position: static;
+  }
+
+  .product-image-main {
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 999px 999px 28px 28px;
+  }
+
+  .product-name {
+    font-size: 2rem;
+  }
+
+  .product-price {
+    font-size: 1.3rem;
+  }
+
+  .product-actions {
+    flex-direction: column;
+  }
+
+  .product-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-main {
+    padding: 90px 3vw 40px;
+  }
+
+  .product-back-link {
+    margin-bottom: 24px;
+  }
+
+  .product-image-main {
+    border-radius: 999px 999px 20px 20px;
+  }
+
+  .product-name {
+    font-size: 1.7rem;
+  }
+
+  .product-price {
+    font-size: 1.15rem;
+    margin-bottom: 20px;
+  }
+
+  .product-description {
+    font-size: 0.92rem;
+  }
+
+  .product-btn {
+    font-size: 1rem;
+    padding: 12px 32px;
+  }
+
+  .product-thumb {
+    width: 48px;
+    height: 48px;
+  }
+}

@@ -95,12 +95,14 @@ function ScrollRotateModel({ isMobile, useClone = false }: { isMobile: boolean; 
     g.rotation.y = currentRotation.current;
   });
 
+  const s = isMobile ? 0.55 : 0.8;
+
   return (
     <group ref={groupRef} rotation={[0, Math.PI, 0]}>
       <primitive
         object={scene}
-        scale={[0.8, 0.8, 0.8]}
-        position={[0, -0.4, 0]}
+        scale={[s, s, s]}
+        position={[0, isMobile ? -0.25 : -0.4, 0]}
       />
     </group>
   );

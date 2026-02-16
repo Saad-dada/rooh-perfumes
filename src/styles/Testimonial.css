@@ -54,6 +54,10 @@
 }
 
 @media (max-width: 768px) {
+  .sec-testimonial {
+    padding: 60px 1rem;
+  }
+
   .quote-card {
     padding: 28px 20px;
   }
@@ -65,5 +69,37 @@
   .quote-card footer {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .testimonial-decor.cat-header-image {
+    width: 40vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .sec-testimonial {
+    padding: 40px 0.75rem;
+  }
+
+  .quote-card {
+    padding: 22px 16px;
+  }
+
+  .quote-card p {
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+  }
+
+  .quote-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .quote-card footer strong {
+    font-size: 0.85rem;
+  }
+
+  .quote-card footer span {
+    font-size: 0.72rem;
   }
 }

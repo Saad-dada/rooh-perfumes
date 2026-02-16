@@ -1,0 +1,97 @@
+/* ═══════════════════════════════════════════
+   Order Confirmation Page
+   ═══════════════════════════════════════════ */
+
+.order-page {
+  background: var(--bg, #ffffff);
+  color: var(--ink, #000000);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+}
+
+.order-main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 160px 5vw 120px;
+  text-align: center;
+}
+
+.order-card {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 20px;
+  padding: 48px 40px;
+}
+
+.order-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent, #4D193A);
+  color: #fff;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.order-heading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 400;
+  margin: 0 0 12px;
+}
+
+.order-id {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 1rem;
+  color: var(--accent, #4D193A);
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.order-status {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0 0 24px;
+}
+
+.order-message {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #666;
+  margin: 0 0 32px;
+}
+
+.order-home-btn {
+  display: inline-block;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  padding: 14px 40px;
+  background: var(--accent, #4D193A);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.order-home-btn:hover {
+  background: #3a1230;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+  .order-main {
+    padding: 120px 4vw 80px;
+  }
+
+  .order-card {
+    padding: 32px 24px;
+  }
+}

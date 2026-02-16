@@ -95,16 +95,25 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .ft {
+    padding: 36px 4vw 0;
+  }
+
   .ft-nav {
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: 1rem 1.5rem;
+    padding-bottom: 28px;
+  }
+
+  .ft-nav a {
+    font-size: 1rem;
   }
 
   .ft-bottom {
     flex-direction: column;
     gap: 16px;
     text-align: center;
-    padding: 24px 0;
+    padding: 20px 0;
   }
 
   .ft-legal {
@@ -113,5 +122,37 @@
 
   .ft-socials {
     justify-content: center;
+  }
+
+  .ft-copy {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ft {
+    padding: 28px 3vw 0;
+  }
+
+  .ft-nav {
+    gap: 0.8rem 1.2rem;
+    padding-bottom: 20px;
+  }
+
+  .ft-nav a {
+    font-size: 0.9rem;
+  }
+
+  .ft-bottom {
+    gap: 14px;
+    padding: 16px 0;
+  }
+
+  .ft-legal {
+    font-size: 0.78rem;
+  }
+
+  .ft-copy {
+    font-size: 0.72rem;
   }
 }

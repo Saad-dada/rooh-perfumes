@@ -1,0 +1,362 @@
+/* ═══════════════════════════════════════════
+   Checkout Page
+   ═══════════════════════════════════════════ */
+
+.checkout-page {
+  background: var(--bg, #ffffff);
+  color: var(--ink, #000000);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+}
+
+.checkout-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 120px 5vw 80px;
+}
+
+.checkout-back-link {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--accent, #4D193A);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 24px;
+  transition: opacity 0.3s;
+}
+
+.checkout-back-link:hover {
+  opacity: 0.7;
+}
+
+.checkout-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 400;
+  margin: 0 0 40px;
+}
+
+/* ── Layout ── */
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ── Form ── */
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.checkout-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.checkout-section-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+  color: #000;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.checkout-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.checkout-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checkout-field label {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.checkout-field input,
+.checkout-field select {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #000;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.checkout-field input:focus,
+.checkout-field select:focus {
+  border-color: var(--accent, #4D193A);
+  box-shadow: 0 0 0 3px rgba(77, 25, 58, 0.08);
+}
+
+/* Checkbox */
+.checkout-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.checkout-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent, #4D193A);
+}
+
+/* Payment methods */
+.checkout-payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkout-payment-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: 'Instrument Sans', sans-serif;
+}
+
+.checkout-payment-option:hover {
+  border-color: var(--accent, #4D193A);
+}
+
+.checkout-payment-option input[type="radio"] {
+  margin-top: 3px;
+  accent-color: var(--accent, #4D193A);
+}
+
+.checkout-payment-option strong {
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.checkout-payment-desc {
+  font-size: 0.82rem;
+  color: #888;
+  display: block;
+}
+
+.checkout-note {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #888;
+  font-style: italic;
+}
+
+/* Error */
+.checkout-error {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #c0392b;
+  background: #fdf0ef;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid #f0d0cc;
+}
+
+/* Submit */
+.checkout-submit-btn {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  padding: 16px;
+  background: var(--accent, #4D193A);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.checkout-submit-btn:hover:not(:disabled) {
+  background: #3a1230;
+  transform: translateY(-1px);
+}
+
+.checkout-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Order Summary sidebar ── */
+.checkout-summary {
+  position: sticky;
+  top: 120px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.checkout-summary-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0 0 20px;
+}
+
+.checkout-summary-items {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16px;
+}
+
+.checkout-summary-item {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.checkout-summary-item-img {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+
+.checkout-summary-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.checkout-summary-qty {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--accent, #4D193A);
+  color: #fff;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkout-summary-item-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkout-summary-item-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.checkout-summary-item-price {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+}
+
+/* Totals */
+.checkout-summary-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkout-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.checkout-summary-total {
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+  margin-top: 6px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+}
+
+/* ── Empty state ── */
+.checkout-empty {
+  text-align: center;
+  padding: 120px 2rem;
+}
+
+.checkout-empty h2 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 900px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .checkout-summary {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkout-main {
+    padding: 100px 4vw 60px;
+  }
+
+  .checkout-row,
+  .checkout-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-summary {
+    padding: 20px;
+  }
+}
