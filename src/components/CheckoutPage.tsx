@@ -1,21 +1,22 @@
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { useCart } from '../context/CartContext'
-import { formatPrice, getPaymentMethods, checkout, clearCartToken, type PaymentMethod } from '../lib/store-api'
+import { formatPrice, checkout, clearCartToken } from '../lib/store-api'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import '../styles/CheckoutPage.css'
 
-const isWooConfigured =
-  import.meta.env.VITE_WC_BASE_URL &&
-  !import.meta.env.VITE_WC_BASE_URL.includes('your-wordpress-site')
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '')
 
-const CheckoutPage = () => {
+/** Inner form — must be rendered inside <Elements> so useStripe() works */
+const CheckoutForm = () => {
   const { items, total, cart, refreshCart } = useCart()
   const navigate = useNavigate()
+  const stripe = useStripe()
+  const elements = useElements()
 
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
-  const [selectedPayment, setSelectedPayment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sameAsShipping, setSameAsShipping] = useState(true)
@@ -31,7 +32,7 @@ const CheckoutPage = () => {
     ship_city: '',
     ship_state: '',
     ship_postcode: '',
-    ship_country: 'US',
+    ship_country: 'AE',
     bill_first_name: '',
     bill_last_name: '',
     bill_address_1: '',
@@ -39,19 +40,8 @@ const CheckoutPage = () => {
     bill_city: '',
     bill_state: '',
     bill_postcode: '',
-    bill_country: 'US',
+    bill_country: 'AE',
   })
-
-  // Load payment methods
-  useEffect(() => {
-    if (!isWooConfigured) return
-    getPaymentMethods()
-      .then((methods) => {
-        setPaymentMethods(methods)
-        if (methods.length > 0) setSelectedPayment(methods[0].id)
-      })
-      .catch((err) => console.error('Failed to load payment methods:', err))
-  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -59,12 +49,12 @@ const CheckoutPage = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!isWooConfigured || items.length === 0) return
+    if (items.length === 0 || !stripe || !elements) return
 
     setSubmitting(true)
     setError(null)
 
-    const billingAddress = sameAsShipping
+    const billing = sameAsShipping
       ? {
           first_name: form.ship_first_name,
           last_name: form.ship_last_name,
@@ -91,8 +81,37 @@ const CheckoutPage = () => {
         }
 
     try {
+      // 1. Create a Stripe PaymentMethod from the card element
+      const cardElement = elements.getElement(CardElement)
+      if (!cardElement) { setError('Card element not found.'); setSubmitting(false); return }
+
+      const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+        billing_details: {
+          name: `${billing.first_name} ${billing.last_name}`,
+          email: billing.email,
+          phone: billing.phone,
+          address: {
+            line1: billing.address_1,
+            line2: billing.address_2 || undefined,
+            city: billing.city,
+            state: billing.state,
+            postal_code: billing.postcode,
+            country: billing.country,
+          },
+        },
+      })
+
+      if (stripeError || !paymentMethod) {
+        setError(stripeError?.message ?? 'Could not process card.')
+        setSubmitting(false)
+        return
+      }
+
+      // 2. Send checkout to WooCommerce with the Stripe payment method token
       const result = await checkout({
-        billing_address: billingAddress,
+        billing_address: billing,
         shipping_address: {
           first_name: form.ship_first_name,
           last_name: form.ship_last_name,
@@ -103,46 +122,67 @@ const CheckoutPage = () => {
           postcode: form.ship_postcode,
           country: form.ship_country,
         },
-        payment_method: selectedPayment,
+        payment_method: 'stripe',
+        payment_data: [
+          { key: 'paymentMethod', value: paymentMethod.id },
+          { key: 'isSavedToken', value: 'false' },
+          { key: 'paymentRequestType', value: '' },
+        ],
       })
 
-      // If payment requires redirect (e.g. PayPal)
+      // 3. Handle 3D Secure / redirect if needed
       if (result.payment_result?.redirect_url) {
         window.location.href = result.payment_result.redirect_url
         return
       }
 
-      // Clear token so next cart session is fresh
+      // Check for payment failure returned inline
+      const paymentStatus = result.payment_result?.payment_status
+      if (paymentStatus === 'failure') {
+        const details = result.payment_result?.payment_details as
+          | { key: string; value: string }[]
+          | undefined
+        const errorMsg = details?.find((d) => d.key === 'errorMessage')?.value
+        setError(errorMsg ?? 'Payment failed. Please try again.')
+        setSubmitting(false)
+        return
+      }
+
+      // 4. If needs confirmation (SCA / 3DS)
+      if (paymentStatus === 'pending' || paymentStatus === 'requires_action') {
+        const intentSecret = (result.payment_result?.payment_details as
+          | { key: string; value: string }[]
+          | undefined)?.find((d) => d.key === 'clientSecret')?.value
+        if (intentSecret) {
+          const { error: confirmErr } = await stripe.confirmCardPayment(intentSecret)
+          if (confirmErr) {
+            setError(confirmErr.message ?? '3D Secure verification failed.')
+            setSubmitting(false)
+            return
+          }
+        }
+      }
+
+      // 5. Success
       clearCartToken()
       await refreshCart()
-
-      // Navigate to confirmation
       navigate(`/order-confirmation/${result.order_id}`, {
         state: { orderResult: result },
       })
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Checkout failed. Please try again.'
+      // Extract detailed WooCommerce error message from response body
+      let msg = 'Checkout failed. Please try again.'
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string; data?: { status?: number } } } }
+        msg = axiosErr.response?.data?.message ?? msg
+      } else if (err instanceof Error) {
+        msg = err.message
+      }
       setError(msg)
       console.error('Checkout error:', err)
     } finally {
       setSubmitting(false)
     }
-  }
-
-  if (!isWooConfigured) {
-    return (
-      <div className="checkout-page">
-        <Navbar />
-        <div className="checkout-main">
-          <div className="checkout-empty">
-            <h2>Checkout unavailable</h2>
-            <p>WooCommerce is not configured yet.</p>
-            <Link to="/" className="checkout-back-link">← Back to shop</Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    )
   }
 
   if (items.length === 0) {
@@ -152,6 +192,7 @@ const CheckoutPage = () => {
         <div className="checkout-main">
           <div className="checkout-empty">
             <h2>Your cart is empty</h2>
+            <p>Add some products before checking out.</p>
             <Link to="/" className="checkout-back-link">← Back to shop</Link>
           </div>
         </div>
@@ -213,12 +254,12 @@ const CheckoutPage = () => {
                   <input type="text" id="ship_city" name="ship_city" value={form.ship_city} onChange={handleChange} required />
                 </div>
                 <div className="checkout-field">
-                  <label htmlFor="ship_state">State</label>
-                  <input type="text" id="ship_state" name="ship_state" value={form.ship_state} onChange={handleChange} required />
+                  <label htmlFor="ship_state">State / Emirate</label>
+                  <input type="text" id="ship_state" name="ship_state" value={form.ship_state} onChange={handleChange} placeholder="Optional" />
                 </div>
                 <div className="checkout-field">
-                  <label htmlFor="ship_postcode">ZIP Code</label>
-                  <input type="text" id="ship_postcode" name="ship_postcode" value={form.ship_postcode} onChange={handleChange} required />
+                  <label htmlFor="ship_postcode">Postal Code</label>
+                  <input type="text" id="ship_postcode" name="ship_postcode" value={form.ship_postcode} onChange={handleChange} placeholder="Optional" />
                 </div>
               </div>
               <div className="checkout-field">
@@ -274,12 +315,12 @@ const CheckoutPage = () => {
                       <input type="text" id="bill_city" name="bill_city" value={form.bill_city} onChange={handleChange} required />
                     </div>
                     <div className="checkout-field">
-                      <label htmlFor="bill_state">State</label>
-                      <input type="text" id="bill_state" name="bill_state" value={form.bill_state} onChange={handleChange} required />
+                      <label htmlFor="bill_state">State / Emirate</label>
+                      <input type="text" id="bill_state" name="bill_state" value={form.bill_state} onChange={handleChange} placeholder="Optional" />
                     </div>
                     <div className="checkout-field">
-                      <label htmlFor="bill_postcode">ZIP Code</label>
-                      <input type="text" id="bill_postcode" name="bill_postcode" value={form.bill_postcode} onChange={handleChange} required />
+                      <label htmlFor="bill_postcode">Postal Code</label>
+                      <input type="text" id="bill_postcode" name="bill_postcode" value={form.bill_postcode} onChange={handleChange} placeholder="Optional" />
                     </div>
                   </div>
                   <div className="checkout-field">
@@ -302,30 +343,21 @@ const CheckoutPage = () => {
             {/* Payment */}
             <section className="checkout-section">
               <h3 className="checkout-section-title">Payment</h3>
-              {paymentMethods.length === 0 && (
-                <p className="checkout-note">Loading payment methods…</p>
-              )}
-              <div className="checkout-payment-methods">
-                {paymentMethods.map((pm) => (
-                  <label key={pm.id} className="checkout-payment-option">
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      value={pm.id}
-                      checked={selectedPayment === pm.id}
-                      onChange={() => setSelectedPayment(pm.id)}
-                    />
-                    <div>
-                      <strong>{pm.title}</strong>
-                      {pm.description && (
-                        <span
-                          className="checkout-payment-desc"
-                          dangerouslySetInnerHTML={{ __html: pm.description }}
-                        />
-                      )}
-                    </div>
-                  </label>
-                ))}
+              <p className="checkout-note">Credit / Debit Card</p>
+              <div className="checkout-card-element">
+                <CardElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: '16px',
+                        fontFamily: "'Instrument Sans', sans-serif",
+                        color: '#1a1a1a',
+                        '::placeholder': { color: '#999' },
+                      },
+                      invalid: { color: '#e53e3e' },
+                    },
+                  }}
+                />
               </div>
             </section>
 
@@ -334,7 +366,7 @@ const CheckoutPage = () => {
             <button
               type="submit"
               className="checkout-submit-btn"
-              disabled={submitting || items.length === 0}
+              disabled={submitting || !stripe || items.length === 0}
             >
               {submitting ? 'Placing Order…' : 'Place Order'}
             </button>
@@ -405,5 +437,12 @@ const CheckoutPage = () => {
     </div>
   )
 }
+
+/** Wraps the form in Stripe Elements provider */
+const CheckoutPage = () => (
+  <Elements stripe={stripePromise}>
+    <CheckoutForm />
+  </Elements>
+)
 
 export default CheckoutPage

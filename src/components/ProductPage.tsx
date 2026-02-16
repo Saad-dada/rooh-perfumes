@@ -1,43 +1,12 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useWooProduct } from '../hooks/useWooProduct'
 import { useCart } from '../context/CartContext'
+import { clearCartToken } from '../lib/store-api'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import '../styles/ProductPage.css'
 
-// Fallback data when WooCommerce is not configured or product not found
-const FALLBACK_PRODUCTS: Record<string, {
-  name: string; price: string; shade: string; image: string; description: string
-}> = {
-  ashq: {
-    name: 'Ashq',
-    price: '$111',
-    shade: 'shade-ashq',
-    image: '/perfumes/ashq.png',
-    description: 'A passionate fragrance that captures the essence of deep emotion. Rich oud and amber notes intertwine with delicate rose, creating an unforgettable scent.',
-  },
-  qalb: {
-    name: 'Qalb',
-    price: '$149',
-    shade: 'shade-qalb',
-    image: '/perfumes/qalb.png',
-    description: 'From the heart, a fragrance that speaks to the soul. Warm sandalwood meets velvety musk, enveloped in whispers of saffron and vanilla.',
-  },
-  sifr: {
-    name: 'Sifr',
-    price: '$129',
-    shade: 'shade-sifr',
-    image: '/perfumes/sifr.png',
-    description: 'A journey to the origin. Clean, ethereal notes of white tea and bergamot settle into a base of cedarwood and soft leather.',
-  },
-  'sahara-saffron': {
-    name: 'Sahara Saffron',
-    price: '$139',
-    shade: 'shade-sahara',
-    image: '/perfumes/sahara-saffron.png',
-    description: 'Inspired by golden desert sunsets. Precious saffron threads melded with warm amber and smoky incense evoke the mystery of the dunes.',
-  },
-}
+const WP_URL = (import.meta.env.VITE_WC_BASE_URL as string).replace(/\/+$/, '')
 
 const SHADE_MAP: Record<string, string> = {
   ashq: 'shade-ashq',
@@ -46,22 +15,12 @@ const SHADE_MAP: Record<string, string> = {
   'sahara-saffron': 'shade-sahara',
 }
 
-const isWooConfigured =
-  import.meta.env.VITE_WC_BASE_URL &&
-  !import.meta.env.VITE_WC_BASE_URL.includes('your-wordpress-site')
-
 const ProductPage = () => {
   const { slug } = useParams<{ slug: string }>()
-  const navigate = useNavigate()
   const { addToCart } = useCart()
-  const { product: wooProduct, loading, error } = useWooProduct(
-    isWooConfigured ? slug : undefined
-  )
+  const { product: wooProduct, loading, error } = useWooProduct(slug)
 
-  const fallback = slug ? FALLBACK_PRODUCTS[slug] : undefined
-
-  // Choose data source
-  const product = isWooConfigured && wooProduct
+  const product = wooProduct
     ? {
         id: wooProduct.id,
         name: wooProduct.name,
@@ -73,19 +32,7 @@ const ProductPage = () => {
         inStock: wooProduct.stock_status === 'instock',
         allImages: wooProduct.images,
       }
-    : fallback
-      ? {
-          id: null as number | null,
-          name: fallback.name,
-          price: fallback.price,
-          image: fallback.image,
-          imageAlt: fallback.name,
-          description: fallback.description,
-          shade: fallback.shade,
-          inStock: true,
-          allImages: [{ id: 0, src: fallback.image, alt: fallback.name }],
-        }
-      : null
+    : null
 
   if (!product && !loading) {
     return (
@@ -107,12 +54,12 @@ const ProductPage = () => {
       <main className="product-main">
         <Link to="/" className="product-back-link">← Back to shop</Link>
 
-        {loading && isWooConfigured && (
+        {loading && (
           <div className="product-loading">Loading product…</div>
         )}
 
-        {error && isWooConfigured && (
-          <div className="product-error">Could not load live data.</div>
+        {error && (
+          <div className="product-error">Could not load product.</div>
         )}
 
         {product && (
@@ -156,31 +103,23 @@ const ProductPage = () => {
               </div>
 
               <div className="product-actions">
-                {product.id ? (
-                  <>
-                    <button
-                      className="product-btn product-btn-primary"
-                      onClick={async () => {
-                        await addToCart(product.id!)
-                        navigate('/checkout')
-                      }}
-                      disabled={!product.inStock}
-                    >
-                      Buy Now
-                    </button>
-                    <button
-                      className="product-btn product-btn-secondary"
-                      onClick={() => addToCart(product.id!)}
-                      disabled={!product.inStock}
-                    >
-                      Add to Cart
-                    </button>
-                  </>
-                ) : (
-                  <p className="product-woo-note">
-                    Connect WooCommerce to enable purchasing.
-                  </p>
-                )}
+                <button
+                  className="product-btn product-btn-primary"
+                  onClick={() => {
+                    clearCartToken()
+                    window.location.href = `${WP_URL}/?rooh_sync_cart=${product.id}:1`
+                  }}
+                  disabled={!product.inStock}
+                >
+                  Buy Now
+                </button>
+                <button
+                  className="product-btn product-btn-secondary"
+                  onClick={() => addToCart(product.id)}
+                  disabled={!product.inStock}
+                >
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>

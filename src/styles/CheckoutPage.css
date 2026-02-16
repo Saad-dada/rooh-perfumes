@@ -128,51 +128,24 @@
   accent-color: var(--accent, #4D193A);
 }
 
-/* Payment methods */
-.checkout-payment-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.checkout-payment-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+/* Payment – Stripe card element */
+.checkout-card-element {
   padding: 14px 16px;
-  border: 1px solid #eee;
+  border: 1px solid #ddd;
   border-radius: 10px;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  font-family: 'Instrument Sans', sans-serif;
+  background: #fafafa;
+  transition: border-color 0.2s;
 }
 
-.checkout-payment-option:hover {
+.checkout-card-element:focus-within {
   border-color: var(--accent, #4D193A);
-}
-
-.checkout-payment-option input[type="radio"] {
-  margin-top: 3px;
-  accent-color: var(--accent, #4D193A);
-}
-
-.checkout-payment-option strong {
-  font-size: 0.95rem;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.checkout-payment-desc {
-  font-size: 0.82rem;
-  color: #888;
-  display: block;
 }
 
 .checkout-note {
   font-family: 'Instrument Sans', sans-serif;
-  font-size: 0.85rem;
-  color: #888;
-  font-style: italic;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
 }
 
 /* Error */
@@ -261,8 +234,8 @@
 
 .checkout-summary-qty {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: 0;
+  right: 0;
   background: var(--accent, #4D193A);
   color: #fff;
   font-family: 'Instrument Sans', sans-serif;

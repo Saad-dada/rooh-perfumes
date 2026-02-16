@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { wooApi } from './woocommerce'
 
 /**
  * WooCommerce Store API client (v1) – Headless mode
@@ -217,6 +218,7 @@ export interface OrderResult {
   order_key: string
   payment_result: {
     payment_status: string
+    payment_details?: { key: string; value: string }[]
     redirect_url?: string
   }
 }
@@ -290,10 +292,12 @@ export async function selectShippingRate(packageId: number, rateId: string): Pro
   return data
 }
 
-/** Get available payment methods */
+/** Get available payment methods (from REST API v3) */
 export async function getPaymentMethods(): Promise<PaymentMethod[]> {
-  const { data } = await storeApi.get<PaymentMethod[]>('/payment-methods')
+  const { data } = await wooApi.get<{ id: string; title: string; description: string; enabled: boolean }[]>('/payment_gateways')
   return data
+    .filter((g) => g.enabled)
+    .map((g) => ({ id: g.id, title: g.title, description: g.description }))
 }
 
 /** Place an order */

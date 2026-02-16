@@ -7,7 +7,7 @@ const wcBaseURL = isDev
   : `${import.meta.env.VITE_WC_BASE_URL}/wp-json/wc/v3`
 
 // WooCommerce REST API client
-const wooApi = axios.create({
+export const wooApi = axios.create({
   baseURL: wcBaseURL,
   params: {
     consumer_key: import.meta.env.VITE_WC_CONSUMER_KEY,

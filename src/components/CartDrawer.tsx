@@ -1,10 +1,9 @@
-import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/store-api'
 import '../styles/CartDrawer.css'
 
 const CartDrawer = () => {
-  const { items, itemCount, total, drawerOpen, closeDrawer, updateQuantity, removeItem, loading } = useCart()
+  const { items, itemCount, total, drawerOpen, closeDrawer, updateQuantity, removeItem, loading, syncCheckout } = useCart()
 
   return (
     <>
@@ -95,13 +94,15 @@ const CartDrawer = () => {
                 <span>Total</span>
                 <span>{total}</span>
               </div>
-              <Link
-                to="/checkout"
+              <button
                 className="cart-checkout-btn"
-                onClick={closeDrawer}
+                onClick={() => {
+                  closeDrawer()
+                  syncCheckout()
+                }}
               >
                 Proceed to Checkout
-              </Link>
+              </button>
               <button className="cart-continue-btn" onClick={closeDrawer}>
                 Continue Shopping
               </button>

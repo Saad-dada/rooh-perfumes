@@ -4,6 +4,7 @@ import {
   addItemToCart,
   updateItemQuantity,
   removeCartItem,
+  clearCartToken,
   type StoreCart,
   type StoreCartItem,
   formatPrice,
@@ -22,6 +23,8 @@ interface CartContextValue {
   updateQuantity: (itemKey: string, quantity: number) => Promise<void>
   removeItem: (itemKey: string) => Promise<void>
   refreshCart: () => Promise<void>
+  clearCart: () => void
+  syncCheckout: () => void
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
@@ -32,17 +35,12 @@ export function useCart() {
   return ctx
 }
 
-const isWooConfigured =
-  import.meta.env.VITE_WC_BASE_URL &&
-  !import.meta.env.VITE_WC_BASE_URL.includes('your-wordpress-site')
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<StoreCart | null>(null)
   const [loading, setLoading] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const refreshCart = useCallback(async () => {
-    if (!isWooConfigured) return
     try {
       setLoading(true)
       const data = await getCart()
@@ -60,7 +58,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [refreshCart])
 
   const addToCartHandler = useCallback(async (productId: number, quantity = 1) => {
-    if (!isWooConfigured) return
     try {
       setLoading(true)
       const data = await addItemToCart(productId, quantity)
@@ -74,7 +71,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const updateQuantityHandler = useCallback(async (itemKey: string, quantity: number) => {
-    if (!isWooConfigured) return
     try {
       setLoading(true)
       const data = await updateItemQuantity(itemKey, quantity)
@@ -87,7 +83,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const removeItemHandler = useCallback(async (itemKey: string) => {
-    if (!isWooConfigured) return
     try {
       setLoading(true)
       const data = await removeCartItem(itemKey)
@@ -98,6 +93,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     }
   }, [])
+
+  const clearCart = useCallback(() => {
+    clearCartToken()
+    setCart(null)
+  }, [])
+
+  /** Build WP sync URL, clear React cart, redirect to WP checkout */
+  const syncCheckout = useCallback(() => {
+    const wpUrl = (import.meta.env.VITE_WC_BASE_URL as string).replace(/\/+$/, '')
+    const cartItems = cart?.items ?? []
+    if (cartItems.length === 0) return
+
+    const param = cartItems.map((i) => `${i.id}:${i.quantity}`).join(',')
+    const url = `${wpUrl}/?rooh_sync_cart=${encodeURIComponent(param)}`
+
+    // Clear React cart before navigating
+    clearCart()
+    window.location.href = url
+  }, [cart, clearCart])
 
   const items = cart?.items ?? []
   const itemCount = cart?.items_count ?? 0
@@ -125,6 +139,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updateQuantity: updateQuantityHandler,
         removeItem: removeItemHandler,
         refreshCart,
+        clearCart,
+        syncCheckout,
       }}
     >
       {children}
