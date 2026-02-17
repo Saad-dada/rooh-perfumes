@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/wp-json/:path*",
+      "destination": "https://t0d.55c.myftpupload.com/wp-json/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

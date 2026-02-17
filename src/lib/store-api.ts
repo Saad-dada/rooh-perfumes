@@ -11,9 +11,12 @@ import { wooApi } from './woocommerce'
 
 const WC_BASE = import.meta.env.VITE_WC_BASE_URL?.replace(/\/+$/, '') ?? ''
 
-// In dev mode, use relative path so Vite proxy handles CORS
-const isDev = import.meta.env.DEV
-const storeBaseURL = isDev ? '/wp-json/wc/store/v1' : `${WC_BASE}/wp-json/wc/store/v1`
+// Vite provides a boolean `import.meta.env.DEV` during development
+const isDev = Boolean(import.meta.env.DEV)
+
+// Always use relative path — Vite proxy (dev) and Vercel rewrites (prod)
+// both forward /wp-json/* to the WordPress backend
+const storeBaseURL = '/wp-json/wc/store/v1'
 
 const CART_TOKEN_KEY = 'rooh_cart_token'
 const NONCE_CACHE_KEY = 'rooh_wc_nonce'

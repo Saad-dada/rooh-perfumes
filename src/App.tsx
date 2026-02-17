@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './Home'
 import LoadingScreen from './components/LoadingScreen'
+import ShopPage from './components/ShopPage'
 import ProductPage from './components/ProductPage'
 import CheckoutPage from './components/CheckoutPage'
 import OrderConfirmation from './components/OrderConfirmation'
@@ -22,6 +23,7 @@ function App() {
           {loading && <LoadingScreen onFinished={handleFinished} />}
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/shop" element={<ShopPage />} />
             <Route path="/product/:slug" element={<ProductPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />

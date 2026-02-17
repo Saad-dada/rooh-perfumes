@@ -40,7 +40,7 @@ const ProductPage = () => {
         <Navbar />
         <div className="product-not-found">
           <h2>Product not found</h2>
-          <Link to="/" className="product-back-link">← Back to shop</Link>
+          <Link to="/shop" className="product-back-link">← Back to shop</Link>
         </div>
         <Footer />
       </div>
@@ -52,7 +52,7 @@ const ProductPage = () => {
       <Navbar />
 
       <main className="product-main">
-        <Link to="/" className="product-back-link">← Back to shop</Link>
+        <Link to="/shop" className="product-back-link">← Back to shop</Link>
 
         {loading && (
           <div className="product-loading">Loading product…</div>

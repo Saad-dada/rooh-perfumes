@@ -1,5 +1,6 @@
 import '../styles/ShopByCategory.css'
 import { useEffect, useCallback, useRef } from 'react'
+import { Link } from 'react-router-dom'
 
 const categories = [
   {
@@ -93,10 +94,10 @@ const ShopByCategory = () => {
                 <h3 className="cat-row__title">{cat.name}</h3>
                 <p className="cat-row__subtitle">{cat.subtitle}</p>
                 <p className="cat-row__desc">{cat.description}</p>
-                <a href="#shop" className="cat-row__btn hero-cta">
+                <Link to="/shop" className="cat-row__btn hero-cta">
                   Explore Collection
                   <span className="cat-row__btn-arrow">→</span>
-                </a>
+                </Link>
               </div>
               <div className="cat-row__image-wrapper">
                 <img src={cat.bg} alt="" className="cat-row__image-bg" id={`cat-bg-${cat.id}`} />

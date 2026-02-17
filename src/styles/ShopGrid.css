@@ -109,8 +109,8 @@
   font-size: 1rem;
   font-style: italic;
   background: transparent;
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
+  border: 1.5px solid #4D193A;
+  color: #4D193A;
   border-radius: 999px;
   padding: 8px 28px;
   cursor: pointer;
@@ -118,7 +118,7 @@
 }
 
 .shop-card-btn:hover {
-  background: var(--accent);
+  background: #4D193A;
   color: #fff;
 }
 
