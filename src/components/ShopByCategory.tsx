@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 const categories = [
   {
     id: 1,
+    slug: 'perfume',
     name: 'Perfume',
     subtitle: 'Timeless Elegance',
     description:
@@ -15,6 +16,7 @@ const categories = [
   },
   {
     id: 2,
+    slug: 'bakhoor',
     name: 'Bakhoor',
     subtitle: 'Traditional Luxury',
     description:
@@ -25,6 +27,7 @@ const categories = [
   },
   {
     id: 3,
+    slug: 'body-mist',
     name: 'Body Mist',
     subtitle: 'Light & Refreshing',
     description:
@@ -94,7 +97,7 @@ const ShopByCategory = () => {
                 <h3 className="cat-row__title">{cat.name}</h3>
                 <p className="cat-row__subtitle">{cat.subtitle}</p>
                 <p className="cat-row__desc">{cat.description}</p>
-                <Link to="/shop" className="cat-row__btn hero-cta">
+                <Link to={`/collection/${cat.slug}`} className="cat-row__btn hero-cta">
                   Explore Collection
                   <span className="cat-row__btn-arrow">→</span>
                 </Link>

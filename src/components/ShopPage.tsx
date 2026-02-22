@@ -118,7 +118,7 @@ const ShopPage = () => {
             </p>
 
             <div className="sp-grid">
-              {products.map((p) => (
+              {[...products].slice().reverse().map((p) => (
                 <article key={p.id} className="sp-card">
                   <Link to={`/product/${p.slug}`} className="sp-card-link">
                       <div className={`sp-card-arch`}>
@@ -149,12 +149,13 @@ const ShopPage = () => {
                   <button
                     className="shop-card-btn"
                     onClick={() => handleAddToCart(p.id)}
+                    data-stock={p.stock_status !== undefined && p.stock_status !== 'instock' ? 'out' : 'in'}
                     disabled={p.stock_status !== "instock" || addingId === p.id}
                   >
                     {addingId === p.id
                       ? "Adding…"
                       : p.stock_status !== "instock"
-                        ? "Out of Stock"
+                        ? "Coming Soon"
                         : "Add to Cart"}
                   </button>
                 </article>

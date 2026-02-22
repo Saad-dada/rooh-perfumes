@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
+import { useState } from 'react'
 import { useWooProduct } from '../hooks/useWooProduct'
 import { useCart } from '../context/CartContext'
 import { clearCartToken } from '../lib/store-api'
@@ -24,7 +25,9 @@ const ProductPage = () => {
     ? {
         id: wooProduct.id,
         name: wooProduct.name,
-        price: `$${wooProduct.price}`,
+        price: wooProduct.price,
+        regular_price: wooProduct.regular_price,
+        sale_price: wooProduct.sale_price,
         image: wooProduct.images[0]?.src ?? '/perfumes/placeholder.png',
         imageAlt: wooProduct.images[0]?.alt ?? wooProduct.name,
         description: wooProduct.short_description || wooProduct.description,
@@ -52,7 +55,7 @@ const ProductPage = () => {
       <Navbar />
 
       <main className="product-main">
-        <Link to="/shop" className="product-back-link">← Back to shop</Link>
+        <Link to="/shop" className="product-back-link" data-discover="true">← Back to shop</Link>
 
         {loading && (
           <div className="product-loading">Loading product…</div>
@@ -66,28 +69,50 @@ const ProductPage = () => {
           <div className="product-layout">
             {/* Image gallery */}
             <div className="product-gallery">
-              <div className={`product-image-main ${product.shade}`}>
-                <img
-                  src={product.image}
-                  alt={product.imageAlt}
-                  className="product-hero-img"
-                />
-              </div>
-              {product.allImages.length > 1 && (
-                <div className="product-thumbs">
-                  {product.allImages.map((img, i) => (
-                    <div key={i} className="product-thumb">
-                      <img src={img.src} alt={img.alt} />
-                    </div>
-                  ))}
+              <div className="product-hero-wrap">
+                <div className="product-hero-card">
+                  <Gallery allImages={product.allImages} shade={product.shade} />
                 </div>
-              )}
+                <div className="product-hero-thumbs">
+                  {/* Thumbs rendered inside Gallery already, keep this area for spacing */}
+                </div>
+              </div>
             </div>
 
             {/* Product info */}
-            <div className="product-info">
+            <aside className="product-info card"> 
               <h1 className="product-name">{product.name}</h1>
-              <p className="product-price">{product.price}</p>
+              <div>
+                {product.sale_price && product.sale_price !== '' ? (
+                  <>
+                    <span className="product-price">AED {product.sale_price}</span>
+                    <span className="product-price-old">AED {product.regular_price}</span>
+                  </>
+                ) : (
+                  <span className="product-price">AED {product.price}</span>
+                )}
+              </div>
+
+              <div className="product-meta">
+                {product.inStock ? 'Available to ship' : 'Currently unavailable'}
+              </div>
+
+              {/* Key notes (if present in description as simple comma list) */}
+              {(() => {
+                // try to extract a short 'key notes' line from description heuristically
+                const desc = product.description || ''
+                const match = desc.match(/Key notes[:\-]?\s*([\s\S]{0,200})/i)
+                if (match && match[1]) {
+                  const notes = match[1].split(/[\.|\n]/)[0]
+                  return (
+                    <div className="product-keynotes">
+                      <strong>Key notes:</strong>
+                      <span>{notes.trim()}</span>
+                    </div>
+                  )
+                }
+                return null
+              })()}
 
               <div
                 className="product-description"
@@ -121,7 +146,7 @@ const ProductPage = () => {
                   Add to Cart
                 </button>
               </div>
-            </div>
+            </aside>
           </div>
         )}
       </main>
@@ -132,3 +157,33 @@ const ProductPage = () => {
 }
 
 export default ProductPage
+
+// Small gallery component for ProductPage (keeps file simple)
+function Gallery({ allImages, shade }: { allImages: { src: string; alt?: string }[]; shade?: string }) {
+  const [index, setIndex] = useState(0)
+  const main = allImages[index] ?? allImages[0]
+
+  return (
+    <>
+      <div className={`product-image-main ${shade}`}>
+        <img src={main?.src ?? '/perfumes/placeholder.png'} alt={main?.alt ?? ''} className="product-hero-img" />
+      </div>
+      {allImages.length > 1 && (
+        <div className="product-thumbs">
+          {allImages.map((img, i) => (
+            <div
+              key={i}
+              className={`product-thumb ${i === index ? 'product-thumb--active' : ''}`}
+              onClick={() => setIndex(i)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={() => setIndex(i)}
+            >
+              <img src={img.src} alt={img.alt} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}

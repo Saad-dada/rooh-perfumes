@@ -1,9 +1,15 @@
+import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/store-api'
 import '../styles/CartDrawer.css'
 
 const CartDrawer = () => {
   const { items, itemCount, total, drawerOpen, closeDrawer, updateQuantity, removeItem, loading, syncCheckout } = useCart()
+  const [processing, setProcessing] = useState<Record<string, 'updating' | 'removing' | null>>({})
+
+  const setProcessingState = (key: string, state: 'updating' | 'removing' | null) => {
+    setProcessing((prev) => ({ ...prev, [key]: state }))
+  }
 
   return (
     <>
@@ -44,8 +50,11 @@ const CartDrawer = () => {
                   item.totals.currency_code,
                 )
 
+                const isUpdating = processing[item.key] === 'updating'
+                const isRemoving = processing[item.key] === 'removing'
+
                 return (
-                  <div key={item.key} className="cart-item">
+                  <div key={item.key} className={`cart-item ${isRemoving ? 'cart-item--removing' : ''}`}>
                     <div className="cart-item-image">
                       <img
                         src={item.images[0]?.thumbnail ?? item.images[0]?.src ?? '/perfumes/placeholder.png'}
@@ -59,16 +68,34 @@ const CartDrawer = () => {
                       <div className="cart-item-qty">
                         <button
                           className="cart-qty-btn"
-                          onClick={() => updateQuantity(item.key, Math.max(1, item.quantity - 1))}
-                          disabled={loading || item.quantity <= 1}
+                          onClick={async () => {
+                            const newQty = Math.max(1, item.quantity - 1)
+                            setProcessingState(item.key, 'updating')
+                            try {
+                              await updateQuantity(item.key, newQty)
+                            } finally {
+                              setProcessingState(item.key, null)
+                            }
+                          }}
+                          disabled={loading || isUpdating || item.quantity <= 1}
                         >
                           −
                         </button>
-                        <span className="cart-qty-value">{item.quantity}</span>
+                        <span className="cart-qty-value">
+                          {isUpdating ? <span className="spinner" aria-hidden /> : item.quantity}
+                        </span>
                         <button
                           className="cart-qty-btn"
-                          onClick={() => updateQuantity(item.key, item.quantity + 1)}
-                          disabled={loading}
+                          onClick={async () => {
+                            const newQty = item.quantity + 1
+                            setProcessingState(item.key, 'updating')
+                            try {
+                              await updateQuantity(item.key, newQty)
+                            } finally {
+                              setProcessingState(item.key, null)
+                            }
+                          }}
+                          disabled={loading || isUpdating}
                         >
                           +
                         </button>
@@ -78,11 +105,18 @@ const CartDrawer = () => {
                     </div>
                     <button
                       className="cart-item-remove"
-                      onClick={() => removeItem(item.key)}
-                      disabled={loading}
+                      onClick={async () => {
+                        setProcessingState(item.key, 'removing')
+                        try {
+                          await removeItem(item.key)
+                        } finally {
+                          setProcessingState(item.key, null)
+                        }
+                      }}
+                      disabled={loading || isRemoving}
                       aria-label={`Remove ${item.name}`}
                     >
-                      ✕
+                      {isRemoving ? <span className="spinner" aria-hidden /> : '✕'}
                     </button>
                   </div>
                 )

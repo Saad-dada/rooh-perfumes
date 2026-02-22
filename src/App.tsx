@@ -4,6 +4,9 @@ import Home from './Home'
 import LoadingScreen from './components/LoadingScreen'
 import ShopPage from './components/ShopPage'
 import ProductPage from './components/ProductPage'
+import CollectionPerfume from './components/CollectionPerfume'
+import CollectionBakhoor from './components/CollectionBakhoor'
+import CollectionBodyMist from './components/CollectionBodyMist'
 import CheckoutPage from './components/CheckoutPage'
 import OrderConfirmation from './components/OrderConfirmation'
 import CartDrawer from './components/CartDrawer'
@@ -24,6 +27,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/collection/perfume" element={<CollectionPerfume />} />
+            <Route path="/collection/bakhoor" element={<CollectionBakhoor />} />
+            <Route path="/collection/body-mist" element={<CollectionBodyMist />} />
             <Route path="/product/:slug" element={<ProductPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />

@@ -222,7 +222,7 @@
   font-size: 1.4rem;
   font-weight: 400;
   color: var(--ink);
-  margin: 0 0 2px;
+  margin: 0 0 0.5rem;
 }
 
 .sp-card-category {
@@ -285,6 +285,13 @@
   background: #f6f2f5;
   color: #bba6b8;
   border-color: #e5d6e0;
+}
+
+/* Make explicit out-of-stock slightly greyer */
+.sp-card-btn[data-stock="out"]:disabled {
+  opacity: 0.6;
+  background: #f3f3f4;
+  color: #8f8c8f;
 }
 
 /* ── Responsive ── */

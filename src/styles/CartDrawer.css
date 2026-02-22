@@ -234,6 +234,27 @@
   color: #c0392b;
 }
 
+/* Small spinner used during per-item operations */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e6e6e6;
+  border-top-color: var(--accent, #4D193A);
+  border-radius: 50%;
+  animation: cart-spin 0.8s linear infinite;
+}
+
+@keyframes cart-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dim item while removing to provide visual feedback */
+.cart-item--removing {
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+}
+
 /* Footer */
 .cart-drawer-footer {
   padding: 20px 28px 28px;
