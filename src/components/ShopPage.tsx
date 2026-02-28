@@ -94,6 +94,9 @@ const ShopPage = () => {
         {error && (
           <div className="sp-error">
             <p>Could not load products. Please try again later.</p>
+            {import.meta.env.DEV && (
+              <pre className="sp-error-details" style={{whiteSpace: 'pre-wrap'}}>{error}</pre>
+            )}
           </div>
         )}
 

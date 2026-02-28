@@ -4,14 +4,21 @@ import axios, { type AxiosError } from 'axios'
 // both forward /wp-json/* to the WordPress backend
 const wcBaseURL = '/wp-json/wc/v3'
 
+// Prefer HTTP Basic Auth over query-string auth when keys are present.
+// Some hosts block query-string auth; basic auth is safe over HTTPS.
+const WC_KEY = import.meta.env.VITE_WC_CONSUMER_KEY
+const WC_SECRET = import.meta.env.VITE_WC_CONSUMER_SECRET
+const useBasicAuth = Boolean(WC_KEY && WC_SECRET)
+
 // WooCommerce REST API client
 export const wooApi = axios.create({
   baseURL: wcBaseURL,
   timeout: 15_000,
-  params: {
-    consumer_key: import.meta.env.VITE_WC_CONSUMER_KEY,
-    consumer_secret: import.meta.env.VITE_WC_CONSUMER_SECRET,
-  },
+  // If both key and secret are available prefer Basic Auth; otherwise
+  // fall back to query-string params for environments that require it.
+  ...(useBasicAuth
+    ? { auth: { username: WC_KEY as string, password: WC_SECRET as string } }
+    : { params: { consumer_key: WC_KEY, consumer_secret: WC_SECRET } }),
 })
 
 // ---------- Retry interceptor (handles GoDaddy cold-starts & network blips) ----------

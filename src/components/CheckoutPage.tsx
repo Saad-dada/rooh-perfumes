@@ -1,21 +1,19 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+// Stripe removed — checkout uses store default / COD
 import { useCart } from '../context/CartContext'
 import { formatPrice, checkout, clearCartToken } from '../lib/store-api'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import '../styles/CheckoutPage.css'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '')
+// No stripePromise needed
 
-/** Inner form — must be rendered inside <Elements> so useStripe() works */
+/** Checkout form */
 const CheckoutForm = () => {
   const { items, total, cart, refreshCart } = useCart()
   const navigate = useNavigate()
-  const stripe = useStripe()
-  const elements = useElements()
+  // Stripe removed — no stripe or elements
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,7 +47,7 @@ const CheckoutForm = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (items.length === 0 || !stripe || !elements) return
+    if (items.length === 0) return
 
     setSubmitting(true)
     setError(null)
@@ -81,35 +79,7 @@ const CheckoutForm = () => {
         }
 
     try {
-      // 1. Create a Stripe PaymentMethod from the card element
-      const cardElement = elements.getElement(CardElement)
-      if (!cardElement) { setError('Card element not found.'); setSubmitting(false); return }
-
-      const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-        billing_details: {
-          name: `${billing.first_name} ${billing.last_name}`,
-          email: billing.email,
-          phone: billing.phone,
-          address: {
-            line1: billing.address_1,
-            line2: billing.address_2 || undefined,
-            city: billing.city,
-            state: billing.state,
-            postal_code: billing.postcode,
-            country: billing.country,
-          },
-        },
-      })
-
-      if (stripeError || !paymentMethod) {
-        setError(stripeError?.message ?? 'Could not process card.')
-        setSubmitting(false)
-        return
-      }
-
-      // 2. Send checkout to WooCommerce with the Stripe payment method token
+      // Send checkout to WooCommerce — using Cash on Delivery (or store default)
       const result = await checkout({
         billing_address: billing,
         shipping_address: {
@@ -122,46 +92,11 @@ const CheckoutForm = () => {
           postcode: form.ship_postcode,
           country: form.ship_country,
         },
-        payment_method: 'stripe',
-        payment_data: [
-          { key: 'paymentMethod', value: paymentMethod.id },
-          { key: 'isSavedToken', value: 'false' },
-          { key: 'paymentRequestType', value: '' },
-        ],
+        payment_method: 'cod',
       })
 
-      // 3. Handle 3D Secure / redirect if needed
-      if (result.payment_result?.redirect_url) {
-        window.location.href = result.payment_result.redirect_url
-        return
-      }
-
-      // Check for payment failure returned inline
-      const paymentStatus = result.payment_result?.payment_status
-      if (paymentStatus === 'failure') {
-        const details = result.payment_result?.payment_details as
-          | { key: string; value: string }[]
-          | undefined
-        const errorMsg = details?.find((d) => d.key === 'errorMessage')?.value
-        setError(errorMsg ?? 'Payment failed. Please try again.')
-        setSubmitting(false)
-        return
-      }
-
-      // 4. If needs confirmation (SCA / 3DS)
-      if (paymentStatus === 'pending' || paymentStatus === 'requires_action') {
-        const intentSecret = (result.payment_result?.payment_details as
-          | { key: string; value: string }[]
-          | undefined)?.find((d) => d.key === 'clientSecret')?.value
-        if (intentSecret) {
-          const { error: confirmErr } = await stripe.confirmCardPayment(intentSecret)
-          if (confirmErr) {
-            setError(confirmErr.message ?? '3D Secure verification failed.')
-            setSubmitting(false)
-            return
-          }
-        }
-      }
+      // Note: Stripe flow removed — if your store requires hosted payment
+      // providers or different payment_method ids, update `payment_method` accordingly.
 
       // 5. Success
       clearCartToken()
@@ -343,22 +278,7 @@ const CheckoutForm = () => {
             {/* Payment */}
             <section className="checkout-section">
               <h3 className="checkout-section-title">Payment</h3>
-              <p className="checkout-note">Credit / Debit Card</p>
-              <div className="checkout-card-element">
-                <CardElement
-                  options={{
-                    style: {
-                      base: {
-                        fontSize: '16px',
-                        fontFamily: "'Instrument Sans', sans-serif",
-                        color: '#1a1a1a',
-                        '::placeholder': { color: '#999' },
-                      },
-                      invalid: { color: '#e53e3e' },
-                    },
-                  }}
-                />
-              </div>
+              <p className="checkout-note">Payment will be handled on delivery (Cash on Delivery).</p>
             </section>
 
             {error && <div className="checkout-error">{error}</div>}
@@ -366,7 +286,7 @@ const CheckoutForm = () => {
             <button
               type="submit"
               className="checkout-submit-btn"
-              disabled={submitting || !stripe || items.length === 0}
+              disabled={submitting || items.length === 0}
             >
               {submitting ? 'Placing Order…' : 'Place Order'}
             </button>
@@ -438,11 +358,6 @@ const CheckoutForm = () => {
   )
 }
 
-/** Wraps the form in Stripe Elements provider */
-const CheckoutPage = () => (
-  <Elements stripe={stripePromise}>
-    <CheckoutForm />
-  </Elements>
-)
+const CheckoutPage = () => <CheckoutForm />
 
 export default CheckoutPage
