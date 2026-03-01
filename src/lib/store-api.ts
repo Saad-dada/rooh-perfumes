@@ -90,9 +90,9 @@ async function ensureSession(): Promise<{ cartToken: string; nonce: string }> {
   // Need to fetch — de-duplicate concurrent calls
   if (!initPromise) {
     initPromise = (async () => {
-      const url = isDev
-        ? '/wp-json/wc/store/v1/cart'
-        : `${WC_BASE}/wp-json/wc/store/v1/cart`
+      // Always use a relative path so dev proxy and production rewrites
+      // (Vite dev proxy / Vercel rewrites) forward requests to WP.
+      const url = '/wp-json/wc/store/v1/cart'
 
       const existingToken = getCartToken()
       const headers: Record<string, string> = {}
