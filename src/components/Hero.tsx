@@ -1,143 +1,34 @@
-import React, { Suspense, useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Hero.css";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, Environment } from "@react-three/drei";
-import * as THREE from "three";
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-const MODEL_PATH = "/models/perfume-.glb";
-
-// Lerp smoothing (0.3 = responsive, smooth ~0.2s lag)
-const LERP_SMOOTHING = 0.2;
-
-const PRESET = "sunset"; // Environment preset for reflections (can be 'city', 'dawn', 'night', 'forest', 'apartment', 'studio', 'sunset' or a custom HDRI path)
-
-// ============================================================================
-// OPTIMIZED MODEL COMPONENT
-// ============================================================================
-function optimizeScene(scene: THREE.Group | THREE.Scene, isMobile: boolean): void {
-  scene.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return;
-    child.frustumCulled = true;
-    child.castShadow = false;
-    child.receiveShadow = false;
-    if (child.material) {
-      (child.material as THREE.Material).precision = "mediump";
-    }
-    if (isMobile && child.geometry && !child.geometry.attributes.normal) {
-      child.geometry.computeVertexNormals();
-    }
-  });
-}
-
-function ScrollRotateModel({ isMobile, useClone = false }: { isMobile: boolean; useClone?: boolean }) {
-  const { scene: originalScene } = useGLTF(MODEL_PATH);
-  // Clone the scene for the reflection so it doesn't steal the original from the main canvas
-  const scene = React.useMemo(
-    () => (useClone ? originalScene.clone(true) : originalScene),
-    [originalScene, useClone]
-  );
-  const groupRef = useRef<THREE.Group | null>(null);
-  const velocityRef = useRef(0);
-  const currentRotation = useRef(0);
-  const lastScrollRef = useRef(typeof window !== "undefined" ? window.scrollY : 0);
-
-  // Optimize scene once on mount
-  useEffect(() => {
-    optimizeScene(scene, isMobile);
-  }, [scene, isMobile]);
-
-  useEffect(() => {
-    function onScroll() {
-      const current = window.scrollY;
-      const delta = current - lastScrollRef.current;
-      lastScrollRef.current = current;
-      velocityRef.current += delta * 0.08;
-    }
-
-    // Wheel listener catches scroll-up intent even when already at top (scrollY=0)
-    function onWheel(e: WheelEvent) {
-      if (window.scrollY <= 0 && e.deltaY < 0) {
-        velocityRef.current += e.deltaY * 0.012;
-      }
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("wheel", onWheel, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("wheel", onWheel);
-    };
-  }, []);
-
-  useFrame(() => {
-    const g = groupRef.current;
-    if (!g) return;
-
-    // Apply velocity and clamp
-    const max = 0.16;
-    velocityRef.current = Math.max(-max, Math.min(max, velocityRef.current));
-
-    // Target = current + velocity, then decay velocity
-    const target = currentRotation.current + velocityRef.current;
-    velocityRef.current *= 0.92;
-    if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0;
-
-    // Smooth interpolation instead of direct assignment
-    currentRotation.current = THREE.MathUtils.lerp(
-      currentRotation.current,
-      target,
-      LERP_SMOOTHING
-    );
-
-    g.rotation.y = currentRotation.current;
-  });
-
-  const s = isMobile ? 0.55 : 0.8;
-
-  return (
-    <group ref={groupRef} rotation={[0, Math.PI, 0]}>
-      <primitive
-        object={scene}
-        scale={[s, s, s]}
-        position={[0, isMobile ? -0.25 : -0.4, 0]}
-      />
-    </group>
-  );
-}
-
-// Preload model for instant rendering
-useGLTF.preload(MODEL_PATH);
+const totalFrames = 6;
+const SCROLL_PIXELS_PER_FRAME = 120;
 
 // ============================================================================
 // MAIN HERO COMPONENT
 // ============================================================================
 
 const Hero: React.FC = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isCanvasVisible, setIsCanvasVisible] = useState(true);
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const [frame, setFrame] = useState(0);
 
-  // ── Device detection ──────────────────────────────────────────────────
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    for (let i = 1; i <= totalFrames; i += 1) {
+      const img = new Image();
+      img.src = `/frames/${i}.png`;
+    }
   }, []);
 
-  // ── Pause rendering when off-screen (IntersectionObserver) ────────────
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsCanvasVisible(entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(canvasRef.current);
-    return () => observer.disconnect();
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const steppedFrame = Math.floor(scrollTop / SCROLL_PIXELS_PER_FRAME);
+      const frameIndex = ((steppedFrame % totalFrames) + totalFrames) % totalFrames;
+
+      setFrame(frameIndex);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -209,80 +100,13 @@ const Hero: React.FC = () => {
               </svg>
             </div>
 
-            {/* SINGLE Canvas — no more second canvas for reflection */}
-            <div className="bottle" ref={canvasRef}>
-              <div className="bottle-canvas">
-                <Canvas
-                  shadows={false}
-                  dpr={isMobile ? [0.75, 1] : [1, 1.5]}
-                  frameloop={isCanvasVisible ? "always" : "never"}
-                  camera={{ position: [0, 0.2, 3], fov: 35 }}
-                  performance={{ min: 0.5 }}
-                  gl={{
-                    alpha: true,
-                    antialias: !isMobile,
-                    powerPreference: "high-performance",
-                    stencil: false,
-                    depth: true,
-                    preserveDrawingBuffer: false,
-                  }}
-                >
-                  {/* Lighting: ambient + key + fill + front */}
-                  <ambientLight intensity={0.5} />
-                  <directionalLight
-                    position={[4, 6, 6]}
-                    intensity={1.2}
-                    castShadow={false}
-                  />
-                  <directionalLight
-                    position={[-3, 4, -4]}
-                    intensity={0.6}
-                    castShadow={false}
-                  />
-                  {/* Front fill light — illuminates the face towards camera */}
-                  <directionalLight
-                    position={[0, 2, 5]}
-                    intensity={0.2}
-                    castShadow={false}
-                  />
-
-                  <Suspense fallback={null}>
-                    <Environment
-                      preset={PRESET}
-                      background={false}
-                      resolution={isMobile ? 64 : 128}
-                    />
-                    <ScrollRotateModel isMobile={isMobile} />
-                  </Suspense>
-                </Canvas>
-              </div>
-            </div>
-
-            {/* Reflection — mirrors the bottle canvas via CSS */}
-            <div className="reflection" aria-hidden>
-              <div className="bottle-reflection-mirror">
-                <Canvas
-                  shadows={false}
-                  dpr={isMobile ? [0.5, 0.75] : [0.75, 1]}
-                  frameloop={isCanvasVisible ? "always" : "never"}
-                  camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  performance={{ min: 0.3 }}
-                  gl={{
-                    alpha: true,
-                    antialias: false,
-                    powerPreference: "high-performance",
-                    stencil: false,
-                    depth: true,
-                    preserveDrawingBuffer: false,
-                  }}
-                >
-                  <ambientLight intensity={0.2} />
-                  <directionalLight position={[3, 5, 5]} intensity={0.2} castShadow={false} />
-                  <Suspense fallback={null}>
-                    <Environment preset={PRESET} background={false} resolution={64} />
-                    <ScrollRotateModel isMobile={isMobile} useClone />
-                  </Suspense>
-                </Canvas>
+            <div className="bottle">
+              <div className="bottle-canvas scroll360-stage">
+                <img
+                  src={`/frames/${frame + 1}.png`}
+                  alt="360 view"
+                  className="scroll360-image"
+                />
               </div>
             </div>
           </div>

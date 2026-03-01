@@ -295,6 +295,19 @@
   overflow: visible;
 }
 
+.scroll360-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll360-image {
+  width: 32vw;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
 .bottle-canvas canvas {
   width: 100% !important;
   height: 100% !important;
