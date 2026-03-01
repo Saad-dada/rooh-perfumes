@@ -9,11 +9,6 @@ import { wooApi } from './woocommerce'
  * Cart sessions are tracked via the `Cart-Token` header.
  */
 
-const WC_BASE = import.meta.env.VITE_WC_BASE_URL?.replace(/\/+$/, '') ?? ''
-
-// Vite provides a boolean `import.meta.env.DEV` during development
-const isDev = Boolean(import.meta.env.DEV)
-
 // Always use relative path — Vite proxy (dev) and Vercel rewrites (prod)
 // both forward /wp-json/* to the WordPress backend
 const storeBaseURL = '/wp-json/wc/store/v1'
