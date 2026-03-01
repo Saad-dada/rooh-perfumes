@@ -1,8 +1,7 @@
 import axios, { type AxiosError } from 'axios'
 
-// Always use relative path — Vite proxy (dev) and Vercel rewrites (prod)
-// both forward /wp-json/* to the WordPress backend
-const wcBaseURL = '/wp-json/wc/v3'
+// Use same-origin proxy route so browser requests don't go cross-origin.
+const wcBaseURL = '/api/wp/wp-json/wc/v3'
 
 // Prefer HTTP Basic Auth over query-string auth when keys are present.
 // Some hosts block query-string auth; basic auth is safe over HTTPS.

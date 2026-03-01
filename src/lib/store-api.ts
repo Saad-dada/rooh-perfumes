@@ -9,9 +9,9 @@ import { wooApi } from './woocommerce'
  * Cart sessions are tracked via the `Cart-Token` header.
  */
 
-// Always use relative path — Vite proxy (dev) and Vercel rewrites (prod)
-// both forward /wp-json/* to the WordPress backend
-const storeBaseURL = '/wp-json/wc/store/v1'
+// Use same-origin proxy route in production to avoid CORS; the proxy
+// (api/wp) forwards to the upstream WP `wp-json` path.
+const storeBaseURL = '/api/wp/wp-json/wc/store/v1'
 
 const CART_TOKEN_KEY = 'rooh_cart_token'
 const NONCE_CACHE_KEY = 'rooh_wc_nonce'
