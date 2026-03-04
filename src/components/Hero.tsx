@@ -1,166 +1,239 @@
-import React, { Suspense, useRef, useEffect, useState } from "react";
-import "../styles/Hero.css";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, Environment } from "@react-three/drei";
-import * as THREE from "three";
+import { useEffect, useRef, useState } from 'react'
+import '../styles/Hero.css'
 
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-const MODEL_PATH = "/models/perfume-.glb";
-
-// Lerp smoothing (0.3 = responsive, smooth ~0.2s lag)
-const LERP_SMOOTHING = 0.2;
-
-const PRESET = "sunset"; // Environment preset for reflections (can be 'city', 'dawn', 'night', 'forest', 'apartment', 'studio', 'sunset' or a custom HDRI path)
-
-// ============================================================================
-// OPTIMIZED MODEL COMPONENT
-// ============================================================================
-function optimizeScene(scene: THREE.Group | THREE.Scene, isMobile: boolean): void {
-  scene.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return;
-    child.frustumCulled = true;
-    child.castShadow = false;
-    child.receiveShadow = false;
-    if (child.material) {
-      (child.material as THREE.Material).precision = "mediump";
-    }
-    if (isMobile && child.geometry && !child.geometry.attributes.normal) {
-      child.geometry.computeVertexNormals();
-    }
-  });
+type HeroSlide = {
+  name: string
+  label: string
+  tagline: string
+  description: string
 }
 
-function ScrollRotateModel({ isMobile, useClone = false }: { isMobile: boolean; useClone?: boolean }) {
-  const { scene: originalScene } = useGLTF(MODEL_PATH);
-  // Clone the scene for the reflection so it doesn't steal the original from the main canvas
-  const scene = React.useMemo(
-    () => (useClone ? originalScene.clone(true) : originalScene),
-    [originalScene, useClone]
-  );
-  const groupRef = useRef<THREE.Group | null>(null);
-  const velocityRef = useRef(0);
-  const currentRotation = useRef(0);
-  const lastScrollRef = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+const HERO_SLIDES: HeroSlide[] = [
+  {
+    name: 'Ashq',
+    label: 'Eau de Parfum',
+    tagline: 'Romantic warmth in every note',
+    description:
+      'Ashq blends floral sweetness with soft amber for a graceful, lingering signature made for everyday elegance.',
+  },
+  {
+    name: 'Qalb',
+    label: 'Eau de Parfum',
+    tagline: 'A soulful oriental expression',
+    description:
+      'Qalb unfolds with rich woods and musky depth, crafted for those who love bold character and lasting presence.',
+  },
+  {
+    name: 'Sifr',
+    label: 'Eau de Parfum',
+    tagline: 'Clean, modern, and magnetic',
+    description:
+      'Sifr opens crisp and fresh, then settles into smooth warmth that feels minimal, refined, and unforgettable.',
+  },
+  {
+    name: 'Sahara Saffron',
+    label: 'Eau de Parfum',
+    tagline: 'Golden spice with desert luxury',
+    description:
+      'Sahara Saffron pairs luminous saffron accents with deep resinous undertones for an opulent evening aura.',
+  },
+]
 
-  // Optimize scene once on mount
+const AUTO_SLIDE_MS = 10000
+const TOTAL_FRAMES = 48
+const PIXELS_PER_FRAME = 24
+
+const padFrame = (index: number) => String(index).padStart(3, '0')
+const frameSrc = (frameIndex: number) => `/frames/qalb/frame_${padFrame(frameIndex + 1)}.png`
+
+const Hero = () => {
+  const [activeSlide, setActiveSlide] = useState(0)
+  const [frame, setFrame] = useState(0)
+  const [isSequenceReady, setIsSequenceReady] = useState(false)
+  const [isSlideChanging, setIsSlideChanging] = useState(false)
+
+  const latestOffset = useRef(0)
+  const accumulatedOffset = useRef(0)
+  const lastScrollY = useRef(0)
+  const ticking = useRef(false)
+  const rafId = useRef<number | null>(null)
+
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const reflectionCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const framesRef = useRef<HTMLImageElement[]>([])
+  const drawnFrameRef = useRef<number>(-1)
+
   useEffect(() => {
-    optimizeScene(scene, isMobile);
-  }, [scene, isMobile]);
+    const timer = window.setTimeout(() => {
+      setActiveSlide((prev) => (prev + 1) % HERO_SLIDES.length)
+    }, AUTO_SLIDE_MS)
+
+    return () => window.clearTimeout(timer)
+  }, [activeSlide])
 
   useEffect(() => {
-    function onScroll() {
-      const current = window.scrollY;
-      const delta = current - lastScrollRef.current;
-      lastScrollRef.current = current;
-      velocityRef.current += delta * 0.08;
-    }
+    setIsSlideChanging(true)
+    const fadeTimer = window.setTimeout(() => {
+      setIsSlideChanging(false)
+    }, 1100)
 
-    // Wheel listener catches scroll-up intent even when already at top (scrollY=0)
-    function onWheel(e: WheelEvent) {
-      if (window.scrollY <= 0 && e.deltaY < 0) {
-        velocityRef.current += e.deltaY * 0.012;
+    return () => window.clearTimeout(fadeTimer)
+  }, [activeSlide])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const preloadAllFrames = async () => {
+      const tasks = Array.from({ length: TOTAL_FRAMES }, (_, index) => {
+        const img = new Image()
+        img.src = frameSrc(index)
+
+        return new Promise<HTMLImageElement>((resolve) => {
+          const done = () => resolve(img)
+
+          if (img.decode) {
+            void img.decode().then(done).catch(done)
+          } else {
+            img.onload = done
+            img.onerror = done
+          }
+        })
+      })
+
+      const loadedFrames = await Promise.all(tasks)
+      if (!cancelled) {
+        framesRef.current = loadedFrames
+        setIsSequenceReady(true)
       }
     }
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("wheel", onWheel, { passive: true });
+    void preloadAllFrames()
+
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("wheel", onWheel);
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
-  useFrame(() => {
-    const g = groupRef.current;
-    if (!g) return;
-
-    // Apply velocity and clamp
-    const max = 0.16;
-    velocityRef.current = Math.max(-max, Math.min(max, velocityRef.current));
-
-    // Target = current + velocity, then decay velocity
-    const target = currentRotation.current + velocityRef.current;
-    velocityRef.current *= 0.92;
-    if (Math.abs(velocityRef.current) < 1e-6) velocityRef.current = 0;
-
-    // Smooth interpolation instead of direct assignment
-    currentRotation.current = THREE.MathUtils.lerp(
-      currentRotation.current,
-      target,
-      LERP_SMOOTHING
-    );
-
-    g.rotation.y = currentRotation.current;
-  });
-
-  const s = isMobile ? 0.55 : 0.8;
-
-  return (
-    <group ref={groupRef} rotation={[0, Math.PI, 0]}>
-      <primitive
-        object={scene}
-        scale={[s, s, s]}
-        position={[0, isMobile ? -0.25 : -0.4, 0]}
-      />
-    </group>
-  );
-}
-
-// Preload model for instant rendering
-useGLTF.preload(MODEL_PATH);
-
-// ============================================================================
-// MAIN HERO COMPONENT
-// ============================================================================
-
-const Hero: React.FC = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isCanvasVisible, setIsCanvasVisible] = useState(true);
-  const canvasRef = useRef<HTMLDivElement>(null);
-
-  // ── Device detection ──────────────────────────────────────────────────
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
+    if (!isSequenceReady) return
 
-  // ── Pause rendering when off-screen (IntersectionObserver) ────────────
+    const canvas = canvasRef.current
+    const reflectionCanvas = reflectionCanvasRef.current
+    const frameImage = framesRef.current[frame]
+
+    if (!canvas || !reflectionCanvas || !frameImage || drawnFrameRef.current === frame) {
+      return
+    }
+
+    const ctx = canvas.getContext('2d')
+    const reflectionCtx = reflectionCanvas.getContext('2d')
+    if (!ctx || !reflectionCtx) return
+
+    const width = frameImage.naturalWidth || frameImage.width
+    const height = frameImage.naturalHeight || frameImage.height
+
+    if (width > 0 && height > 0) {
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width
+        canvas.height = height
+      }
+
+      if (reflectionCanvas.width !== width || reflectionCanvas.height !== height) {
+        reflectionCanvas.width = width
+        reflectionCanvas.height = height
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height)
+
+      reflectionCtx.clearRect(0, 0, reflectionCanvas.width, reflectionCanvas.height)
+      reflectionCtx.drawImage(frameImage, 0, 0, reflectionCanvas.width, reflectionCanvas.height)
+
+      drawnFrameRef.current = frame
+    }
+  }, [frame, isSequenceReady, activeSlide])
+
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsCanvasVisible(entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(canvasRef.current);
-    return () => observer.disconnect();
-  }, []);
+    const updateFrame = (offset: number) => {
+      const rawIndex = Math.floor(offset / PIXELS_PER_FRAME)
+      const nextFrame = ((rawIndex % TOTAL_FRAMES) + TOTAL_FRAMES) % TOTAL_FRAMES
+      setFrame((prevFrame) => (prevFrame === nextFrame ? prevFrame : nextFrame))
+      ticking.current = false
+    }
+
+    const scheduleUpdate = () => {
+      if (!ticking.current) {
+        ticking.current = true
+        rafId.current = window.requestAnimationFrame(() => updateFrame(latestOffset.current))
+      }
+    }
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      const deltaY = currentScrollY - lastScrollY.current
+      lastScrollY.current = currentScrollY
+
+      if (deltaY !== 0) {
+        accumulatedOffset.current += deltaY
+        latestOffset.current = accumulatedOffset.current
+        scheduleUpdate()
+      }
+    }
+
+    const handleWheel = (event: WheelEvent) => {
+      const maxScroll = document.body.scrollHeight - window.innerHeight
+      const atTop = window.scrollY <= 0
+      const atBottom = window.scrollY >= Math.max(0, maxScroll)
+
+      if ((atTop && event.deltaY < 0) || (atBottom && event.deltaY > 0)) {
+        accumulatedOffset.current += event.deltaY
+        latestOffset.current = accumulatedOffset.current
+        scheduleUpdate()
+      }
+    }
+
+    accumulatedOffset.current = window.scrollY
+    latestOffset.current = accumulatedOffset.current
+    lastScrollY.current = window.scrollY
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('wheel', handleWheel, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('wheel', handleWheel)
+      if (rafId.current !== null) {
+        window.cancelAnimationFrame(rafId.current)
+      }
+    }
+  }, [])
+
+  const current = HERO_SLIDES[activeSlide]
+  const fadeClass = isSlideChanging ? 'slide-fade-active' : ''
+  const goPrevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
+  }
+  const goNextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % HERO_SLIDES.length)
+  }
 
   return (
     <section className="hero featured" aria-labelledby="hero-heading">
       <div className="hero-inner featured-grid">
-        <div className="side left">
-          <p className="hero-label">Eau de Parfum</p>
-          <h1 className="hero-brand" id="hero-heading">Rooh</h1>
-          <p className="hero-tagline">Fragrance that touches the soul</p>
-          <p className="hero-desc">
-            Handcrafted oriental perfumes inspired by heritage, 
-            designed for those who seek depth in every note.
-          </p>
+        <div className={`side left hero-slide-panel ${fadeClass}`}>
+          <p className="hero-label">{current.label}</p>
+          <h1 className="hero-brand" id="hero-heading">{current.name}</h1>
+          <p className="hero-tagline">{current.tagline}</p>
+          <p className="hero-desc">{current.description}</p>
           <a href="#shop" className="hero-cta">
             Explore Collection
             <span className="hero-cta-arrow">→</span>
           </a>
         </div>
 
-        <div className="center" role="img" aria-label="Perfume spotlight">
+        <div className={`center hero-slide-panel ${fadeClass}`} role="img" aria-label={`${current.name} spotlight`}>
           <div className="bottle-wrap">
-            {/* SVG filter for animated water ripple effect */}
-            <svg width="0" height="0" style={{ position: "absolute" }}>
+            <svg width="0" height="0" style={{ position: 'absolute' }}>
               <filter id="water-ripple">
                 <feTurbulence
                   id="turbwave"
@@ -203,91 +276,32 @@ const Hero: React.FC = () => {
                 </defs>
                 <text className="circ-text">
                   <textPath href="#circlePath" startOffset="0">
-                    Rooh Perfumes · Fragrance that touches the soul ·{" "}
+                    Rooh Perfumes · {current.tagline} · {' '}
                   </textPath>
                 </text>
               </svg>
             </div>
 
-            {/* SINGLE Canvas — no more second canvas for reflection */}
-            <div className="bottle" ref={canvasRef}>
-              <div className="bottle-canvas">
-                <Canvas
-                  shadows={false}
-                  dpr={isMobile ? [0.75, 1] : [1, 1.5]}
-                  frameloop={isCanvasVisible ? "always" : "never"}
-                  camera={{ position: [0, 0.2, 3], fov: 35 }}
-                  performance={{ min: 0.5 }}
-                  gl={{
-                    alpha: true,
-                    antialias: !isMobile,
-                    powerPreference: "high-performance",
-                    stencil: false,
-                    depth: true,
-                    preserveDrawingBuffer: false,
-                  }}
-                >
-                  {/* Lighting: ambient + key + fill + front */}
-                  <ambientLight intensity={0.5} />
-                  <directionalLight
-                    position={[4, 6, 6]}
-                    intensity={1.2}
-                    castShadow={false}
-                  />
-                  <directionalLight
-                    position={[-3, 4, -4]}
-                    intensity={0.6}
-                    castShadow={false}
-                  />
-                  {/* Front fill light — illuminates the face towards camera */}
-                  <directionalLight
-                    position={[0, 2, 5]}
-                    intensity={0.2}
-                    castShadow={false}
-                  />
-
-                  <Suspense fallback={null}>
-                    <Environment
-                      preset={PRESET}
-                      background={false}
-                      resolution={isMobile ? 64 : 128}
-                    />
-                    <ScrollRotateModel isMobile={isMobile} />
-                  </Suspense>
-                </Canvas>
-              </div>
+            <div className="bottle">
+              <canvas
+                ref={canvasRef}
+                aria-label={`${current.name} 360 view`}
+                className="bottle-img scroll360-image hero-slide-image"
+                style={{ visibility: isSequenceReady ? 'visible' : 'hidden' }}
+              />
             </div>
 
-            {/* Reflection — mirrors the bottle canvas via CSS */}
             <div className="reflection" aria-hidden>
               <div className="bottle-reflection-mirror">
-                <Canvas
-                  shadows={false}
-                  dpr={isMobile ? [0.5, 0.75] : [0.75, 1]}
-                  frameloop={isCanvasVisible ? "always" : "never"}
-                  camera={{ position: [0, 0, 3.2], fov: 35 }}
-                  performance={{ min: 0.3 }}
-                  gl={{
-                    alpha: true,
-                    antialias: false,
-                    powerPreference: "high-performance",
-                    stencil: false,
-                    depth: true,
-                    preserveDrawingBuffer: false,
-                  }}
-                >
-                  <ambientLight intensity={0.2} />
-                  <directionalLight position={[3, 5, 5]} intensity={0.2} castShadow={false} />
-                  <Suspense fallback={null}>
-                    <Environment preset={PRESET} background={false} resolution={64} />
-                    <ScrollRotateModel isMobile={isMobile} useClone />
-                  </Suspense>
-                </Canvas>
+                <canvas
+                  ref={reflectionCanvasRef}
+                  className="bottle-img scroll360-image hero-slide-image"
+                  style={{ visibility: isSequenceReady ? 'visible' : 'hidden' }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Animated SVG water layer with ripple filter */}
           <svg
             className="water-svg"
             width="100%"
@@ -295,14 +309,14 @@ const Hero: React.FC = () => {
             viewBox="0 0 1000 380"
             preserveAspectRatio="none"
             style={{
-              position: "absolute",
-              left: "-1vw",
+              position: 'absolute',
+              left: '-1vw',
               bottom: 0,
-              width: "102vw",
-              height: "38vh",
+              width: '102vw',
+              height: '38vh',
               zIndex: 0,
-              pointerEvents: "none",
-              display: "block",
+              pointerEvents: 'none',
+              display: 'block',
             }}
             aria-hidden
           >
@@ -333,21 +347,45 @@ const Hero: React.FC = () => {
           </svg>
         </div>
 
-        <div className="side right">
-          <span className="hero-right-text">Eau de Parfum — 2026 Collection</span>
+        <div className="hero-slide-controls" aria-label="Hero slide controls">
+          <button
+            type="button"
+            className="hero-slide-arrow"
+            onClick={goPrevSlide}
+            aria-label="Previous perfume"
+          >
+            ←
+          </button>
 
-          <div className="hero-scroll-hint">
-            <div className="hero-scroll-circle">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-                <path d="M7 1v10M3 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="hero-scroll-text">Scroll</span>
+          <div className="hero-slide-dots" aria-label="Hero perfume slides">
+            {HERO_SLIDES.map((slide, index) => (
+              <button
+                key={slide.name}
+                type="button"
+                className={`hero-slide-dot ${index === activeSlide ? 'is-active' : ''}`}
+                onClick={() => setActiveSlide(index)}
+                aria-label={`Show ${slide.name}`}
+                aria-pressed={index === activeSlide}
+              />
+            ))}
           </div>
+
+          <button
+            type="button"
+            className="hero-slide-arrow"
+            onClick={goNextSlide}
+            aria-label="Next perfume"
+          >
+            →
+          </button>
+        </div>
+
+        <div className="side right">
+          <span className="hero-right-text">{current.name} — 2026 Collection</span>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Hero
