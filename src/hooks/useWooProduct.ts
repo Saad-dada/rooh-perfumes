@@ -5,6 +5,7 @@ export function useWooProduct(slug: string | undefined) {
   const [product, setProduct] = useState<WooProduct | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [retryIndex, setRetryIndex] = useState(0)
 
   useEffect(() => {
     if (!slug) return
@@ -29,7 +30,12 @@ export function useWooProduct(slug: string | undefined) {
 
     fetchProduct()
     return () => { cancelled = true }
-  }, [slug])
+  }, [slug, retryIndex])
 
-  return { product, loading, error }
+  return {
+    product,
+    loading,
+    error,
+    retry: () => setRetryIndex((value) => value + 1),
+  }
 }

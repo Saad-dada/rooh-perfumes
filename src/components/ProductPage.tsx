@@ -19,7 +19,7 @@ const SHADE_MAP: Record<string, string> = {
 const ProductPage = () => {
   const { slug } = useParams<{ slug: string }>()
   const { addToCart } = useCart()
-  const { product: wooProduct, loading, error } = useWooProduct(slug)
+  const { product: wooProduct, loading, error, retry } = useWooProduct(slug)
 
   const product = wooProduct
     ? {
@@ -62,7 +62,10 @@ const ProductPage = () => {
         )}
 
         {error && (
-          <div className="product-error">Could not load product.</div>
+          <div className="product-error">
+            <div>{error}</div>
+            <button className="product-btn product-btn-secondary" onClick={retry}>Retry</button>
+          </div>
         )}
 
         {product && (

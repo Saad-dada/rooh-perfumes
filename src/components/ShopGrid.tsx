@@ -22,7 +22,7 @@ const ShopGrid = ({ products: productsProp }: ShopGridProps) => {
   const { addToCart } = useCart()
   const [addingId, setAddingId] = useState<number | null>(null)
   // If products are passed as a prop, use them; otherwise fetch a small grid set
-  const { products, loading, error } = useWooProducts({ per_page: 4 })
+  const { products, loading, error, retry } = useWooProducts({ per_page: 4 })
   const displayProducts = productsProp ?? products
 
   return (
@@ -35,7 +35,10 @@ const ShopGrid = ({ products: productsProp }: ShopGridProps) => {
         )}
 
         {!productsProp && error && (
-          <p className="shop-error">Could not load products.</p>
+          <div className="shop-error">
+            <p>{error}</p>
+            <button className="shop-card-btn" onClick={retry}>Retry</button>
+          </div>
         )}
 
         <div className="shop-grid">

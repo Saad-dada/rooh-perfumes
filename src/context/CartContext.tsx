@@ -29,9 +29,31 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+const fallbackCartContext: CartContextValue = {
+  cart: null,
+  items: [],
+  itemCount: 0,
+  total: '$0.00',
+  loading: false,
+  drawerOpen: false,
+  openDrawer: () => {},
+  closeDrawer: () => {},
+  addToCart: async () => {},
+  updateQuantity: async () => {},
+  removeItem: async () => {},
+  refreshCart: async () => {},
+  clearCart: () => {},
+  syncCheckout: () => {},
+}
+
 export function useCart() {
   const ctx = useContext(CartContext)
-  if (!ctx) throw new Error('useCart must be used inside <CartProvider>')
+  if (!ctx) {
+    if (import.meta.env.DEV) {
+      console.warn('useCart called outside <CartProvider>; cart actions are disabled for this render.')
+    }
+    return fallbackCartContext
+  }
   return ctx
 }
 

@@ -1,14 +1,31 @@
 import axios, { type AxiosError } from 'axios'
 
-// Always use relative path — Vite proxy (dev) and Vercel rewrites (prod)
-// both forward /wp-json/* to the WordPress backend
-const wcBaseURL = '/wp-json/wc/v3'
+const configuredBaseUrl = (import.meta.env.VITE_WC_BASE_URL as string | undefined)
+  ?.trim()
+  .replace(/\/+$/, '')
+
+// In dev, prefer direct absolute URL if configured (avoids local proxy 404 state).
+// In production, keep relative path to work with Vercel rewrites.
+const wcBaseURL = import.meta.env.DEV && configuredBaseUrl
+  ? `${configuredBaseUrl}/wp-json/wc/v3`
+  : '/wp-json/wc/v3'
 
 // Prefer HTTP Basic Auth over query-string auth when keys are present.
 // Some hosts block query-string auth; basic auth is safe over HTTPS.
-const WC_KEY = import.meta.env.VITE_WC_CONSUMER_KEY
-const WC_SECRET = import.meta.env.VITE_WC_CONSUMER_SECRET
+function cleanEnvValue(value: string | undefined): string {
+  return (value ?? '').trim().replace(/;+$/, '')
+}
+
+const WC_KEY = cleanEnvValue(import.meta.env.VITE_WC_CONSUMER_KEY)
+const WC_SECRET = cleanEnvValue(import.meta.env.VITE_WC_CONSUMER_SECRET)
 const useBasicAuth = Boolean(WC_KEY && WC_SECRET)
+const useQueryAuth = Boolean(WC_KEY || WC_SECRET)
+
+if (import.meta.env.DEV) {
+  const target = configuredBaseUrl || '(no VITE_WC_BASE_URL set)'
+  const authMode = useBasicAuth ? 'basic' : useQueryAuth ? 'query' : 'none'
+  console.info('[wooApi] base=%s target=%s auth=%s', wcBaseURL, target, authMode)
+}
 
 // WooCommerce REST API client
 export const wooApi = axios.create({
@@ -18,7 +35,9 @@ export const wooApi = axios.create({
   // fall back to query-string params for environments that require it.
   ...(useBasicAuth
     ? { auth: { username: WC_KEY as string, password: WC_SECRET as string } }
-    : { params: { consumer_key: WC_KEY, consumer_secret: WC_SECRET } }),
+    : useQueryAuth
+      ? { params: { consumer_key: WC_KEY, consumer_secret: WC_SECRET } }
+      : {}),
 })
 
 // ---------- Retry interceptor (handles GoDaddy cold-starts & network blips) ----------
@@ -29,6 +48,29 @@ function isRetryable(error: AxiosError): boolean {
   if (!error.response) return true                       // network / timeout
   const s = error.response.status
   return s === 408 || s === 429 || s === 502 || s === 503 || s === 504
+}
+
+function mapWooError(error: unknown, resource: string): Error {
+  if (!axios.isAxiosError(error)) {
+    return new Error(`Failed to load ${resource}. Please try again.`)
+  }
+
+  if (!error.response) {
+    return new Error(`Network error while loading ${resource}. Check API URL/proxy and internet connection.`)
+  }
+
+  const status = error.response.status
+  if (status === 401 || status === 403) {
+    return new Error(`Store authentication failed (${status}) while loading ${resource}. Check Woo API keys and permissions.`)
+  }
+  if (status === 404) {
+    return new Error(`Store endpoint not found (404) while loading ${resource}. Verify VITE_WC_BASE_URL and WordPress permalink/API setup.`)
+  }
+  if (status >= 500) {
+    return new Error(`Store server error (${status}) while loading ${resource}. Please try again in a moment.`)
+  }
+
+  return new Error(`Store request failed (${status}) while loading ${resource}.`)
 }
 
 wooApi.interceptors.response.use(undefined, async (error: AxiosError) => {
@@ -85,24 +127,36 @@ export async function getProducts(params?: {
   orderby?: string
   order?: 'asc' | 'desc'
 }): Promise<WooProduct[]> {
-  const { data } = await wooApi.get<WooProduct[]>('/products', {
-    params: { per_page: 20, ...params },
-  })
-  return data
+  try {
+    const { data } = await wooApi.get<WooProduct[]>('/products', {
+      params: { per_page: 20, ...params },
+    })
+    return data
+  } catch (error) {
+    throw mapWooError(error, 'products')
+  }
 }
 
 /** Fetch a single product by ID */
 export async function getProduct(id: number): Promise<WooProduct> {
-  const { data } = await wooApi.get<WooProduct>(`/products/${id}`)
-  return data
+  try {
+    const { data } = await wooApi.get<WooProduct>(`/products/${id}`)
+    return data
+  } catch (error) {
+    throw mapWooError(error, 'product')
+  }
 }
 
 /** Fetch a single product by slug */
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {
-  const { data } = await wooApi.get<WooProduct[]>('/products', {
-    params: { slug, per_page: 1 },
-  })
-  return data[0] ?? null
+  try {
+    const { data } = await wooApi.get<WooProduct[]>('/products', {
+      params: { slug, per_page: 1 },
+    })
+    return data[0] ?? null
+  } catch (error) {
+    throw mapWooError(error, 'product')
+  }
 }
 
 /** Fetch all categories */
@@ -110,10 +164,14 @@ export async function getCategories(params?: {
   per_page?: number
   hide_empty?: boolean
 }): Promise<WooCategory[]> {
-  const { data } = await wooApi.get<WooCategory[]>('/products/categories', {
-    params: { per_page: 50, hide_empty: true, ...params },
-  })
-  return data
+  try {
+    const { data } = await wooApi.get<WooCategory[]>('/products/categories', {
+      params: { per_page: 50, hide_empty: true, ...params },
+    })
+    return data
+  } catch (error) {
+    throw mapWooError(error, 'categories')
+  }
 }
 
 export default wooApi

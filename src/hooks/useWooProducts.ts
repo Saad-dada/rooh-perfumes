@@ -10,6 +10,7 @@ export function useWooProducts(options: UseWooProductsOptions = {}) {
   const [products, setProducts] = useState<WooProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retryIndex, setRetryIndex] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -32,7 +33,12 @@ export function useWooProducts(options: UseWooProductsOptions = {}) {
 
     fetchProducts()
     return () => { cancelled = true }
-  }, [options.per_page, options.category])
+  }, [options.per_page, options.category, retryIndex])
 
-  return { products, loading, error }
+  return {
+    products,
+    loading,
+    error,
+    retry: () => setRetryIndex((value) => value + 1),
+  }
 }

@@ -9,9 +9,13 @@ import { wooApi } from './woocommerce'
  * Cart sessions are tracked via the `Cart-Token` header.
  */
 
-// Always use relative path — Vite proxy (dev) and Vercel rewrites (prod)
-// both forward /wp-json/* to the WordPress backend
-const storeBaseURL = '/wp-json/wc/store/v1'
+const configuredBaseUrl = (import.meta.env.VITE_WC_BASE_URL as string | undefined)
+  ?.trim()
+  .replace(/\/+$/, '')
+
+const storeBaseURL = import.meta.env.DEV && configuredBaseUrl
+  ? `${configuredBaseUrl}/wp-json/wc/store/v1`
+  : '/wp-json/wc/store/v1'
 
 const CART_TOKEN_KEY = 'rooh_cart_token'
 const NONCE_CACHE_KEY = 'rooh_wc_nonce'
@@ -87,7 +91,7 @@ async function ensureSession(): Promise<{ cartToken: string; nonce: string }> {
     initPromise = (async () => {
       // Always use a relative path so dev proxy and production rewrites
       // (Vite dev proxy / Vercel rewrites) forward requests to WP.
-      const url = '/wp-json/wc/store/v1/cart'
+      const url = `${storeBaseURL}/cart`
 
       const existingToken = getCartToken()
       const headers: Record<string, string> = {}

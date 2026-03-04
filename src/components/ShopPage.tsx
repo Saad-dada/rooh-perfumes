@@ -13,7 +13,7 @@ const ShopPage = () => {
   const activeCatId = activeCat ? Number(activeCat) : undefined;
 
   const { categories, loading: catsLoading } = useWooCategories();
-  const { products, loading, error } = useWooProducts({
+  const { products, loading, error, retry } = useWooProducts({
     per_page: 50,
     ...(activeCatId ? { category: activeCatId } : {}),
   });
@@ -93,7 +93,10 @@ const ShopPage = () => {
         {/* Error state */}
         {error && (
           <div className="sp-error">
-            <p>Could not load products. Please try again later.</p>
+            <p>{error}</p>
+            <button className="sp-filter-btn sp-filter-btn--active" onClick={retry}>
+              Retry
+            </button>
             {import.meta.env.DEV && (
               <pre className="sp-error-details" style={{whiteSpace: 'pre-wrap'}}>{error}</pre>
             )}
