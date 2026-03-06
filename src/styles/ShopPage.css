@@ -210,9 +210,6 @@
   box-shadow: 0 24px 64px rgba(23, 20, 22, 0.12);
   transform: translateY(-6px);
 }
-.sp-card--coming-soon:hover .shop-card-img {
-  transform: scale(1.04);
-}
 
 /* ── Product Card ── */
 .sp-card {

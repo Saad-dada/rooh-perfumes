@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useWooProducts } from "../hooks/useWooProducts";
 import { useWooCategories } from "../hooks/useWooCategories";
 import { useCart } from "../context/CartContext";
+import { isComingSoon } from '../lib/productUtils';
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import "../styles/ShopPage.css";
@@ -126,7 +127,7 @@ const ShopPage = () => {
 
             <div className="sp-grid">
               {[...products].slice().reverse().map((p) => {
-                const isSahara = p.name.toLowerCase().includes('sahara')
+                const isSahara = isComingSoon(p)
                 return (
                 <article key={p.id} className={`sp-card${isSahara ? ' sp-card--coming-soon' : ''}`}>
                   {isSahara ? (

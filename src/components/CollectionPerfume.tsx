@@ -4,6 +4,7 @@ import { useWooCategories } from '../hooks/useWooCategories'
 import { useWooProducts } from '../hooks/useWooProducts'
 import { Link } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
+import { isComingSoon } from '../lib/productUtils'
 import '../styles/ShopPage.css'
 import '../styles/ShopByCategory.css'
 import '../styles/CollectionPerfume.css'
@@ -118,13 +119,14 @@ const CollectionPerfume = () => {
         )}
 
         <div className="cp-rows" ref={rowsRef}>
-          {!loading && products.slice().reverse().filter(p => !p.name.toLowerCase().includes('sahara')).map((p, i) => {
+          {!loading && products.slice().reverse().map((p, i) => {
             const rawHtml = p.short_description || p.description || ''
             const { keyNotes, prose } = parseDescription(rawHtml, (p as any).attributes ?? [])
+            const comingSoon = isComingSoon(p)
             const isReversed = i % 2 !== 0
 
             return (
-              <article key={p.id} className={`cp-row${isReversed ? ' cp-row--flip' : ''}`} data-row-index={i}>
+              <article key={p.id} className={`cp-row${isReversed ? ' cp-row--flip' : ''}${comingSoon ? ' cp-row--coming-soon' : ''}`} data-row-index={i}>
 
                 {/* ── Image side ── */}
                 <div className="cp-row__visual">
@@ -188,9 +190,13 @@ const CollectionPerfume = () => {
                     </div>
                   </div>
 
-                  <Link to={`/product/${p.slug}`} className="cp-row__cta hero-cta">
-                    Discover <span className="hero-cta-arrow">→</span>
-                  </Link>
+                  {comingSoon ? (
+                    <span className="cp-row__cta cp-row__cta-coming-soon">Coming Soon</span>
+                  ) : (
+                    <Link to={`/product/${p.slug}`} className="cp-row__cta hero-cta">
+                      Discover <span className="hero-cta-arrow">→</span>
+                    </Link>
+                  )}
 
                 </div>
               </article>
