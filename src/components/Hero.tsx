@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import '../styles/Hero.css'
+import { getHeroFramesCache, preloadHeroFrames, TOTAL_HERO_FRAMES } from '../lib/heroFrames'
 
 type HeroSlide = {
   name: string
   label: string
   tagline: string
   description: string
+  frameFolder: string
 }
 
 const HERO_SLIDES: HeroSlide[] = [
@@ -15,6 +17,7 @@ const HERO_SLIDES: HeroSlide[] = [
     tagline: 'Romantic warmth in every note',
     description:
       'Ashq blends floral sweetness with soft amber for a graceful, lingering signature made for everyday elegance.',
+    frameFolder: 'ashq',
   },
   {
     name: 'Qalb',
@@ -22,6 +25,7 @@ const HERO_SLIDES: HeroSlide[] = [
     tagline: 'A soulful oriental expression',
     description:
       'Qalb unfolds with rich woods and musky depth, crafted for those who love bold character and lasting presence.',
+    frameFolder: 'qalb',
   },
   {
     name: 'Sifr',
@@ -29,27 +33,19 @@ const HERO_SLIDES: HeroSlide[] = [
     tagline: 'Clean, modern, and magnetic',
     description:
       'Sifr opens crisp and fresh, then settles into smooth warmth that feels minimal, refined, and unforgettable.',
-  },
-  {
-    name: 'Sahara Saffron',
-    label: 'Eau de Parfum',
-    tagline: 'Golden spice with desert luxury',
-    description:
-      'Sahara Saffron pairs luminous saffron accents with deep resinous undertones for an opulent evening aura.',
+    frameFolder: 'sifr',
   },
 ]
 
 const AUTO_SLIDE_MS = 10000
-const TOTAL_FRAMES = 48
 const PIXELS_PER_FRAME = 24
 
-const padFrame = (index: number) => String(index).padStart(3, '0')
-const frameSrc = (frameIndex: number) => `/frames/qalb/frame_${padFrame(frameIndex + 1)}.png`
+const initialFramesCache = getHeroFramesCache()
 
 const Hero = () => {
   const [activeSlide, setActiveSlide] = useState(0)
   const [frame, setFrame] = useState(0)
-  const [isSequenceReady, setIsSequenceReady] = useState(false)
+  const [isSequenceReady, setIsSequenceReady] = useState(Boolean(initialFramesCache))
   const [isSlideChanging, setIsSlideChanging] = useState(false)
 
   const latestOffset = useRef(0)
@@ -60,8 +56,8 @@ const Hero = () => {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const reflectionCanvasRef = useRef<HTMLCanvasElement | null>(null)
-  const framesRef = useRef<HTMLImageElement[]>([])
-  const drawnFrameRef = useRef<number>(-1)
+  const framesRef = useRef<Record<string, HTMLImageElement[]>>(initialFramesCache ?? {})
+  const drawnFrameKeyRef = useRef<string>('')
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -84,25 +80,10 @@ const Hero = () => {
     let cancelled = false
 
     const preloadAllFrames = async () => {
-      const tasks = Array.from({ length: TOTAL_FRAMES }, (_, index) => {
-        const img = new Image()
-        img.src = frameSrc(index)
+      const loadedByFolder = await preloadHeroFrames()
 
-        return new Promise<HTMLImageElement>((resolve) => {
-          const done = () => resolve(img)
-
-          if (img.decode) {
-            void img.decode().then(done).catch(done)
-          } else {
-            img.onload = done
-            img.onerror = done
-          }
-        })
-      })
-
-      const loadedFrames = await Promise.all(tasks)
       if (!cancelled) {
-        framesRef.current = loadedFrames
+        framesRef.current = loadedByFolder
         setIsSequenceReady(true)
       }
     }
@@ -117,11 +98,14 @@ const Hero = () => {
   useEffect(() => {
     if (!isSequenceReady) return
 
+    const currentSlide = HERO_SLIDES[activeSlide]
+    const currentFrames = framesRef.current[currentSlide.frameFolder] ?? []
     const canvas = canvasRef.current
     const reflectionCanvas = reflectionCanvasRef.current
-    const frameImage = framesRef.current[frame]
+    const frameImage = currentFrames[frame]
+    const frameKey = `${currentSlide.frameFolder}-${frame}`
 
-    if (!canvas || !reflectionCanvas || !frameImage || drawnFrameRef.current === frame) {
+    if (!canvas || !reflectionCanvas || !frameImage || drawnFrameKeyRef.current === frameKey) {
       return
     }
 
@@ -149,14 +133,14 @@ const Hero = () => {
       reflectionCtx.clearRect(0, 0, reflectionCanvas.width, reflectionCanvas.height)
       reflectionCtx.drawImage(frameImage, 0, 0, reflectionCanvas.width, reflectionCanvas.height)
 
-      drawnFrameRef.current = frame
+      drawnFrameKeyRef.current = frameKey
     }
   }, [frame, isSequenceReady, activeSlide])
 
   useEffect(() => {
     const updateFrame = (offset: number) => {
       const rawIndex = Math.floor(offset / PIXELS_PER_FRAME)
-      const nextFrame = ((rawIndex % TOTAL_FRAMES) + TOTAL_FRAMES) % TOTAL_FRAMES
+      const nextFrame = ((rawIndex % TOTAL_HERO_FRAMES) + TOTAL_HERO_FRAMES) % TOTAL_HERO_FRAMES
       setFrame((prevFrame) => (prevFrame === nextFrame ? prevFrame : nextFrame))
       ticking.current = false
     }

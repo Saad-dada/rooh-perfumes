@@ -92,6 +92,16 @@ wooApi.interceptors.response.use(undefined, async (error: AxiosError) => {
 
 // ---------- Types ----------
 
+export interface WooProductAttribute {
+  id: number
+  name: string
+  slug: string
+  position: number
+  visible: boolean
+  variation: boolean
+  options: string[]
+}
+
 export interface WooProduct {
   id: number
   name: string
@@ -103,7 +113,11 @@ export interface WooProduct {
   short_description: string
   images: { id: number; src: string; alt: string }[]
   categories: { id: number; name: string; slug: string }[]
+  tags: { id: number; name: string; slug: string }[]
+  attributes: WooProductAttribute[]
+  meta_data: { id: number; key: string; value: string }[]
   stock_status: 'instock' | 'outofstock' | 'onbackorder'
+  stock_quantity: number | null
   permalink: string
 }
 
@@ -171,6 +185,28 @@ export async function getCategories(params?: {
     return data
   } catch (error) {
     throw mapWooError(error, 'categories')
+  }
+}
+
+export interface WooReview {
+  id: number
+  date_created: string
+  review: string
+  rating: number
+  reviewer: string
+  reviewer_avatar_urls: Record<string, string>
+  verified: boolean
+}
+
+/** Fetch reviews for a product */
+export async function getProductReviews(productId: number, per_page = 20): Promise<WooReview[]> {
+  try {
+    const { data } = await wooApi.get<WooReview[]>('/products/reviews', {
+      params: { product: productId, per_page, status: 'approved' },
+    })
+    return data
+  } catch (error) {
+    throw mapWooError(error, 'reviews')
   }
 }
 

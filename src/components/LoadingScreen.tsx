@@ -1,21 +1,44 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import '../styles/LoadingScreen.css'
+import { preloadHeroFrames } from '../lib/heroFrames'
 
 const LoadingScreen = ({ onFinished }: { onFinished: () => void }) => {
   const [progress, setProgress] = useState(0)
   const [fadeOut, setFadeOut] = useState(false)
+  const assetsReadyRef = useRef(false)
 
   useEffect(() => {
-    // Simulate loading progress
+    let cancelled = false
+
+    const preloadAssets = async () => {
+      await preloadHeroFrames()
+      if (!cancelled) {
+        assetsReadyRef.current = true
+      }
+    }
+
+    void preloadAssets()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval)
           return 100
         }
-        // Accelerate toward the end
+
+        if (!assetsReadyRef.current && prev >= 94) {
+          return 94
+        }
+
         const increment = prev < 60 ? 3 : prev < 85 ? 2 : 1
-        return Math.min(prev + increment, 100)
+        const maxProgress = assetsReadyRef.current ? 100 : 94
+        return Math.min(prev + increment, maxProgress)
       })
     }, 40)
 

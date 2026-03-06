@@ -6,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import "../styles/ShopPage.css";
+import "../styles/ShopGrid.css";
 
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -124,48 +125,72 @@ const ShopPage = () => {
             </p>
 
             <div className="sp-grid">
-              {[...products].slice().reverse().map((p) => (
-                <article key={p.id} className="sp-card">
+              {[...products].slice().reverse().map((p) => {
+                const isSahara = p.name.toLowerCase().includes('sahara')
+                return (
+                <article key={p.id} className={`sp-card${isSahara ? ' sp-card--coming-soon' : ''}`}>
+                  {isSahara ? (
+                    <div className="sp-card-link">
+                      <div className="shop-card-arch">
+                        <img src={p.images[0]?.src ?? "/perfumes/placeholder.png"} alt={p.images[0]?.alt ?? p.name} className="shop-card-img shop-card-img--front" loading="lazy" />
+                        {p.images.length > 1 && <img src={p.images[p.images.length - 1].src} alt={p.images[p.images.length - 1].alt ?? p.name} className="shop-card-img shop-card-img--back" loading="lazy" />}
+                      </div>
+                      <div className="shop-card-info">
+                        {p.categories.length > 0 && <span className="sp-card-category">{p.categories[0].name}</span>}
+                        <h4 className="shop-card-name">{p.name}</h4>
+                        <div className="shop-card-pricing">
+                          {p.sale_price && <span className="shop-card-price-old">AED {p.regular_price}</span>}
+                          <span className="shop-card-price">AED {p.price}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
                   <Link to={`/product/${p.slug}`} className="sp-card-link">
-                      <div className={`sp-card-arch`}>
+                      <div className="shop-card-arch">
                       <img
                         src={p.images[0]?.src ?? "/perfumes/placeholder.png"}
                         alt={p.images[0]?.alt ?? p.name}
-                        className="sp-card-img"
+                        className="shop-card-img shop-card-img--front"
                         loading="lazy"
                       />
+                      {p.images.length > 1 && (
+                        <img
+                          src={p.images[p.images.length - 1].src}
+                          alt={p.images[p.images.length - 1].alt ?? p.name}
+                          className="shop-card-img shop-card-img--back"
+                          loading="lazy"
+                        />
+                      )}
                     </div>
-                    <div className="sp-card-info">
+                    <div className="shop-card-info">
                       {p.categories.length > 0 && (
                         <span className="sp-card-category">
                           {p.categories[0].name}
                         </span>
                       )}
-                      <h3 className="sp-card-name">{p.name}</h3>
-                      <div className="sp-card-pricing">
+                      <h4 className="shop-card-name">{p.name}</h4>
+                      <div className="shop-card-pricing">
                         {p.sale_price && (
-                          <span className="sp-card-price-old">
+                          <span className="shop-card-price-old">
                             AED {p.regular_price}
                           </span>
                         )}
-                        <span className="sp-card-price">AED {p.price}</span>
+                        <span className="shop-card-price">AED {p.price}</span>
                       </div>
                     </div>
                   </Link>
+                  )}
                   <button
                     className="shop-card-btn"
-                    onClick={() => handleAddToCart(p.id)}
-                    data-stock={p.stock_status !== undefined && p.stock_status !== 'instock' ? 'out' : 'in'}
-                    disabled={p.stock_status !== "instock" || addingId === p.id}
+                    onClick={() => { if (!isSahara) handleAddToCart(p.id) }}
+                    data-stock={isSahara ? 'out' : (p.stock_status !== undefined && p.stock_status !== 'instock' ? 'out' : 'in')}
+                    disabled={isSahara || p.stock_status !== "instock" || addingId === p.id}
                   >
-                    {addingId === p.id
-                      ? "Adding…"
-                      : p.stock_status !== "instock"
-                        ? "Coming Soon"
-                        : "Add to Cart"}
+                    {isSahara ? "Coming Soon" : addingId === p.id ? "Adding…" : p.stock_status !== "instock" ? "Coming Soon" : "Add to Cart"}
                   </button>
                 </article>
-              ))}
+                )
+              })}
             </div>
           </>
         )}

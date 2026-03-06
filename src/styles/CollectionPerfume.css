@@ -1,0 +1,421 @@
+/* ═══════════════════════════════════════════════════════
+   Collection Perfume — dedicated styles
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Hero ──────────────────────────────────────────────── */
+
+.cp-hero {
+  background: linear-gradient(160deg, #f9eef5 0%, #f2e6ef 55%, #faf3f8 100%);
+  padding: 120px 60px 70px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(77, 25, 58, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cp-hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.cp-hero-eyebrow {
+  display: inline-block;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(77, 25, 58, 0.65);
+  margin-bottom: 14px;
+}
+
+.cp-hero-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 4.2rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.86);
+  margin: 0 0 14px;
+  letter-spacing: 0.015em;
+  line-height: 1.05;
+}
+
+.cp-hero-sub {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 1.05rem;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ── Main ──────────────────────────────────────────────── */
+
+.cp-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 80px 48px 100px;
+}
+
+.cp-empty {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.35);
+  font-family: 'Instrument Sans', sans-serif;
+  padding: 80px 0;
+}
+
+/* ── Rows ──────────────────────────────────────────────── */
+
+.cp-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Single Row ────────────────────────────────────────── */
+
+.cp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(64px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  padding: 72px 80px;
+  border-radius: 24px;
+  margin-bottom: 28px;
+}
+
+/* Alternating soft backgrounds */
+.cp-row[data-row-index="0"],
+.cp-row[data-row-index="4"],
+.cp-row[data-row-index="8"] {
+  background: linear-gradient(135deg, #fdf4f9 0%, #f7eaf3 60%, #fef6fb 100%);
+}
+
+.cp-row[data-row-index="1"],
+.cp-row[data-row-index="5"],
+.cp-row[data-row-index="9"] {
+  background: linear-gradient(135deg, #faf6f0 0%, #f5ede2 60%, #fdf9f4 100%);
+}
+
+.cp-row[data-row-index="2"],
+.cp-row[data-row-index="6"],
+.cp-row[data-row-index="10"] {
+  background: linear-gradient(135deg, #f3f6fb 0%, #e8eef7 60%, #f6f9fe 100%);
+}
+
+.cp-row[data-row-index="3"],
+.cp-row[data-row-index="7"],
+.cp-row[data-row-index="11"] {
+  background: linear-gradient(135deg, #f4faf5 0%, #e8f4eb 60%, #f7fdf8 100%);
+}
+
+.cp-row.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Flip: image on left, text on right → text on left, image on right */
+.cp-row--flip {
+  direction: rtl;
+}
+
+.cp-row--flip > * {
+  direction: ltr;
+}
+
+/* Make content/visual sit above watermark */
+.cp-row__visual,
+.cp-row__content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Visual (image) side ───────────────────────────────── */
+
+.cp-row__visual {
+  display: flex;
+  justify-content: center;
+}
+
+.cp-row__img-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.07);
+}
+
+.cp-row__img-front,
+.cp-row__img-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 24px;
+  transition: opacity 0.5s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cp-row__img-front { z-index: 1; }
+.cp-row__img-back  { z-index: 2; opacity: 0; }
+
+.cp-row__visual:hover .cp-row__img-back  { opacity: 1; }
+.cp-row__visual:hover .cp-row__img-front { opacity: 0; }
+.cp-row__visual:hover .cp-row__img-front,
+.cp-row__visual:hover .cp-row__img-back  { transform: scale(1.03); }
+
+/* ── Content side ──────────────────────────────────────── */
+
+.cp-row__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.cp-row__category {
+  display: inline-block;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(77, 25, 58, 0.7);
+  margin-bottom: 10px;
+}
+
+.cp-row__name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  margin: 0 0 24px;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+/* ── Key notes ─────────────────────────────────────────── */
+
+.cp-row__notes {
+  margin-bottom: 20px;
+}
+
+.cp-row__notes-label {
+  display: block;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.38);
+  margin-bottom: 10px;
+}
+
+.cp-row__notes-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cp-row__note-pill {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(77, 25, 58, 0.85);
+  background: rgba(77, 25, 58, 0.07);
+  border: 1px solid rgba(77, 25, 58, 0.12);
+  border-radius: 999px;
+  padding: 5px 13px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* ── Prose description ─────────────────────────────────── */
+
+.cp-row__prose {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.97rem;
+  line-height: 1.75;
+  color: rgba(0, 0, 0, 0.55);
+  margin: 0 0 24px;
+  max-width: 480px;
+}
+
+/* ── Footer (price + stock) ────────────────────────────── */
+
+.cp-row__footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.cp-row__pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.cp-row__price {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.82);
+  letter-spacing: -0.01em;
+}
+
+.cp-row__price-old {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.3);
+  text-decoration: line-through;
+}
+
+.cp-row__in-stock {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #4a8c5c;
+}
+
+.cp-row__out-stock {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #b08050;
+}
+
+/* ── CTA button ────────────────────────────────────────── */
+
+.cp-row__cta {
+  /* hero-cta base styles already applied; ensure no width stretch */
+  align-self: flex-start;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .cp-hero {
+    padding: 110px 32px 60px;
+  }
+
+  .cp-hero-title {
+    font-size: 3.2rem;
+  }
+
+  .cp-main {
+    padding: 40px 20px 60px;
+  }
+
+  .cp-rows {
+    gap: 0;
+  }
+
+  .cp-row {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 52px 28px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+  }
+
+  .cp-row--flip {
+    direction: ltr;
+  }
+
+  /* On mobile the visual always goes on top */
+  .cp-row__visual {
+    order: -1;
+  }
+
+  .cp-row__content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .cp-row__name {
+    font-size: 2.4rem;
+  }
+
+  .cp-row__prose {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .cp-row__notes-pills {
+    justify-content: center;
+  }
+
+  .cp-row__footer {
+    justify-content: center;
+  }
+
+  .cp-row__cta {
+    align-self: center;
+  }
+
+  .cp-row__img-wrap {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cp-hero {
+    padding: 96px 20px 48px;
+  }
+
+  .cp-hero-title {
+    font-size: 2.5rem;
+  }
+
+  .cp-main {
+    padding: 24px 12px 48px;
+  }
+
+  .cp-rows {
+    gap: 0;
+  }
+
+  .cp-row {
+    padding: 40px 20px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+  }
+
+  .cp-row__name {
+    font-size: 2rem;
+    margin-bottom: 18px;
+  }
+
+  .cp-row__img-wrap {
+    max-width: 240px;
+  }
+
+  .cp-row__note-pill {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  .cp-row__price {
+    font-size: 1.1rem;
+  }
+}

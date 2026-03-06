@@ -11,7 +11,6 @@ type WooProduct = {
   name: string
   price: string
   images: { src: string; alt?: string }[]
-  // ...other fields as needed
 }
 
 interface ShopGridProps {
@@ -42,16 +41,58 @@ const ShopGrid = ({ products: productsProp }: ShopGridProps) => {
         )}
 
         <div className="shop-grid">
-          {[...displayProducts].slice().reverse().map((p) => (
-            <article key={p.id} className="shop-card">
+          {[...displayProducts].slice().reverse().map((p) => {
+            const isSahara = p.name.toLowerCase().includes('sahara')
+            return (
+            <article key={p.id} className={`shop-card${isSahara ? ' shop-card--coming-soon' : ''}`}>
+              {isSahara ? (
+                <div className="shop-card-link">
+                  <div className={`shop-card-arch`}>
+                    <img
+                      src={p.images[0]?.src ?? '/perfumes/placeholder.png'}
+                      alt={p.images[0]?.alt ?? p.name}
+                      className="shop-card-img shop-card-img--front"
+                      loading="lazy"
+                    />
+                    {p.images.length > 1 && (
+                      <img
+                        src={p.images[p.images.length - 1].src}
+                        alt={p.images[p.images.length - 1].alt ?? p.name}
+                        className="shop-card-img shop-card-img--back"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                  <div className="shop-card-info">
+                    {((p as any).categories ?? []).length > 0 && (
+                      <span className="sp-card-category">{(p as any).categories[0].name}</span>
+                    )}
+                    <h4 className="shop-card-name">{p.name}</h4>
+                    <div className="shop-card-pricing">
+                      {(p as any).sale_price && (
+                        <span className="shop-card-price-old">AED {(p as any).regular_price}</span>
+                      )}
+                      <span className="shop-card-price">AED {p.price}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
               <Link to={`/product/${p.slug}`} className="shop-card-link">
                 <div className={`shop-card-arch`}>
                   <img
                     src={p.images[0]?.src ?? '/perfumes/placeholder.png'}
                     alt={p.images[0]?.alt ?? p.name}
-                    className="shop-card-img"
+                    className="shop-card-img shop-card-img--front"
                     loading="lazy"
                   />
+                  {p.images.length > 1 && (
+                    <img
+                      src={p.images[p.images.length - 1].src}
+                      alt={p.images[p.images.length - 1].alt ?? p.name}
+                      className="shop-card-img shop-card-img--back"
+                      loading="lazy"
+                    />
+                  )}
                 </div>
                 <div className="shop-card-info">
                   {((p as any).categories ?? []).length > 0 && (
@@ -66,9 +107,11 @@ const ShopGrid = ({ products: productsProp }: ShopGridProps) => {
                   </div>
                 </div>
               </Link>
+              )}
               <button
                 className="shop-card-btn"
                 onClick={async () => {
+                  if (isSahara) return
                   const stock = (p as any).stock_status
                   const outOfStock = stock !== undefined ? stock !== 'instock' : false
                   if (outOfStock) return
@@ -79,23 +122,14 @@ const ShopGrid = ({ products: productsProp }: ShopGridProps) => {
                     setAddingId(null)
                   }
                 }}
-                data-stock={
-                  ((p as any).stock_status !== undefined && (p as any).stock_status !== 'instock') ? 'out' : 'in'
-                }
-                disabled={
-                  ((p as any).stock_status !== undefined
-                    ? (p as any).stock_status !== 'instock'
-                    : false) || addingId === p.id
-                }
+                data-stock={isSahara ? 'out' : ((p as any).stock_status !== undefined && (p as any).stock_status !== 'instock') ? 'out' : 'in'}
+                disabled={isSahara || ((p as any).stock_status !== undefined ? (p as any).stock_status !== 'instock' : false) || addingId === p.id}
               >
-                {addingId === p.id
-                  ? 'Adding…'
-                  : (p as any).stock_status !== undefined && (p as any).stock_status !== 'instock'
-                    ? 'Coming Soon'
-                    : 'Add to Cart'}
+                {isSahara ? 'Coming Soon' : addingId === p.id ? 'Adding…' : (p as any).stock_status !== undefined && (p as any).stock_status !== 'instock' ? 'Coming Soon' : 'Add to Cart'}
               </button>
             </article>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
