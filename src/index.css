@@ -26,12 +26,3 @@ img {
 a {
   color: inherit;
 }
-
-/* Touch-friendly targets on mobile */
-@media (max-width: 768px) {
-  a, button {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
-}
