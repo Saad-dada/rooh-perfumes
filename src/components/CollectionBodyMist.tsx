@@ -96,8 +96,8 @@ const CollectionBodyMist = () => {
       <header className="cp-hero">
         <div className="cp-hero-inner">
           <span className="cp-hero-eyebrow">2026 Collection</span>
-          <h1 className="cp-hero-title">Body Mist</h1>
-          <p className="cp-hero-sub">Light & Refreshing — our selection of everyday body mists</p>
+          <h1 className="cp-hero-title">Deodorant</h1>
+          <p className="cp-hero-sub">Light & Refreshing — our selection of everyday Deodorants</p>
         </div>
       </header>
 
@@ -109,7 +109,7 @@ const CollectionBodyMist = () => {
           </div>
         )}
         {!loading && products.length === 0 && (
-          <p className="cp-empty">No body mist products found.</p>
+          <p className="cp-empty">No Deodorant products found.</p>
         )}
 
         <div className="cp-rows" ref={rowsRef}>
@@ -143,7 +143,7 @@ const CollectionBodyMist = () => {
                 <div className="cp-row__content">
 
                   <span className="cp-row__category">
-                    {p.categories[0]?.name ?? 'Body Mist'}
+                    {p.categories[0]?.name ?? 'Deodorant'}
                   </span>
 
                   <h2 className="cp-row__name">{p.name}</h2>

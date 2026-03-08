@@ -167,9 +167,9 @@ const ProductPage = () => {
   return (
     <div className="product-page">
       <Navbar />
-      <Link to="/shop" className="product-back-link">← Back to shop</Link>
 
       <main className="product-main">
+        <Link to="/shop" className="product-back-link">← Back</Link>
 
         {loading && <div className="product-loading">Loading product…</div>}
 
@@ -182,133 +182,132 @@ const ProductPage = () => {
 
         {product && parsed && (
           <>
-          <div className="product-layout">
-            {/* ── Gallery ── */}
-            <div className="product-gallery">
-              <Gallery allImages={product.allImages} />
-            </div>
-
-            {/* ── Info ── */}
-            <aside className="product-info">
-              {product.categories.length > 0 && (
-                <span className="product-category-tag">{product.categories[0].name}</span>
-              )}
-
-              <h1 className="product-name">{product.name}</h1>
-
-              {/* Pricing */}
-              <div className="product-pricing">
-                {product.sale_price && product.sale_price !== '' ? (
-                  <>
-                    <span className="product-price">AED {product.sale_price}</span>
-                    <span className="product-price-old">AED {product.regular_price}</span>
-                  </>
-                ) : (
-                  <span className="product-price">AED {product.price}</span>
-                )}
-                {parsed.volume && <span className="product-volume">{parsed.volume}</span>}
+            <div className="product-layout">
+              {/* ── Gallery (left on desktop) ── */}
+              <div className="product-gallery">
+                <Gallery allImages={product.allImages} />
               </div>
 
-              {/* Short description — one-liner intro */}
-              {shortDesc && <p className="product-short-desc">{shortDesc}</p>}
+              {/* ── Info (right on desktop, reordered via display:contents on mobile) ── */}
+              <div className="product-info">
+                {/* ── Heading ── */}
+                <header className="product-header">
+                  {product.categories.length > 0 && (
+                    <span className="product-category-tag">{product.categories[0].name}</span>
+                  )}
+                  <h1 className="product-name">{product.name}</h1>
+                  <div className="product-pricing">
+                    {product.sale_price && product.sale_price !== '' ? (
+                      <>
+                        <span className="product-price">AED {product.sale_price}</span>
+                        <span className="product-price-old">AED {product.regular_price}</span>
+                      </>
+                    ) : (
+                      <span className="product-price">AED {product.price}</span>
+                    )}
+                    {parsed.volume && <span className="product-volume">{parsed.volume}</span>}
+                  </div>
+                </header>
 
-              {/* Stock + Actions — right after price */}
-              <div className="product-stock">
-                {product.inStock
-                  ? <span className="product-stock-in">● In Stock — ready to ship</span>
-                  : <span className="product-stock-out">● Currently unavailable</span>}
-              </div>
-
-              <div className="product-actions">
-                <button
-                  className="product-btn product-btn-primary"
-                  onClick={() => {
-                    clearCartToken()
-                    window.location.href = `${WP_URL}/?rooh_sync_cart=${product.id}:1`
-                  }}
-                  disabled={!product.inStock}
-                >
-                  Buy Now
-                </button>
-                <button
-                  className="product-btn product-btn-secondary"
-                  onClick={async () => {
-                    setAdding(true)
-                    await addToCart(product.id)
-                    setAdding(false)
-                  }}
-                  disabled={!product.inStock || adding}
-                >
-                  {adding ? 'Adding…' : 'Add to Cart'}
-                </button>
-              </div>
-
-              <div className="product-details-divider" />
-
-              {/* Key notes pills */}
-              {parsed.keyNotes.length > 0 && (
-                <div className="product-notes-section">
-                  <span className="product-notes-label">Key Notes</span>
-                  <div className="product-notes-pills">
-                    {parsed.keyNotes.map(note => (
-                      <span key={note} className="product-note-pill">{note}</span>
-                    ))}
+                {/* ── Stock + Actions ── */}
+                <div className="product-actions-block">
+                  <div className="product-stock">
+                    {product.inStock
+                      ? <span className="product-stock-in">● In Stock — ready to ship</span>
+                      : <span className="product-stock-out">● Currently unavailable</span>}
+                  </div>
+                  <div className="product-actions">
+                    <button
+                      className="product-btn product-btn-primary"
+                      onClick={() => {
+                        clearCartToken()
+                        window.location.href = `${WP_URL}/?rooh_sync_cart=${product.id}:1`
+                      }}
+                      disabled={!product.inStock}
+                    >
+                      Buy Now
+                    </button>
+                    <button
+                      className="product-btn product-btn-secondary"
+                      onClick={async () => {
+                        setAdding(true)
+                        await addToCart(product.id)
+                        setAdding(false)
+                      }}
+                      disabled={!product.inStock || adding}
+                    >
+                      {adding ? 'Adding…' : 'Add to Cart'}
+                    </button>
                   </div>
                 </div>
-              )}
 
-              {/* Prose from description */}
-              {parsed.prose && <p className="product-prose">{parsed.prose}</p>}
+                <div className="product-details-divider" />
 
-              {/* Visible spec attributes */}
-              {specAttrs.length > 0 && (
-                <dl className="product-specs">
-                  {specAttrs.map(attr => (
-                    <div key={attr.id} className="product-spec-row">
-                      <dt>{attr.name}</dt>
-                      <dd>{attr.options.join(', ')}</dd>
+                {/* ── Details ── */}
+                <div className="product-details">
+                  {shortDesc && <p className="product-short-desc">{shortDesc}</p>}
+
+                  {parsed.keyNotes.length > 0 && (
+                    <div className="product-notes-section">
+                      <span className="product-notes-label">Key Notes</span>
+                      <div className="product-notes-pills">
+                        {parsed.keyNotes.map(note => (
+                          <span key={note} className="product-note-pill">{note}</span>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </dl>
-              )}
+                  )}
 
-              {/* Tags */}
-              {tags.length > 0 && (
-                <div className="product-tags">
-                  {tags.map(tag => (
-                    <span key={tag.id} className="product-tag">{tag.name}</span>
-                  ))}
+                  {parsed.prose && <p className="product-prose">{parsed.prose}</p>}
+
+                  {specAttrs.length > 0 && (
+                    <dl className="product-specs">
+                      {specAttrs.map(attr => (
+                        <div key={attr.id} className="product-spec-row">
+                          <dt>{attr.name}</dt>
+                          <dd>{attr.options.join(', ')}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+
+                  {tags.length > 0 && (
+                    <div className="product-tags">
+                      {tags.map(tag => (
+                        <span key={tag.id} className="product-tag">{tag.name}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </aside>
-          </div>
+              </div>{/* end product-info */}
+            </div>{/* end product-layout */}
 
-          {/* ── Video ── */}
-          {videoEmbed && (
-            <div className="product-video-section">
-              <h2 className="product-video-heading">Watch</h2>
-              {videoEmbed.type === 'iframe' ? (
-                <div className="product-video-wrapper">
-                  <iframe
-                    src={videoEmbed.src}
-                    title={`${product.name} video`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              ) : (
-                <div className="product-video-wrapper">
-                  <video src={videoEmbed.src} controls playsInline />
-                </div>
-              )}
-            </div>
-          )}
+            {/* ── Video ── */}
+            {videoEmbed && (
+              <div className="product-video-section">
+                <h2 className="product-video-heading">Watch</h2>
+                {videoEmbed.type === 'iframe' ? (
+                  <div className="product-video-wrapper">
+                    <iframe
+                      src={videoEmbed.src}
+                      title={`${product.name} video`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="product-video-wrapper">
+                    <video src={videoEmbed.src} controls playsInline />
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* ── Reviews ── */}
-          <ReviewsSection productId={product.id} productName={product.name} />
+            {/* ── Reviews ── */}
+            <ReviewsSection productId={product.id} productName={product.name} />
 
-          {/* ── Related Products ── */}
-          <RelatedProducts currentId={product.id} />
+            {/* ── Related Products ── */}
+            <RelatedProducts currentId={product.id} />
           </>
         )}
       </main>
@@ -435,14 +434,40 @@ function RelatedCard({ product: p }: { product: WooProduct }) {
 // ── Gallery ────────────────────────────────────────────────────────────────
 function Gallery({ allImages }: { allImages: { src: string; alt?: string }[] }) {
   const imgs = allImages.length > 0 ? allImages : [{ src: '/perfumes/placeholder.png', alt: '' }]
+  const [active, setActive] = useState(0)
 
   return (
     <div className="product-gallery-inner">
-      {imgs.map((img, i) => (
-        <div key={i} className="product-image-main">
-          <img src={img.src} alt={img.alt ?? ''} className="product-hero-img" />
+      {/* Desktop: all images stacked */}
+      <div className="gallery-stack">
+        {imgs.map((im, i) => (
+          <div key={i} className="product-image-main">
+            <img src={im.src} alt={im.alt ?? ''} className="product-hero-img" />
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile: single active image + thumbnail strip */}
+      <div className="gallery-single">
+        <div className="product-image-main">
+          <img src={imgs[active].src} alt={imgs[active].alt ?? ''} className="product-hero-img" />
         </div>
-      ))}
+        {imgs.length > 1 && (
+          <div className="product-thumbs">
+            {imgs.map((im, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`product-thumb${i === active ? ' is-active' : ''}`}
+                onClick={() => setActive(i)}
+                aria-label={`View image ${i + 1}`}
+              >
+                <img src={im.src} alt={im.alt ?? ''} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

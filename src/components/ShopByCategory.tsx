@@ -28,10 +28,10 @@ const categories = [
   {
     id: 3,
     slug: 'body-mist',
-    name: 'Body Mist',
+    name: 'Deodorant',
     subtitle: 'Light & Refreshing',
     description:
-      'Embrace everyday freshness with our collection of body mists — light, airy, and perfectly balanced. Ideal for layering or wearing alone, these scents add a subtle touch of luxury to your daily routine.',
+      'Embrace everyday freshness with our collection of Deodorants — light, airy, and perfectly balanced. Ideal for layering or wearing alone, these scents add a subtle touch of luxury to your daily routine.',
     image: '/categories/bodymist.png',
     bg: '/categories/elements/bg.png',
     decor: '/categories/elements/decor.png',
