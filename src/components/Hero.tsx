@@ -72,7 +72,7 @@ const Hero = () => {
   const framesRef = useRef<Record<string, HTMLImageElement[]>>(initialFramesCache ?? {})
   const drawnFrameKeyRef = useRef<string>('')
   // First-frame static placeholder src — shown while canvas loads
-  const placeholderSrc = `/frames/${HERO_SLIDES[0].frameFolder}/frame_001.png`
+  const placeholderSrc = `/frames/${HERO_SLIDES[0].frameFolder}/frame_001.webp`
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

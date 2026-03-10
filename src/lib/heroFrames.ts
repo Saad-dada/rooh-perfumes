@@ -9,7 +9,7 @@ type HeroFramesByFolder = Record<string, HTMLImageElement[]>
 
 const padFrame = (index: number) => String(index).padStart(3, '0')
 const frameSrc = (frameFolder: string, frameIndex: number) =>
-  `/frames/${frameFolder}/frame_${padFrame(frameIndex + 1)}.png`
+  `/frames/${frameFolder}/frame_${padFrame(frameIndex + 1)}.webp`
 
 const folderCache: HeroFramesByFolder = {}
 const folderPromises: Partial<Record<string, Promise<HTMLImageElement[]>>> = {}
