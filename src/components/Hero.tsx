@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import '../styles/Hero.css'
-import { getHeroFramesCache, preloadHeroFolder, preloadHeroFrames, TOTAL_HERO_FRAMES } from '../lib/heroFrames'
+import {
+  getHeroFramesCache,
+  getMobileFramesCache,
+  preloadHeroFolder,
+  preloadHeroFolderMobile,
+  preloadHeroFrames,
+  preloadHeroFramesMobile,
+  MOBILE_TOTAL_FRAMES,
+} from '../lib/heroFrames'
+
+// True on touch/mobile devices — evaluated once at module load
+const isMobileDevice =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
 type HeroSlide = {
   name: string
@@ -40,7 +52,8 @@ const HERO_SLIDES: HeroSlide[] = [
 const AUTO_SLIDE_MS = 10000
 const PIXELS_PER_FRAME = 24
 
-const initialFramesCache = getHeroFramesCache()
+const initialFramesCache = isMobileDevice ? getMobileFramesCache() : getHeroFramesCache()
+const ACTIVE_TOTAL_FRAMES = isMobileDevice ? MOBILE_TOTAL_FRAMES : MOBILE_TOTAL_FRAMES * 4 // full 48 on desktop
 
 const Hero = () => {
   const [activeSlide, setActiveSlide] = useState(0)
@@ -58,6 +71,8 @@ const Hero = () => {
   const reflectionCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const framesRef = useRef<Record<string, HTMLImageElement[]>>(initialFramesCache ?? {})
   const drawnFrameKeyRef = useRef<string>('')
+  // First-frame static placeholder src — shown while canvas loads
+  const placeholderSrc = `/frames/${HERO_SLIDES[0].frameFolder}/frame_001.png`
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -80,27 +95,32 @@ const Hero = () => {
     let cancelled = false
 
     const loadFrames = async () => {
-      // Load the first slide's folder first so the animation appears ASAP
       const firstFolder = HERO_SLIDES[0].frameFolder
-      const firstFrames = await preloadHeroFolder(firstFolder)
 
-      if (!cancelled) {
-        framesRef.current = { ...framesRef.current, [firstFolder]: firstFrames }
-        setIsSequenceReady(true)
-      }
-
-      // Load the remaining folders in parallel in the background
-      const all = await preloadHeroFrames()
-      if (!cancelled) {
-        framesRef.current = all
+      if (isMobileDevice) {
+        // Mobile: load only 12 frames per folder (~75% less data)
+        const firstFrames = await preloadHeroFolderMobile(firstFolder)
+        if (!cancelled) {
+          framesRef.current = { ...framesRef.current, [firstFolder]: firstFrames }
+          setIsSequenceReady(true)
+        }
+        const all = await preloadHeroFramesMobile()
+        if (!cancelled) framesRef.current = all
+      } else {
+        // Desktop: load full 48 frames, first folder first
+        const firstFrames = await preloadHeroFolder(firstFolder)
+        if (!cancelled) {
+          framesRef.current = { ...framesRef.current, [firstFolder]: firstFrames }
+          setIsSequenceReady(true)
+        }
+        const all = await preloadHeroFrames()
+        if (!cancelled) framesRef.current = all
       }
     }
 
     void loadFrames()
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -146,9 +166,10 @@ const Hero = () => {
   }, [frame, isSequenceReady, activeSlide])
 
   useEffect(() => {
+    // Scroll/wheel drives frame rotation on all devices.
     const updateFrame = (offset: number) => {
       const rawIndex = Math.floor(offset / PIXELS_PER_FRAME)
-      const nextFrame = ((rawIndex % TOTAL_HERO_FRAMES) + TOTAL_HERO_FRAMES) % TOTAL_HERO_FRAMES
+      const nextFrame = ((rawIndex % ACTIVE_TOTAL_FRAMES) + ACTIVE_TOTAL_FRAMES) % ACTIVE_TOTAL_FRAMES
       setFrame((prevFrame) => (prevFrame === nextFrame ? prevFrame : nextFrame))
       ticking.current = false
     }
@@ -275,6 +296,16 @@ const Hero = () => {
             </div>
 
             <div className="bottle">
+              {/* Static placeholder — shown instantly while canvas frames are loading */}
+              {!isSequenceReady && (
+                <img
+                  src={placeholderSrc}
+                  alt={current.name}
+                  className="bottle-img hero-slide-image"
+                  fetchPriority="high"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
+                />
+              )}
               <canvas
                 ref={canvasRef}
                 aria-label={`${current.name} 360 view`}
