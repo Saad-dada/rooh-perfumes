@@ -363,7 +363,7 @@ function ReviewsSection({ productId, productName }: { productId: number; product
               <div className="pr-card-top">
                 <div className="pr-avatar">
                   {r.reviewer_avatar_urls?.['48']
-                    ? <img src={r.reviewer_avatar_urls['48']} alt={r.reviewer} />
+                    ? <img src={r.reviewer_avatar_urls['48']} alt={r.reviewer} loading="lazy" />
                     : <span>{r.reviewer.charAt(0).toUpperCase()}</span>}
                 </div>
                 <div className="pr-card-meta">
@@ -412,7 +412,7 @@ function RelatedCard({ product: p }: { product: WooProduct }) {
   return (
     <Link to={`/product/${p.slug}`} className="rp-card">
       <div className="rp-card-arch">
-        <img src={img?.src ?? '/perfumes/placeholder.png'} alt={img?.alt ?? p.name} className="rp-card-img" />
+        <img src={img?.src ?? '/perfumes/placeholder.png'} alt={img?.alt ?? p.name} className="rp-card-img" loading="lazy" />
       </div>
       <div className="rp-card-body">
         <p className="rp-card-name">{p.name}</p>
@@ -442,7 +442,13 @@ function Gallery({ allImages }: { allImages: { src: string; alt?: string }[] }) 
       <div className="gallery-stack">
         {imgs.map((im, i) => (
           <div key={i} className="product-image-main">
-            <img src={im.src} alt={im.alt ?? ''} className="product-hero-img" />
+            <img
+              src={im.src}
+              alt={im.alt ?? ''}
+              className="product-hero-img"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'auto'}
+            />
           </div>
         ))}
       </div>
@@ -450,7 +456,13 @@ function Gallery({ allImages }: { allImages: { src: string; alt?: string }[] }) 
       {/* Mobile: single active image + thumbnail strip */}
       <div className="gallery-single">
         <div className="product-image-main">
-          <img src={imgs[active].src} alt={imgs[active].alt ?? ''} className="product-hero-img" />
+          <img
+            src={imgs[active].src}
+            alt={imgs[active].alt ?? ''}
+            className="product-hero-img"
+            loading="eager"
+            fetchPriority="high"
+          />
         </div>
         {imgs.length > 1 && (
           <div className="product-thumbs">
@@ -462,7 +474,7 @@ function Gallery({ allImages }: { allImages: { src: string; alt?: string }[] }) 
                 onClick={() => setActive(i)}
                 aria-label={`View image ${i + 1}`}
               >
-                <img src={im.src} alt={im.alt ?? ''} />
+                <img src={im.src} alt={im.alt ?? ''} loading="lazy" />
               </button>
             ))}
           </div>

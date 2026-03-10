@@ -90,6 +90,42 @@ wooApi.interceptors.response.use(undefined, async (error: AxiosError) => {
   return wooApi.request(config)
 })
 
+// ---------- In-memory response cache (deduplicates parallel calls, survives navigation) ----------
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+const CATEGORIES_TTL = 15 * 60 * 1000 // categories rarely change
+
+interface CacheEntry<T> { data: T; expires: number }
+const _cache = new Map<string, CacheEntry<unknown>>()
+const _inFlight = new Map<string, Promise<unknown>>()
+
+function cacheGet<T>(key: string): T | null {
+  const entry = _cache.get(key) as CacheEntry<T> | undefined
+  if (entry && Date.now() < entry.expires) return entry.data
+  return null
+}
+
+async function withCache<T>(key: string, fetcher: () => Promise<T>, ttl = CACHE_TTL): Promise<T> {
+  const cached = cacheGet<T>(key)
+  if (cached !== null) return cached
+
+  const existing = _inFlight.get(key)
+  if (existing) return existing as Promise<T>
+
+  const promise = fetcher()
+    .then((data) => {
+      _cache.set(key, { data, expires: Date.now() + ttl })
+      _inFlight.delete(key)
+      return data
+    })
+    .catch((err) => {
+      _inFlight.delete(key)
+      throw err
+    })
+
+  _inFlight.set(key, promise)
+  return promise
+}
+
 // ---------- Types ----------
 
 export interface WooProductAttribute {
@@ -141,36 +177,45 @@ export async function getProducts(params?: {
   orderby?: string
   order?: 'asc' | 'desc'
 }): Promise<WooProduct[]> {
-  try {
-    const { data } = await wooApi.get<WooProduct[]>('/products', {
-      params: { per_page: 20, ...params },
-    })
-    return data
-  } catch (error) {
-    throw mapWooError(error, 'products')
-  }
+  const key = `products:${JSON.stringify(params ?? {})}`
+  return withCache(key, async () => {
+    try {
+      const { data } = await wooApi.get<WooProduct[]>('/products', {
+        params: { per_page: 20, ...params },
+      })
+      return data
+    } catch (error) {
+      throw mapWooError(error, 'products')
+    }
+  })
 }
 
 /** Fetch a single product by ID */
 export async function getProduct(id: number): Promise<WooProduct> {
-  try {
-    const { data } = await wooApi.get<WooProduct>(`/products/${id}`)
-    return data
-  } catch (error) {
-    throw mapWooError(error, 'product')
-  }
+  const key = `product:id:${id}`
+  return withCache(key, async () => {
+    try {
+      const { data } = await wooApi.get<WooProduct>(`/products/${id}`)
+      return data
+    } catch (error) {
+      throw mapWooError(error, 'product')
+    }
+  })
 }
 
 /** Fetch a single product by slug */
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {
-  try {
-    const { data } = await wooApi.get<WooProduct[]>('/products', {
-      params: { slug, per_page: 1 },
-    })
-    return data[0] ?? null
-  } catch (error) {
-    throw mapWooError(error, 'product')
-  }
+  const key = `product:slug:${slug}`
+  return withCache(key, async () => {
+    try {
+      const { data } = await wooApi.get<WooProduct[]>('/products', {
+        params: { slug, per_page: 1 },
+      })
+      return data[0] ?? null
+    } catch (error) {
+      throw mapWooError(error, 'product')
+    }
+  })
 }
 
 /** Fetch all categories */
@@ -178,14 +223,21 @@ export async function getCategories(params?: {
   per_page?: number
   hide_empty?: boolean
 }): Promise<WooCategory[]> {
-  try {
-    const { data } = await wooApi.get<WooCategory[]>('/products/categories', {
-      params: { per_page: 50, hide_empty: true, ...params },
-    })
-    return data
-  } catch (error) {
-    throw mapWooError(error, 'categories')
-  }
+  const key = `categories:${JSON.stringify(params ?? {})}`
+  return withCache(
+    key,
+    async () => {
+      try {
+        const { data } = await wooApi.get<WooCategory[]>('/products/categories', {
+          params: { per_page: 50, hide_empty: true, ...params },
+        })
+        return data
+      } catch (error) {
+        throw mapWooError(error, 'categories')
+      }
+    },
+    CATEGORIES_TTL,
+  )
 }
 
 export interface WooReview {
@@ -200,14 +252,17 @@ export interface WooReview {
 
 /** Fetch reviews for a product */
 export async function getProductReviews(productId: number, per_page = 20): Promise<WooReview[]> {
-  try {
-    const { data } = await wooApi.get<WooReview[]>('/products/reviews', {
-      params: { product: productId, per_page, status: 'approved' },
-    })
-    return data
-  } catch (error) {
-    throw mapWooError(error, 'reviews')
-  }
+  const key = `reviews:${productId}:${per_page}`
+  return withCache(key, async () => {
+    try {
+      const { data } = await wooApi.get<WooReview[]>('/products/reviews', {
+        params: { product: productId, per_page, status: 'approved' },
+      })
+      return data
+    } catch (error) {
+      throw mapWooError(error, 'reviews')
+    }
+  })
 }
 
 export default wooApi

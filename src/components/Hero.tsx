@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import '../styles/Hero.css'
-import { getHeroFramesCache, preloadHeroFrames, TOTAL_HERO_FRAMES } from '../lib/heroFrames'
+import { getHeroFramesCache, preloadHeroFolder, preloadHeroFrames, TOTAL_HERO_FRAMES } from '../lib/heroFrames'
 
 type HeroSlide = {
   name: string
@@ -79,16 +79,24 @@ const Hero = () => {
   useEffect(() => {
     let cancelled = false
 
-    const preloadAllFrames = async () => {
-      const loadedByFolder = await preloadHeroFrames()
+    const loadFrames = async () => {
+      // Load the first slide's folder first so the animation appears ASAP
+      const firstFolder = HERO_SLIDES[0].frameFolder
+      const firstFrames = await preloadHeroFolder(firstFolder)
 
       if (!cancelled) {
-        framesRef.current = loadedByFolder
+        framesRef.current = { ...framesRef.current, [firstFolder]: firstFrames }
         setIsSequenceReady(true)
+      }
+
+      // Load the remaining folders in parallel in the background
+      const all = await preloadHeroFrames()
+      if (!cancelled) {
+        framesRef.current = all
       }
     }
 
-    void preloadAllFrames()
+    void loadFrames()
 
     return () => {
       cancelled = true

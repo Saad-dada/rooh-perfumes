@@ -7,6 +7,16 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-axios': ['axios'],
+          },
+        },
+      },
+    },
     server: {
       // Proxy WooCommerce API calls during local dev to avoid CORS issues
       proxy: env.VITE_WC_BASE_URL
