@@ -9,6 +9,8 @@ import CollectionBakhoor from './components/CollectionBakhoor'
 import CollectionBodyMist from './components/CollectionBodyMist'
 import CheckoutPage from './components/CheckoutPage'
 import OrderConfirmation from './components/OrderConfirmation'
+import AboutPage from './components/AboutPage'
+import ContactPage from './components/ContactPage'
 import CartDrawer from './components/CartDrawer'
 import { CartProvider } from './context/CartContext'
 
@@ -31,6 +33,8 @@ function App() {
             <Route path="/collection/bakhoor" element={<CollectionBakhoor />} />
             <Route path="/collection/body-mist" element={<CollectionBodyMist />} />
             <Route path="/product/:slug" element={<ProductPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
           </Routes>

@@ -1,0 +1,380 @@
+.about-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfafb 100%);
+  color: #1f1f1f;
+}
+
+.about-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 640ms ease, transform 640ms ease;
+}
+
+.about-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about-hero {
+  position: relative;
+  height: 80vh;
+  overflow: hidden;
+}
+
+.about-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.58));
+}
+
+.about-hero-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  padding: 0 16px;
+}
+
+.about-hero-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.about-hero-content h1 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 600;
+}
+
+.about-hero-content p {
+  margin-top: 12px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: clamp(0.95rem, 1.5vw, 1.16rem);
+  opacity: 0.92;
+}
+
+.about-hero-logo {
+  margin-top: 18px;
+  width: clamp(110px, 12vw, 156px);
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.34));
+}
+
+.about-main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 54px 24px 92px;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 44px;
+}
+
+.about-stat-card {
+  border: 1px solid rgba(77, 25, 58, 0.16);
+  border-radius: 14px;
+  background: #fff;
+  padding: 16px 14px;
+  text-align: center;
+}
+
+.about-stat-card h3 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2rem;
+  line-height: 1;
+  color: #4D193A;
+}
+
+.about-stat-card p {
+  margin: 6px 0 0;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.about-intro {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.about-intro h2 {
+  margin: 0 0 18px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  line-height: 1.12;
+  color: rgba(0, 0, 0, 0.86);
+}
+
+.about-intro p {
+  margin: 0 auto 14px;
+  max-width: 760px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.9;
+  color: rgba(0, 0, 0, 0.58);
+}
+
+.about-story {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 18px;
+  align-items: stretch;
+  margin: 40px 0 34px;
+}
+
+.about-story-content,
+.about-story-media {
+  border: 1px solid rgba(77, 25, 58, 0.14);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.about-story-content {
+  padding: 24px 22px;
+}
+
+.about-story-content h3 {
+  margin: 0 0 10px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2rem;
+  color: #4D193A;
+}
+
+.about-story-content p {
+  margin: 0 0 12px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.94rem;
+  line-height: 1.85;
+  color: rgba(0, 0, 0, 0.58);
+}
+
+.about-story-content p:last-child {
+  margin-bottom: 0;
+}
+
+.about-story-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  background: linear-gradient(145deg, rgba(77, 25, 58, 0.11), rgba(77, 25, 58, 0.03));
+}
+
+.about-story-media p {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  line-height: 1.35;
+  text-align: center;
+  color: #4D193A;
+}
+
+.about-signature {
+  margin: 14px auto 54px;
+  width: min(100%, 900px);
+  text-align: center;
+  padding: 28px 24px;
+  border-radius: 14px;
+  border: 1px solid rgba(77, 25, 58, 0.12);
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.07);
+}
+
+.about-signature h3 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  color: #4D193A;
+}
+
+.about-signature p {
+  margin: 10px auto 0;
+  max-width: 680px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: rgba(0, 0, 0, 0.58);
+}
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.about-feature-card {
+  border: 1px solid rgba(77, 25, 58, 0.14);
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+  background: #fff;
+}
+
+.about-feature-card h3 {
+  margin: 0 0 8px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.55rem;
+  color: #4D193A;
+}
+
+.about-feature-card p {
+  margin: 0;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.56);
+}
+
+.about-cta {
+  margin-top: 34px;
+  padding: 28px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: #592044;
+  text-align: center;
+}
+
+.about-cta-logo {
+  width: 124px;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  display: block;
+}
+
+.about-cta h3 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.about-cta p {
+  margin: 10px auto 0;
+  max-width: 640px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.94rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.about-cta-actions {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.about-cta-actions a {
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  color: #592044;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1rem;
+  font-style: italic;
+  padding: 10px 20px;
+}
+
+.about-cta-actions a.about-cta-secondary {
+  background: transparent;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+.about-cta-actions a:hover {
+  filter: brightness(0.95);
+}
+
+@media (max-width: 900px) {
+  .about-stats,
+  .about-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-story {
+    grid-template-columns: 1fr;
+  }
+
+  .about-story-media {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-main {
+    padding: 34px 14px 62px;
+  }
+
+  .about-stats,
+  .about-features {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stat-card h3 {
+    font-size: 1.8rem;
+  }
+
+  .about-story-content {
+    padding: 18px 16px;
+  }
+
+  .about-story-content h3 {
+    font-size: 1.72rem;
+  }
+
+  .about-content-image {
+    margin: 8px auto 34px;
+  }
+
+  .about-signature {
+    margin: 8px auto 34px;
+    padding: 22px 14px;
+  }
+
+  .about-cta {
+    padding: 22px 14px;
+  }
+
+  .about-cta h3 {
+    font-size: 1.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-reveal,
+  .about-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

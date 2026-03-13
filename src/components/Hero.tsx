@@ -49,8 +49,8 @@ const HERO_SLIDES: HeroSlide[] = [
   },
 ]
 
-const AUTO_SLIDE_MS = 10000
-const PIXELS_PER_FRAME = 24
+const AUTO_SLIDE_MS = 6000
+const AUTO_ROTATE_FRAME_MS = 140
 
 const initialFramesCache = isMobileDevice ? getMobileFramesCache() : getHeroFramesCache()
 const ACTIVE_TOTAL_FRAMES = isMobileDevice ? MOBILE_TOTAL_FRAMES : MOBILE_TOTAL_FRAMES * 4 // full 48 on desktop
@@ -60,12 +60,6 @@ const Hero = () => {
   const [frame, setFrame] = useState(0)
   const [isSequenceReady, setIsSequenceReady] = useState(Boolean(initialFramesCache))
   const [isSlideChanging, setIsSlideChanging] = useState(false)
-
-  const latestOffset = useRef(0)
-  const accumulatedOffset = useRef(0)
-  const lastScrollY = useRef(0)
-  const ticking = useRef(false)
-  const rafId = useRef<number | null>(null)
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const reflectionCanvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -155,6 +149,11 @@ const Hero = () => {
         reflectionCanvas.height = height
       }
 
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+      reflectionCtx.imageSmoothingEnabled = true
+      reflectionCtx.imageSmoothingQuality = 'high'
+
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height)
 
@@ -166,60 +165,42 @@ const Hero = () => {
   }, [frame, isSequenceReady, activeSlide])
 
   useEffect(() => {
-    // Scroll/wheel drives frame rotation on all devices.
-    const updateFrame = (offset: number) => {
-      const rawIndex = Math.floor(offset / PIXELS_PER_FRAME)
-      const nextFrame = ((rawIndex % ACTIVE_TOTAL_FRAMES) + ACTIVE_TOTAL_FRAMES) % ACTIVE_TOTAL_FRAMES
-      setFrame((prevFrame) => (prevFrame === nextFrame ? prevFrame : nextFrame))
-      ticking.current = false
-    }
+    const currentSlide = HERO_SLIDES[activeSlide]
+    const totalFrames = framesRef.current[currentSlide.frameFolder]?.length ?? ACTIVE_TOTAL_FRAMES
 
-    const scheduleUpdate = () => {
-      if (!ticking.current) {
-        ticking.current = true
-        rafId.current = window.requestAnimationFrame(() => updateFrame(latestOffset.current))
+    if (!totalFrames || totalFrames <= 1) return
+
+    setFrame((prev) => prev % totalFrames)
+
+    let rafId: number | null = null
+    let lastTime = 0
+    let elapsed = 0
+
+    const tick = (time: number) => {
+      if (lastTime === 0) {
+        lastTime = time
       }
-    }
 
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      const deltaY = currentScrollY - lastScrollY.current
-      lastScrollY.current = currentScrollY
+      elapsed += time - lastTime
+      lastTime = time
 
-      if (deltaY !== 0) {
-        accumulatedOffset.current += deltaY
-        latestOffset.current = accumulatedOffset.current
-        scheduleUpdate()
+      if (elapsed >= AUTO_ROTATE_FRAME_MS) {
+        const frameSteps = Math.floor(elapsed / AUTO_ROTATE_FRAME_MS)
+        elapsed %= AUTO_ROTATE_FRAME_MS
+        setFrame((prev) => (prev + frameSteps) % totalFrames)
       }
+
+      rafId = window.requestAnimationFrame(tick)
     }
 
-    const handleWheel = (event: WheelEvent) => {
-      const maxScroll = document.body.scrollHeight - window.innerHeight
-      const atTop = window.scrollY <= 0
-      const atBottom = window.scrollY >= Math.max(0, maxScroll)
-
-      if ((atTop && event.deltaY < 0) || (atBottom && event.deltaY > 0)) {
-        accumulatedOffset.current += event.deltaY
-        latestOffset.current = accumulatedOffset.current
-        scheduleUpdate()
-      }
-    }
-
-    accumulatedOffset.current = window.scrollY
-    latestOffset.current = accumulatedOffset.current
-    lastScrollY.current = window.scrollY
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('wheel', handleWheel, { passive: true })
+    rafId = window.requestAnimationFrame(tick)
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('wheel', handleWheel)
-      if (rafId.current !== null) {
-        window.cancelAnimationFrame(rafId.current)
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId)
       }
     }
-  }, [])
+  }, [activeSlide, isSequenceReady])
 
   const current = HERO_SLIDES[activeSlide]
   const fadeClass = isSlideChanging ? 'slide-fade-active' : ''

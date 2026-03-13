@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useWooCategories } from '../hooks/useWooCategories'
 import { useWooProducts } from '../hooks/useWooProducts'
 import { useCart } from '../context/CartContext'
-import { isComingSoon } from '../lib/productUtils'
+import { getProductVolume, isComingSoon } from '../lib/productUtils'
 import '../styles/ShopGrid.css'
 
 type LocalProduct = {
@@ -16,8 +16,11 @@ type LocalProduct = {
   sale_price?: string
   stock_status?: string
   categories?: { id: number; name: string; slug: string }[]
+  attributes?: { name: string; options: string[] }[]
   images: { src: string; alt?: string }[]
   meta_data?: { key: string; value: unknown }[]
+  short_description?: string
+  description?: string
 }
 
 const COLLECTION_ROUTES: Record<string, string> = {
@@ -31,6 +34,7 @@ function ProductCard({ p }: { p: LocalProduct }) {
   const { addToCart } = useCart()
   const [adding, setAdding] = useState(false)
   const comingSoon = isComingSoon(p)
+  const volume = getProductVolume(p)
   const outOfStock = !comingSoon && p.stock_status !== undefined && p.stock_status !== 'instock'
 
   const cardContent = (
@@ -58,6 +62,7 @@ function ProductCard({ p }: { p: LocalProduct }) {
             <span className="shop-card-price-old">AED {p.regular_price}</span>
           )}
           <span className="shop-card-price">AED {p.price}</span>
+          {volume && <span className="shop-card-volume">{volume}</span>}
         </div>
       </div>
     </>

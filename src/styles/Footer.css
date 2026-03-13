@@ -10,26 +10,19 @@
   margin: 0 auto;
 }
 
-/* ── Navigation row ── */
-.ft-nav {
+/* ── Brand row ── */
+.ft-brand {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3.5rem;
-  padding-bottom: 40px;
+  padding-bottom: 28px;
 }
 
-.ft-nav a {
-  text-decoration: none;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-  transition: color 0.3s ease;
-}
-
-.ft-nav a:hover {
-  color: #fff;
+.ft-logo {
+  width: clamp(120px, 16vw, 175px);
+  max-width: 100%;
+  opacity: 0.95;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.2));
 }
 
 /* ── Divider ── */
@@ -99,14 +92,8 @@
     padding: 36px 4vw 0;
   }
 
-  .ft-nav {
-    flex-wrap: wrap;
-    gap: 1rem 1.5rem;
-    padding-bottom: 28px;
-  }
-
-  .ft-nav a {
-    font-size: 1rem;
+  .ft-brand {
+    padding-bottom: 20px;
   }
 
   .ft-bottom {
@@ -134,13 +121,8 @@
     padding: 28px 3vw 0;
   }
 
-  .ft-nav {
-    gap: 0.8rem 1.2rem;
-    padding-bottom: 20px;
-  }
-
-  .ft-nav a {
-    font-size: 0.9rem;
+  .ft-brand {
+    padding-bottom: 16px;
   }
 
   .ft-bottom {

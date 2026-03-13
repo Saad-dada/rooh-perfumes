@@ -4,13 +4,9 @@ const Footer = () => {
   return (
     <footer className="ft">
       <div className="ft-inner">
-        {/* Navigation row */}
-        <nav className="ft-nav">
-          <a href="#">Home</a>
-          <a href="#popular">Popular perfume</a>
-          <a href="#shop">Shop</a>
-          <a href="#testimonial">Testimonial</a>
-        </nav>
+        <div className="ft-brand" aria-label="Rooh Perfumes">
+          <img src="/roohlogo.png" alt="Rooh Perfumes" className="ft-logo" loading="lazy" />
+        </div>
 
         {/* Divider */}
         <div className="ft-divider" />

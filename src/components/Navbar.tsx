@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "../styles/Navbar.css";
 
@@ -9,8 +9,6 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
   const lastScrollY = useRef(window.scrollY);
-  const location = useLocation();
-  const isHome = location.pathname === "/";
   const { itemCount, openDrawer } = useCart();
 
   useEffect(() => {
@@ -44,16 +42,8 @@ const Navbar = () => {
         <div className="nav-links">
           <Link to="/">HOME</Link>
           <Link to="/shop">SHOP</Link>
-          {isHome ? (
-            <a href="#about">ABOUT</a>
-          ) : (
-            <Link to="/#about">ABOUT</Link>
-          )}
-          {isHome ? (
-            <a href="#contact">CONTACT</a>
-          ) : (
-            <Link to="/#contact">CONTACT</Link>
-          )}
+          <Link to="/about">ABOUT</Link>
+          <Link to="/contact">CONTACT</Link>
         </div>
 
         <div className="nav-actions">
@@ -128,24 +118,12 @@ const Navbar = () => {
         <Link to="/shop" onClick={() => setMenuOpen(false)}>
           SHOP
         </Link>
-        {isHome ? (
-          <a href="#about" onClick={() => setMenuOpen(false)}>
-            ABOUT
-          </a>
-        ) : (
-          <Link to="/#about" onClick={() => setMenuOpen(false)}>
-            ABOUT
-          </Link>
-        )}
-        {isHome ? (
-          <a href="#contact" onClick={() => setMenuOpen(false)}>
-            CONTACT
-          </a>
-        ) : (
-          <Link to="/#contact" onClick={() => setMenuOpen(false)}>
-            CONTACT
-          </Link>
-        )}
+        <Link to="/about" onClick={() => setMenuOpen(false)}>
+          ABOUT
+        </Link>
+        <Link to="/contact" onClick={() => setMenuOpen(false)}>
+          CONTACT
+        </Link>
       </div>
     </nav>
   );

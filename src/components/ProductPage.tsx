@@ -1,9 +1,10 @@
 import { useParams, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useWooProduct } from '../hooks/useWooProduct'
 import { useWooProducts } from '../hooks/useWooProducts'
 import { useWooReviews } from '../hooks/useWooReviews'
 import { useCart } from '../context/CartContext'
+import { getProductVolume } from '../lib/productUtils'
 import { clearCartToken } from '../lib/store-api'
 import type { WooProduct, WooProductAttribute } from '../lib/woocommerce'
 import Navbar from './Navbar'
@@ -105,6 +106,11 @@ const ProductPage = () => {
   const { addToCart } = useCart()
   const [adding, setAdding] = useState(false)
   const { product: wooProduct, loading, error, retry } = useWooProduct(slug)
+
+  // Scroll to top when product changes
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [slug])
 
   // Block Sahara Saffron — Coming Soon
   if (!loading && wooProduct && wooProduct.name.toLowerCase().includes('sahara')) {
@@ -408,6 +414,7 @@ function RelatedProducts({ currentId }: { currentId: number }) {
 function RelatedCard({ product: p }: { product: WooProduct }) {
   const img = p.images[0]
   const isSale = p.sale_price && p.sale_price !== ''
+  const volume = getProductVolume(p)
 
   return (
     <Link to={`/product/${p.slug}`} className="rp-card">
@@ -425,6 +432,7 @@ function RelatedCard({ product: p }: { product: WooProduct }) {
           ) : (
             <span className="rp-card-price">AED {p.price}</span>
           )}
+          {volume && <span className="rp-card-volume">{volume}</span>}
         </div>
       </div>
     </Link>

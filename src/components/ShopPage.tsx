@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useWooProducts } from "../hooks/useWooProducts";
 import { useWooCategories } from "../hooks/useWooCategories";
 import { useCart } from "../context/CartContext";
-import { isComingSoon } from '../lib/productUtils';
+import { getProductVolume, isComingSoon } from '../lib/productUtils';
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import "../styles/ShopPage.css";
@@ -128,6 +128,7 @@ const ShopPage = () => {
             <div className="sp-grid">
               {[...products].slice().reverse().map((p) => {
                 const isSahara = isComingSoon(p)
+                const volume = getProductVolume(p)
                 return (
                 <article key={p.id} className={`sp-card${isSahara ? ' sp-card--coming-soon' : ''}`}>
                   {isSahara ? (
@@ -142,6 +143,7 @@ const ShopPage = () => {
                         <div className="shop-card-pricing">
                           {p.sale_price && <span className="shop-card-price-old">AED {p.regular_price}</span>}
                           <span className="shop-card-price">AED {p.price}</span>
+                          {volume && <span className="shop-card-volume">{volume}</span>}
                         </div>
                       </div>
                     </div>
@@ -177,6 +179,7 @@ const ShopPage = () => {
                           </span>
                         )}
                         <span className="shop-card-price">AED {p.price}</span>
+                        {volume && <span className="shop-card-volume">{volume}</span>}
                       </div>
                     </div>
                   </Link>

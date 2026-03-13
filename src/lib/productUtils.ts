@@ -29,3 +29,37 @@ export function isComingSoon(product: {
 
   return false
 }
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&[a-z]+;/gi, '')
+    .trim()
+}
+
+export function getProductVolume(product: {
+  attributes?: Array<{ name?: string; options?: string[] }>
+  short_description?: string
+  description?: string
+}): string | null {
+  const attrs = product.attributes ?? []
+  const fromAttribute = attrs.find((attr) => /^(size|volume|ml)$/i.test((attr.name ?? '').trim()))?.options?.[0]?.trim()
+  if (fromAttribute) return fromAttribute
+
+  const combined = `${product.short_description ?? ''}\n${product.description ?? ''}`
+  const lines = stripHtml(combined).split('\n').map((line) => line.trim()).filter(Boolean)
+
+  for (const line of lines) {
+    const match = line.match(/^(?:size|volume)\s*[:\-—]?\s*(.+)$/i)
+    if (match?.[1]) {
+      const value = match[1].trim()
+      if (value) return value
+    }
+  }
+
+  return null
+}
