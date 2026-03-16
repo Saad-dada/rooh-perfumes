@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const lastScrollY = useRef(window.scrollY);
@@ -92,8 +93,25 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`nav${sticky ? " nav--sticky" : ""}`}>
-      <div className="nav-inner">
+    <>
+      {announcementOpen && (
+        <div className="nav-announcement" role="status" aria-live="polite">
+          <span className="nav-announcement-text">
+            Launch Offer: Buy 2 or more Perfumes for 75 AED each.
+          </span>
+          <button
+            type="button"
+            className="nav-announcement-close"
+            aria-label="Close announcement"
+            onClick={() => setAnnouncementOpen(false)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      <nav className={`nav${sticky ? " nav--sticky" : ""}`}>
+        <div className="nav-inner">
         <Link to="/" className="nav-brand">
           <img
             src="/roohlogo.png"
@@ -215,26 +233,27 @@ const Navbar = () => {
           </button>
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Mobile overlay menu */}
-      <div
-        className={`nav-mobile-menu ${menuOpen ? "nav-mobile-menu--open" : ""}`}
-      >
-        <Link to="/" onClick={() => setMenuOpen(false)}>
-          HOME
-        </Link>
-        <Link to="/shop" onClick={() => setMenuOpen(false)}>
-          SHOP
-        </Link>
-        <Link to="/about" onClick={() => setMenuOpen(false)}>
-          ABOUT
-        </Link>
-        <Link to="/contact" onClick={() => setMenuOpen(false)}>
-          CONTACT
-        </Link>
-      </div>
-    </nav>
+        {/* Mobile overlay menu */}
+        <div
+          className={`nav-mobile-menu ${menuOpen ? "nav-mobile-menu--open" : ""}`}
+        >
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+            HOME
+          </Link>
+          <Link to="/shop" onClick={() => setMenuOpen(false)}>
+            SHOP
+          </Link>
+          <Link to="/about" onClick={() => setMenuOpen(false)}>
+            ABOUT
+          </Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>
+            CONTACT
+          </Link>
+        </div>
+      </nav>
+    </>
   );
 };
 

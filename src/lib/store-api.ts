@@ -197,11 +197,23 @@ export interface StoreCart {
     total_price: string
     total_shipping: string
     total_tax: string
+    total_discount?: string
+    total_discount_tax?: string
     currency_code: string
     currency_minor_unit: number
   }
   shipping_rates: ShippingRate[]
   needs_shipping: boolean
+  coupons?: {
+    code: string
+    discount_type?: string
+    totals?: {
+      total_discount?: string
+      total_discount_tax?: string
+      currency_code?: string
+      currency_minor_unit?: number
+    }
+  }[]
 }
 
 export interface ShippingRate {

@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
+import { CART_SYNC_KEY, useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/store-api'
 import { useWooProducts } from '../hooks/useWooProducts'
 import Navbar from './Navbar'
@@ -7,8 +8,60 @@ import Footer from './Footer'
 import '../styles/CheckoutReviewPage.css'
 
 const CheckoutReviewPage = () => {
-  const { items, total, loading, addToCart, syncCheckout } = useCart()
+  const { items, total, cart, loading, addToCart, syncCheckout, refreshCart } = useCart()
   const { products, loading: productsLoading } = useWooProducts({ per_page: 8 })
+
+  useEffect(() => {
+    void refreshCart()
+
+    const handleFocus = () => {
+      void refreshCart()
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshCart()
+      }
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === CART_SYNC_KEY) {
+        void refreshCart()
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibility)
+    window.addEventListener('storage', handleStorage)
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [refreshCart])
+
+  const currencyCode = cart?.totals.currency_code ?? 'AED'
+  const currencyMinorUnit = cart?.totals.currency_minor_unit ?? 2
+  const subtotalMinor = cart?.totals.total_items ?? '0'
+  const shippingMinor = cart?.totals.total_shipping ?? '0'
+  const totalMinor = cart?.totals.total_price ?? '0'
+  const hasCoupon = (cart?.coupons?.length ?? 0) > 0
+  const couponCode = hasCoupon ? cart?.coupons?.[0]?.code?.toUpperCase() : null
+
+  const discountFromTotals = Number.parseInt(cart?.totals.total_discount ?? '0', 10)
+  const discountFallback = Math.max(
+    Number.parseInt(subtotalMinor, 10) - Number.parseInt(totalMinor, 10),
+    0,
+  )
+  const discountMinor = discountFromTotals > 0 ? discountFromTotals : discountFallback
+  const hasDiscount = discountMinor > 0
+
+  const subtotalLabel = formatPrice(subtotalMinor, currencyMinorUnit, currencyCode)
+  const shippingLabel = Number.parseInt(shippingMinor, 10) === 0
+    ? 'Free'
+    : formatPrice(shippingMinor, currencyMinorUnit, currencyCode)
+  const discountLabel = formatPrice(String(discountMinor), currencyMinorUnit, currencyCode)
 
   const quickAddProducts = products
     .filter((product) => product.stock_status === 'instock')
@@ -71,9 +124,32 @@ const CheckoutReviewPage = () => {
             </div>
 
             <div className="checkout-review-total-row">
+              <span>Subtotal</span>
+              <span className={hasDiscount ? 'checkout-review-subtotal-strike' : ''}>{subtotalLabel}</span>
+            </div>
+
+            <div className="checkout-review-total-row checkout-review-shipping-row">
+              <span>Shipping</span>
+              <span>{shippingLabel}</span>
+            </div>
+
+            {hasDiscount && (
+              <div className="checkout-review-total-row checkout-review-discount-row">
+                <span>{couponCode ? `Coupon (${couponCode})` : 'Coupon Discount'}</span>
+                <strong>-{discountLabel}</strong>
+              </div>
+            )}
+
+            <div className="checkout-review-total-row checkout-review-grand-total-row">
               <span>Total</span>
               <strong>{total}</strong>
             </div>
+
+            {!hasDiscount && (
+              <p className="checkout-review-coupon-note">
+                Auto coupon will be applied on WooCommerce checkout.
+              </p>
+            )}
 
             <button
               type="button"

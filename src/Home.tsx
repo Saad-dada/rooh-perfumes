@@ -23,14 +23,6 @@ const Home = () => {
     <div className="home">
       <Navbar />
       <Hero />
-      <MarqueeBanner
-        items={[
-          ' SPECIAL LAUNCH OFFER',
-          ' BUY 2 FOR AED 150',
-          ' COUPON CODE: LAUNCHOFFER',
-          ' LIMITED TIME ONLY ♡',
-        ]}
-      />
       <ShopByCategory />
       <SectionDivider />
       <MarqueeBanner />

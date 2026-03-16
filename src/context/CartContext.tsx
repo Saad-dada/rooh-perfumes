@@ -10,6 +10,8 @@ import {
   formatPrice,
 } from '../lib/store-api'
 
+export const CART_SYNC_KEY = 'rooh_cart_updated_at'
+
 interface CartContextValue {
   cart: StoreCart | null
   items: StoreCartItem[]
@@ -62,6 +64,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
+  const broadcastCartUpdate = useCallback(() => {
+    localStorage.setItem(CART_SYNC_KEY, String(Date.now()))
+  }, [])
+
   const refreshCart = useCallback(async () => {
     try {
       setLoading(true)
@@ -84,42 +90,46 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setLoading(true)
       const data = await addItemToCart(productId, quantity)
       setCart(data)
+      broadcastCartUpdate()
       setDrawerOpen(true)
     } catch (err) {
       console.error('Failed to add to cart:', err)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [broadcastCartUpdate])
 
   const updateQuantityHandler = useCallback(async (itemKey: string, quantity: number) => {
     try {
       setLoading(true)
       const data = await updateItemQuantity(itemKey, quantity)
       setCart(data)
+      broadcastCartUpdate()
     } catch (err) {
       console.error('Failed to update quantity:', err)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [broadcastCartUpdate])
 
   const removeItemHandler = useCallback(async (itemKey: string) => {
     try {
       setLoading(true)
       const data = await removeCartItem(itemKey)
       setCart(data)
+      broadcastCartUpdate()
     } catch (err) {
       console.error('Failed to remove item:', err)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [broadcastCartUpdate])
 
   const clearCart = useCallback(() => {
     clearCartToken()
     setCart(null)
-  }, [])
+    broadcastCartUpdate()
+  }, [broadcastCartUpdate])
 
   /** Build WP sync URL, clear React cart, redirect to WP checkout */
   const syncCheckout = useCallback(() => {

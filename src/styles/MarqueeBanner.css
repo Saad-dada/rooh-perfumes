@@ -25,11 +25,47 @@
   letter-spacing: 0.18em;
   color: #fff;
   text-transform: uppercase;
+  color: var(--silver-2);
+  background-image: linear-gradient(165deg,
+      #ffffff 0%,
+      var(--silver-4) 12%,
+      var(--silver-6) 21%,
+      var(--silver-1) 30%,
+      var(--silver-5) 40%,
+      #ffffff 50%,
+      var(--silver-3) 60%,
+      var(--silver-2) 72%,
+      #ffffff 82%,
+      var(--silver-6) 100%);
+  background-size: 100% 220%;
+  background-position: 0 38%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.35px rgba(210, 210, 210, 0.35);
+  text-decoration: none;
+  font-family: 'Cormorant Garamond', serif;
+  padding: 0 28px;
+  text-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.92),
+    0 1px 0 rgba(62, 72, 85, 0.62),
+    0 1px 0 rgba(30, 38, 47, 0.42),
+    0 0 16px rgba(239, 244, 251, 0.32),
+    0 0 26px rgba(255, 255, 255, 0.24);
+  transition: opacity 0.28s ease, filter 0.28s ease, background-position 0.4s ease, text-shadow 0.28s ease;
+  white-space: nowrap;
+  animation: chromeShine 4.8s linear infinite;
+  filter: contrast(2);
 }
 
 @keyframes marquee-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @media (max-width: 768px) {
