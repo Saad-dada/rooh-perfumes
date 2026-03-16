@@ -754,11 +754,11 @@
 
 @media (max-width: 480px) {
   .product-main {
-    padding: 80px 16px 56px;
+    padding: 20px 16px 56px;
   }
 
   .product-name {
-    font-size: clamp(2rem, 9vw, 2.8rem);
+    font-size: clamp(2rem, 9vw, 2.8rem);  
   }
 
   .pr-card {

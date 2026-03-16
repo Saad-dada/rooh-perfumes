@@ -13,11 +13,14 @@ const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCat = searchParams.get("category");
   const activeCatId = activeCat ? Number(activeCat) : undefined;
+  const searchQuery = searchParams.get("q") ?? "";
+  const searchTerm = searchQuery.trim();
 
   const { categories, loading: catsLoading } = useWooCategories();
   const { products, loading, error, retry } = useWooProducts({
     per_page: 50,
     ...(activeCatId ? { category: activeCatId } : {}),
+    ...(searchTerm ? { search: searchTerm } : {}),
   });
   const { addToCart } = useCart();
   const [addingId, setAddingId] = useState<number | null>(null);
@@ -28,12 +31,20 @@ const ShopPage = () => {
     setAddingId(null);
   };
 
+  const buildParams = (categoryId: number | null, query: string) => {
+    const next = new URLSearchParams();
+    if (categoryId) next.set("category", String(categoryId));
+    const trimmed = query.trim();
+    if (trimmed) next.set("q", trimmed);
+    return next;
+  };
+
   const handleFilter = (categoryId: number | null) => {
-    if (categoryId) {
-      setSearchParams({ category: String(categoryId) });
-    } else {
-      setSearchParams({});
-    }
+    setSearchParams(buildParams(categoryId, searchQuery));
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchParams(buildParams(activeCatId ?? null, value), { replace: true });
   };
 
   // Find active category name for the heading
@@ -60,6 +71,17 @@ const ShopPage = () => {
       </header>
 
       <main className="sp-main">
+        <div className="sp-search-wrap">
+          <input
+            type="search"
+            className="sp-search-input"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            aria-label="Search products"
+          />
+        </div>
+
         {/* Category filters */}
         {!catsLoading && categories.length > 0 && (
           <div className="sp-filters">
@@ -108,12 +130,16 @@ const ShopPage = () => {
         {/* Empty state */}
         {!loading && !error && products.length === 0 && (
           <div className="sp-empty">
-            <p>No products found in this category.</p>
+            <p>
+              {searchTerm
+                ? `No products found for "${searchTerm}".`
+                : "No products found in this category."}
+            </p>
             <button
               className="sp-filter-btn sp-filter-btn--active"
               onClick={() => handleFilter(null)}
             >
-              View All Products
+              {searchTerm ? "Clear Search" : "View All Products"}
             </button>
           </div>
         )}

@@ -26,7 +26,7 @@ type LocalProduct = {
 const COLLECTION_ROUTES: Record<string, string> = {
   'perfume':   '/collection/perfume',
   'bakhoor':   '/collection/bakhoor',
-  'body-mist': '/collection/body-mist',
+  'body-mist': '/collection/deodorant',
 }
 
 // ── Individual card ────────────────────────────────────────

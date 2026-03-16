@@ -13,7 +13,18 @@ const configuredBaseUrl = (import.meta.env.VITE_WC_BASE_URL as string | undefine
   ?.trim()
   .replace(/\/+$/, '')
 
-const storeBaseURL = import.meta.env.DEV && configuredBaseUrl
+const configuredStoreProxyUrl = (import.meta.env.VITE_WC_STORE_API_PROXY_URL as string | undefined)
+  ?.trim()
+  .replace(/\/+$/, '')
+
+const isLocalHost = typeof window !== 'undefined'
+  && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+
+const storeBaseURL = import.meta.env.DEV || isLocalHost
+  ? '/wp-json/wc/store/v1'
+  : configuredStoreProxyUrl
+  ? `${configuredStoreProxyUrl}`
+  : configuredBaseUrl
   ? `${configuredBaseUrl}/wp-json/wc/store/v1`
   : '/wp-json/wc/store/v1'
 

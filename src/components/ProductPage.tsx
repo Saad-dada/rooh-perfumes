@@ -2,7 +2,6 @@ import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useWooProduct } from '../hooks/useWooProduct'
 import { useWooProducts } from '../hooks/useWooProducts'
-import { useWooReviews } from '../hooks/useWooReviews'
 import { useCart } from '../context/CartContext'
 import { getProductVolume } from '../lib/productUtils'
 import { clearCartToken } from '../lib/store-api'
@@ -309,9 +308,6 @@ const ProductPage = () => {
               </div>
             )}
 
-            {/* ── Reviews ── */}
-            <ReviewsSection productId={product.id} productName={product.name} />
-
             {/* ── Related Products ── */}
             <RelatedProducts currentId={product.id} />
           </>
@@ -324,71 +320,6 @@ const ProductPage = () => {
 }
 
 export default ProductPage
-
-// ── Reviews ────────────────────────────────────────────────────────────────
-function Stars({ rating }: { rating: number }) {
-  return (
-    <span className="pr-stars" aria-label={`${rating} out of 5 stars`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={i < rating ? 'pr-star pr-star--filled' : 'pr-star'}>★</span>
-      ))}
-    </span>
-  )
-}
-
-function ReviewsSection({ productId, productName }: { productId: number; productName: string }) {
-  const { reviews, loading } = useWooReviews(productId)
-
-  const avg = reviews.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : null
-
-  return (
-    <section className="pr-section">
-      <div className="pr-header">
-        <h2 className="pr-heading">Reviews</h2>
-        {avg && (
-          <div className="pr-summary">
-            <span className="pr-avg">{avg}</span>
-            <Stars rating={Math.round(Number(avg))} />
-            <span className="pr-count">({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})</span>
-          </div>
-        )}
-      </div>
-
-      {loading && <p className="pr-empty">Loading reviews…</p>}
-
-      {!loading && reviews.length === 0 && (
-        <p className="pr-empty">No reviews yet for {productName}. Be the first to share yours.</p>
-      )}
-
-      {!loading && reviews.length > 0 && (
-        <div className="pr-list">
-          {reviews.map(r => (
-            <div key={r.id} className="pr-card">
-              <div className="pr-card-top">
-                <div className="pr-avatar">
-                  {r.reviewer_avatar_urls?.['48']
-                    ? <img src={r.reviewer_avatar_urls['48']} alt={r.reviewer} loading="lazy" />
-                    : <span>{r.reviewer.charAt(0).toUpperCase()}</span>}
-                </div>
-                <div className="pr-card-meta">
-                  <span className="pr-reviewer">{r.reviewer}</span>
-                  {r.verified && <span className="pr-verified">Verified</span>}
-                  <span className="pr-date">
-                    {new Date(r.date_created).toLocaleDateString('en-AE', { year: 'numeric', month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-                <Stars rating={r.rating} />
-              </div>
-              <p className="pr-body" dangerouslySetInnerHTML={{ __html: r.review }} />
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  )
-}
 
 // ── Related Products ───────────────────────────────────────────────────────
 function RelatedProducts({ currentId }: { currentId: number }) {

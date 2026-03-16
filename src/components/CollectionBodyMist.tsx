@@ -66,7 +66,7 @@ function parseDescription(
 const CollectionBodyMist = () => {
   const rowsRef = useRef<HTMLDivElement>(null)
   const { categories } = useWooCategories()
-  const bodyMistCat = categories.find((c) => c.slug === 'body-mist')
+  const bodyMistCat = categories.find((c) => c.slug === 'deodorant' || c.slug === 'body-mist')
   const catId = bodyMistCat?.id
 
   const { products, loading } = useWooProducts(catId ? { per_page: 8, category: catId } : { per_page: 0 })

@@ -31,6 +31,7 @@ function App() {
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/collection/perfume" element={<CollectionPerfume />} />
             <Route path="/collection/bakhoor" element={<CollectionBakhoor />} />
+            <Route path="/collection/deodorant" element={<CollectionBodyMist />} />
             <Route path="/collection/body-mist" element={<CollectionBodyMist />} />
             <Route path="/product/:slug" element={<ProductPage />} />
             <Route path="/about" element={<AboutPage />} />

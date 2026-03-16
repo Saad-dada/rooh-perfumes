@@ -27,7 +27,7 @@ const categories = [
   },
   {
     id: 3,
-    slug: 'body-mist',
+    slug: 'deodorant',
     name: 'Deodorant',
     subtitle: 'Light & Refreshing',
     description:

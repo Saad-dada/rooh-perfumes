@@ -537,7 +537,7 @@
   }
 
   .bottle-img {
-    width: 42vw;
+    width: 40vw;
   }
 
   .reflection {
@@ -642,13 +642,13 @@
   }
 
   .bottle-img {
-    width: 50vw;
+    width: 42vw;
   }
 
   .reflection {
-    width: 52vw;
+    width: 44vw;
     height: 56vw;
-    top: calc(50% + 24vw);
+    top: calc(50% + 20vw);
   }
 
   .circle-text {

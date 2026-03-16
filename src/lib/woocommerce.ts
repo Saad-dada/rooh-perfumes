@@ -4,40 +4,31 @@ const configuredBaseUrl = (import.meta.env.VITE_WC_BASE_URL as string | undefine
   ?.trim()
   .replace(/\/+$/, '')
 
-// In dev, prefer direct absolute URL if configured (avoids local proxy 404 state).
-// In production, keep relative path to work with Vercel rewrites.
-const wcBaseURL = import.meta.env.DEV && configuredBaseUrl
-  ? `${configuredBaseUrl}/wp-json/wc/v3`
-  : '/wp-json/wc/v3'
+const configuredProxyUrl = (import.meta.env.VITE_WC_API_PROXY_URL as string | undefined)
+  ?.trim()
+  .replace(/\/+$/, '')
 
-// Prefer HTTP Basic Auth over query-string auth when keys are present.
-// Some hosts block query-string auth; basic auth is safe over HTTPS.
-function cleanEnvValue(value: string | undefined): string {
-  return (value ?? '').trim().replace(/;+$/, '')
-}
-
-const WC_KEY = cleanEnvValue(import.meta.env.VITE_WC_CONSUMER_KEY)
-const WC_SECRET = cleanEnvValue(import.meta.env.VITE_WC_CONSUMER_SECRET)
-const useBasicAuth = Boolean(WC_KEY && WC_SECRET)
-const useQueryAuth = Boolean(WC_KEY || WC_SECRET)
+// In local dev, always use Vite's /wp-json proxy (configured in vite.config.ts)
+// so requests avoid browser CORS restrictions.
+// In production, prefer secure same-origin proxy when configured.
+const wcBaseURL = import.meta.env.DEV
+  ? (configuredProxyUrl ? `${configuredProxyUrl}/` : '/wp-json/wc/v3/')
+  : configuredProxyUrl
+    ? `${configuredProxyUrl}/`
+    : configuredBaseUrl
+      ? `${configuredBaseUrl}/wp-json/wc/v3/`
+      : '/wp-json/wc/v3/'
 
 if (import.meta.env.DEV) {
   const target = configuredBaseUrl || '(no VITE_WC_BASE_URL set)'
-  const authMode = useBasicAuth ? 'basic' : useQueryAuth ? 'query' : 'none'
-  console.info('[wooApi] base=%s target=%s auth=%s', wcBaseURL, target, authMode)
+  const proxy = configuredProxyUrl || '(none)'
+  console.info('[wooApi] base=%s target=%s proxy=%s auth=none', wcBaseURL, target, proxy)
 }
 
 // WooCommerce REST API client
 export const wooApi = axios.create({
   baseURL: wcBaseURL,
   timeout: 15_000,
-  // If both key and secret are available prefer Basic Auth; otherwise
-  // fall back to query-string params for environments that require it.
-  ...(useBasicAuth
-    ? { auth: { username: WC_KEY as string, password: WC_SECRET as string } }
-    : useQueryAuth
-      ? { params: { consumer_key: WC_KEY, consumer_secret: WC_SECRET } }
-      : {}),
 })
 
 // ---------- Retry interceptor (handles GoDaddy cold-starts & network blips) ----------
@@ -61,7 +52,7 @@ function mapWooError(error: unknown, resource: string): Error {
 
   const status = error.response.status
   if (status === 401 || status === 403) {
-    return new Error(`Store authentication failed (${status}) while loading ${resource}. Check Woo API keys and permissions.`)
+    return new Error(`Store access denied (${status}) while loading ${resource}. Use public Store API endpoints or route wc/v3 through a secure backend proxy.`)
   }
   if (status === 404) {
     return new Error(`Store endpoint not found (404) while loading ${resource}. Verify VITE_WC_BASE_URL and WordPress permalink/API setup.`)
@@ -97,6 +88,21 @@ const CATEGORIES_TTL = 15 * 60 * 1000 // categories rarely change
 interface CacheEntry<T> { data: T; expires: number }
 const _cache = new Map<string, CacheEntry<unknown>>()
 const _inFlight = new Map<string, Promise<unknown>>()
+
+function safeArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? (value as T[]) : []
+}
+
+function normalizeProduct(product: WooProduct): WooProduct {
+  return {
+    ...product,
+    images: safeArray<WooProduct['images'][number]>(product.images),
+    categories: safeArray<WooProduct['categories'][number]>(product.categories),
+    tags: safeArray<WooProduct['tags'][number]>(product.tags),
+    attributes: safeArray<WooProductAttribute>(product.attributes),
+    meta_data: safeArray<WooProduct['meta_data'][number]>(product.meta_data),
+  }
+}
 
 function cacheGet<T>(key: string): T | null {
   const entry = _cache.get(key) as CacheEntry<T> | undefined
@@ -180,10 +186,10 @@ export async function getProducts(params?: {
   const key = `products:${JSON.stringify(params ?? {})}`
   return withCache(key, async () => {
     try {
-      const { data } = await wooApi.get<WooProduct[]>('/products', {
+        const { data } = await wooApi.get<WooProduct[]>('products', {
         params: { per_page: 20, ...params },
       })
-      return data
+      return safeArray<WooProduct>(data).map(normalizeProduct)
     } catch (error) {
       throw mapWooError(error, 'products')
     }
@@ -195,8 +201,8 @@ export async function getProduct(id: number): Promise<WooProduct> {
   const key = `product:id:${id}`
   return withCache(key, async () => {
     try {
-      const { data } = await wooApi.get<WooProduct>(`/products/${id}`)
-      return data
+        const { data } = await wooApi.get<WooProduct>(`products/${id}`)
+      return normalizeProduct(data)
     } catch (error) {
       throw mapWooError(error, 'product')
     }
@@ -208,10 +214,11 @@ export async function getProductBySlug(slug: string): Promise<WooProduct | null>
   const key = `product:slug:${slug}`
   return withCache(key, async () => {
     try {
-      const { data } = await wooApi.get<WooProduct[]>('/products', {
+        const { data } = await wooApi.get<WooProduct[]>('products', {
         params: { slug, per_page: 1 },
       })
-      return data[0] ?? null
+      const products = safeArray<WooProduct>(data)
+      return products[0] ? normalizeProduct(products[0]) : null
     } catch (error) {
       throw mapWooError(error, 'product')
     }
@@ -228,10 +235,10 @@ export async function getCategories(params?: {
     key,
     async () => {
       try {
-        const { data } = await wooApi.get<WooCategory[]>('/products/categories', {
+        const { data } = await wooApi.get<WooCategory[]>('products/categories', {
           params: { per_page: 50, hide_empty: true, ...params },
         })
-        return data
+        return safeArray<WooCategory>(data)
       } catch (error) {
         throw mapWooError(error, 'categories')
       }
@@ -255,10 +262,10 @@ export async function getProductReviews(productId: number, per_page = 20): Promi
   const key = `reviews:${productId}:${per_page}`
   return withCache(key, async () => {
     try {
-      const { data } = await wooApi.get<WooReview[]>('/products/reviews', {
+      const { data } = await wooApi.get<WooReview[]>('products/reviews', {
         params: { product: productId, per_page, status: 'approved' },
       })
-      return data
+      return safeArray<WooReview>(data)
     } catch (error) {
       throw mapWooError(error, 'reviews')
     }

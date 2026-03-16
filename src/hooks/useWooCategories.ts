@@ -14,10 +14,11 @@ export function useWooCategories() {
         setLoading(true)
         setError(null)
         const data = await getCategories()
-        if (!cancelled) setCategories(data)
+        if (!cancelled) setCategories(Array.isArray(data) ? data : [])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Failed to load categories')
+          setCategories([])
           console.error('WooCommerce categories fetch error:', err)
         }
       } finally {
