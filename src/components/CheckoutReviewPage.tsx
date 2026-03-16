@@ -1,0 +1,127 @@
+import { Link } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
+import { formatPrice } from '../lib/store-api'
+import { useWooProducts } from '../hooks/useWooProducts'
+import Navbar from './Navbar'
+import Footer from './Footer'
+import '../styles/CheckoutReviewPage.css'
+
+const CheckoutReviewPage = () => {
+  const { items, total, loading, addToCart, syncCheckout } = useCart()
+  const { products, loading: productsLoading } = useWooProducts({ per_page: 8 })
+
+  const quickAddProducts = products
+    .filter((product) => product.stock_status === 'instock')
+    .slice(0, 4)
+
+  if (items.length === 0) {
+    return (
+      <div className="checkout-review-page">
+        <Navbar />
+        <main className="checkout-review-main">
+          <div className="checkout-review-empty">
+            <h1>Your cart is empty</h1>
+            <p>Add products before continuing to checkout.</p>
+            <Link to="/shop" className="checkout-review-back-link">
+              Continue Shopping
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  return (
+    <div className="checkout-review-page">
+      <Navbar />
+
+      <main className="checkout-review-main">
+        <Link to="/shop" className="checkout-review-back-link">
+          ← Continue Shopping
+        </Link>
+
+        <h1 className="checkout-review-title">Review Before Checkout</h1>
+
+        <div className="checkout-review-layout">
+          <section className="checkout-review-summary">
+            <h2>Order Summary</h2>
+            <div className="checkout-review-items">
+              {items.map((item) => {
+                const lineTotal = formatPrice(
+                  item.totals.line_total,
+                  item.totals.currency_minor_unit,
+                  item.totals.currency_code,
+                )
+
+                return (
+                  <article key={item.key} className="checkout-review-item">
+                    <img
+                      src={item.images[0]?.thumbnail ?? item.images[0]?.src ?? '/perfumes/placeholder.png'}
+                      alt={item.name}
+                    />
+                    <div className="checkout-review-item-content">
+                      <h3>{item.name}</h3>
+                      <p>Qty: {item.quantity}</p>
+                    </div>
+                    <span className="checkout-review-item-price">{lineTotal}</span>
+                  </article>
+                )
+              })}
+            </div>
+
+            <div className="checkout-review-total-row">
+              <span>Total</span>
+              <strong>{total}</strong>
+            </div>
+
+            <button
+              type="button"
+              className="checkout-review-continue-btn"
+              onClick={syncCheckout}
+            >
+              Continue to Secure Checkout
+            </button>
+          </section>
+
+          <aside className="checkout-review-quick-add">
+            <h2>Quick Add</h2>
+            <p>Add one more item before checkout.</p>
+
+            {productsLoading ? (
+              <p className="checkout-review-muted">Loading suggestions…</p>
+            ) : quickAddProducts.length === 0 ? (
+              <p className="checkout-review-muted">No quick add products available right now.</p>
+            ) : (
+              <div className="checkout-review-quick-add-list">
+                {quickAddProducts.map((product) => (
+                  <article key={product.id} className="checkout-review-quick-add-item">
+                    <img
+                      src={product.images[0]?.src ?? '/perfumes/placeholder.png'}
+                      alt={product.images[0]?.alt ?? product.name}
+                    />
+                    <div className="checkout-review-quick-add-content">
+                      <h3>{product.name}</h3>
+                      <span>AED {product.price}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void addToCart(product.id, 1)}
+                      disabled={loading}
+                    >
+                      Add
+                    </button>
+                  </article>
+                ))}
+              </div>
+            )}
+          </aside>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  )
+}
+
+export default CheckoutReviewPage

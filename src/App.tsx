@@ -8,6 +8,7 @@ import CollectionPerfume from './components/CollectionPerfume'
 import CollectionBakhoor from './components/CollectionBakhoor'
 import CollectionBodyMist from './components/CollectionBodyMist'
 import CheckoutPage from './components/CheckoutPage'
+import CheckoutReviewPage from './components/CheckoutReviewPage'
 import OrderConfirmation from './components/OrderConfirmation'
 import AboutPage from './components/AboutPage'
 import ContactPage from './components/ContactPage'
@@ -36,6 +37,7 @@ function App() {
             <Route path="/product/:slug" element={<ProductPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/checkout-review" element={<CheckoutReviewPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
           </Routes>

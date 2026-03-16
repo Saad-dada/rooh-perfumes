@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/store-api'
 import '../styles/CartDrawer.css'
 
 const CartDrawer = () => {
-  const { items, itemCount, total, drawerOpen, closeDrawer, updateQuantity, removeItem, loading, syncCheckout } = useCart()
+  const { items, itemCount, total, drawerOpen, closeDrawer, updateQuantity, removeItem, loading } = useCart()
+  const navigate = useNavigate()
   const [processing, setProcessing] = useState<Record<string, 'updating' | 'removing' | null>>({})
 
   const setProcessingState = (key: string, state: 'updating' | 'removing' | null) => {
@@ -132,7 +134,7 @@ const CartDrawer = () => {
                 className="cart-checkout-btn"
                 onClick={() => {
                   closeDrawer()
-                  syncCheckout()
+                  navigate('/checkout-review')
                 }}
               >
                 Proceed to Checkout
