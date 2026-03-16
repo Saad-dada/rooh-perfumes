@@ -147,6 +147,106 @@
   margin-left: auto;
 }
 
+.nav-search {
+  display: flex;
+  align-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition: width 0.24s ease, border-color 0.24s ease, background-color 0.24s ease;
+}
+
+.nav-search--open {
+  width: 250px;
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-search-input {
+  width: 0;
+  opacity: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 0;
+  transition: width 0.24s ease, opacity 0.18s ease, padding 0.24s ease;
+}
+
+.nav-search--open .nav-search-input {
+  width: 100%;
+  opacity: 1;
+  padding: 0 6px 0 14px;
+}
+
+.nav-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.nav-search-input::-webkit-search-cancel-button,
+.nav-search-input::-webkit-search-decoration,
+.nav-search-input::-webkit-search-results-button,
+.nav-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.nav-search-input::-ms-clear,
+.nav-search-input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.nav-search-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-search-btn:hover {
+  opacity: 0.8;
+}
+
+.nav-search-clear {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 4px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-search-clear:hover {
+  opacity: 0.85;
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
 .nav-cart-desktop {
   margin-left: 0.5rem;
 }
@@ -255,6 +355,35 @@
 
   .nav-mobile-actions {
     display: flex;
+  }
+
+  .nav-actions {
+    gap: 0.5rem;
+  }
+
+  .nav-search {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-search--open {
+    width: min(56vw, 210px);
+  }
+
+  .nav-search-input {
+    font-size: 0.85rem;
+  }
+
+  .nav-search-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-search-clear {
+    width: 22px;
+    height: 22px;
+    font-size: 0.9rem;
+    margin-right: 2px;
   }
 
   .nav-cart-btn-mobile {

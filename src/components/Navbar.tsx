@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "../styles/Navbar.css";
 
@@ -8,7 +8,13 @@ import { useEffect, useRef } from "react";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const lastScrollY = useRef(window.scrollY);
+  const searchFormRef = useRef<HTMLFormElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const { itemCount, openDrawer } = useCart();
 
   useEffect(() => {
@@ -29,6 +35,62 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setSearchValue(params.get("q") ?? "");
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+
+    const handleOutside = (event: MouseEvent) => {
+      if (searchFormRef.current && !searchFormRef.current.contains(event.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleOutside);
+    window.addEventListener("keydown", handleEscape);
+    searchInputRef.current?.focus();
+
+    return () => {
+      window.removeEventListener("mousedown", handleOutside);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [searchOpen]);
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = searchValue.trim();
+    navigate(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
+    setMenuOpen(false);
+    setSearchOpen(false);
+  };
+
+  const handleSearchIconClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!searchOpen) {
+      event.preventDefault();
+      setSearchOpen(true);
+      return;
+    }
+
+    if (!searchValue.trim()) {
+      event.preventDefault();
+      setSearchOpen(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchValue("");
+    searchInputRef.current?.focus();
+  };
+
   return (
     <nav className={`nav${sticky ? " nav--sticky" : ""}`}>
       <div className="nav-inner">
@@ -47,6 +109,53 @@ const Navbar = () => {
         </div>
 
         <div className="nav-actions">
+          <form
+            ref={searchFormRef}
+            className={`nav-search ${searchOpen ? "nav-search--open" : ""}`}
+            role="search"
+            onSubmit={handleSearchSubmit}
+          >
+            <input
+              ref={searchInputRef}
+              type="search"
+              className="nav-search-input"
+              placeholder="Search products"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              aria-label="Search products"
+            />
+            {searchOpen && searchValue.trim().length > 0 && (
+              <button
+                type="button"
+                className="nav-search-clear"
+                aria-label="Clear search"
+                onClick={handleClearSearch}
+              >
+                ×
+              </button>
+            )}
+            <button
+              type={searchOpen ? "submit" : "button"}
+              className="nav-search-btn"
+              aria-label={searchOpen ? "Search" : "Open search"}
+              onClick={handleSearchIconClick}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </button>
+          </form>
+
           <button
             className="nav-cart-btn nav-cart-desktop"
             onClick={openDrawer}
