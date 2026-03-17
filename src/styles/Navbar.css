@@ -1,6 +1,9 @@
 /* ── Announcement Bar ── */
 .nav-announcement {
-  background: linear-gradient(135deg, #602349 0%, #491837 40%, #64214b 100%);
+  background: linear-gradient(135deg, #7a2458 0%, #4d193a 38%, #8a2d63 62%, #5a1d44 100%);
+  background-size: 260% 260%;
+  animation: announcementGradientShift 4.5s ease-in-out infinite;
+  will-change: background-position;
   color: #ffffff;
   text-align: center;
   display: flex;
@@ -9,45 +12,74 @@
   position: relative;
   font-family: 'Instrument Sans', sans-serif;
   border-bottom: #89898955 1px solid;
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
   text-transform: none;
-  padding: 12px;
+  padding: 10px 42px 10px 14px;
   line-height: 1.2;
+  border-bottom: rgba(255, 255, 255, 0.18) 1px solid;
+}
+
+@keyframes announcementGradientShift {
+  0% {
+    background-position: 0% 45%;
+  }
+
+  50% {
+    background-position: 100% 55%;
+  }
+
+  100% {
+    background-position: 0% 45%;
+  }
 }
 
 .nav-announcement-text {
-  color: var(--silver-2);
-  background-image: linear-gradient(165deg,
-      #ffffff 0%,
-      var(--silver-4) 12%,
-      var(--silver-6) 21%,
-      var(--silver-1) 30%,
-      var(--silver-5) 40%,
-      #ffffff 50%,
-      var(--silver-3) 60%,
-      var(--silver-2) 72%,
-      #ffffff 82%,
-      var(--silver-6) 100%);
-  background-size: 100% 220%;
-  background-position: 0 38%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.35px rgba(210, 210, 210, 0.35);
+  color: #ffffff;
   text-decoration: none;
   font-family: 'Cormorant Garamond', serif;
-  padding: 0 28px;
-  text-shadow:
-    0 -1px 0 rgba(255, 255, 255, 0.92),
-    0 1px 0 rgba(62, 72, 85, 0.62),
-    0 1px 0 rgba(30, 38, 47, 0.42),
-    0 0 16px rgba(239, 244, 251, 0.32),
-    0 0 26px rgba(255, 255, 255, 0.24);
-  transition: opacity 0.28s ease, filter 0.28s ease, background-position 0.4s ease, text-shadow 0.28s ease;
-  white-space: nowrap;
-  animation: chromeShine 4.8s linear infinite;
-  filter: contrast(2);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.18);
+}
+
+.nav-announcement-label {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-announcement-message {
+  font-size: 1.04rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.nav-announcement-price {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d193a;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55), 0 6px 18px rgba(32, 10, 24, 0.28);
 }
 
 .nav-announcement-close {
@@ -158,6 +190,28 @@
 
   100% {
     background-position: 18% 50%;
+  }
+}
+
+@keyframes announcementFlash {
+  0% {
+    filter: contrast(2.1) brightness(1);
+    text-shadow:
+      0 -1px 0 rgba(255, 255, 255, 0.94),
+      0 1px 0 rgba(62, 72, 85, 0.64),
+      0 1px 0 rgba(30, 38, 47, 0.44),
+      0 0 18px rgba(239, 244, 251, 0.36),
+      0 0 30px rgba(255, 255, 255, 0.28);
+  }
+
+  100% {
+    filter: contrast(2.45) brightness(1.08);
+    text-shadow:
+      0 -1px 0 rgba(255, 255, 255, 1),
+      0 1px 0 rgba(62, 72, 85, 0.7),
+      0 1px 0 rgba(30, 38, 47, 0.52),
+      0 0 24px rgba(239, 244, 251, 0.52),
+      0 0 42px rgba(255, 255, 255, 0.4);
   }
 }
 
@@ -380,9 +434,20 @@
 /* ── Tablet ── */
 @media (max-width: 1024px) {
   .nav-announcement {
-    font-size: 0.68rem;
-    padding: 5px 10px;
-    letter-spacing: 0.08em;
+    font-size: 0.88rem;
+    padding: 8px 40px 8px 10px;
+    letter-spacing: 0.03em;
+    min-height: 48px;
+  }
+
+  .nav-announcement-message {
+    font-size: 0.98rem;
+  }
+
+  .nav-announcement-price {
+    margin-left: 4px;
+    font-size: 0.84rem;
+    padding: 2px 8px;
   }
 
   .nav-links {
@@ -401,9 +466,41 @@
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .nav-announcement {
-    font-size: 0.62rem;
-    padding: 5px 8px;
+    font-size: 0.9rem;
+    padding: 10px 40px 10px 10px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    min-height: 58px;
+  }
+
+  .nav-announcement-text {
+    width: 100%;
+    gap: 4px;
+    padding: 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .nav-announcement-label {
+    display: none;
+  }
+
+  .nav-announcement-message {
+    font-size: 1.02rem;
+    font-weight: 700;
+  }
+
+  .nav-announcement-price {
+    font-size: 0.86rem;
+    padding: 2px 8px;
     letter-spacing: 0.06em;
+  }
+
+  .nav-announcement-close {
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+    right: 10px;
   }
 
   .nav-inner {
@@ -528,8 +625,17 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-  .nav-links a,
-  .nav-mobile-menu a {
+  .nav-announcement {
     animation: none;
+  }
+
+  .nav-links a,
+  .nav-mobile-menu a,
+  .nav-announcement-text {
+    animation: none;
+  }
+
+  .nav-announcement-price {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
   }
 }

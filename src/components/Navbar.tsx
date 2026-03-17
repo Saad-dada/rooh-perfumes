@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { launchOffer } from "../lib/promo";
 import "../styles/Navbar.css";
 
 import { useEffect, useRef } from "react";
@@ -97,7 +98,9 @@ const Navbar = () => {
       {announcementOpen && (
         <div className="nav-announcement" role="status" aria-live="polite">
           <span className="nav-announcement-text">
-            Launch Offer: Buy 2 or more Perfumes for 75 AED each.
+            <span className="nav-announcement-label">{launchOffer.label}</span>
+            <span className="nav-announcement-message">{launchOffer.message}</span>
+            <span className="nav-announcement-price">{launchOffer.price}</span>
           </span>
           <button
             type="button"

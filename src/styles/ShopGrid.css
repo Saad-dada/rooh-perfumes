@@ -217,18 +217,24 @@
 
 /* Disabled / out-of-stock appearance */
 .shop-card-btn:disabled {
-  opacity: 0.5;
+  opacity: 1;
   cursor: not-allowed;
-  background: #f6f2f5;
-  color: #bba6b8;
-  border-color: #e5d6e0;
+  background: #f1e5ed;
+  color: #5a2144;
+  border-color: #b47f9e;
 }
 
 /* Slightly different for explicit out-of-stock (darker grey) */
 .shop-card-btn[data-stock="out"]:disabled {
-  opacity: 0.6;
-  background: #f3f3f4;
-  color: #8f8c8f;
+  opacity: 1;
+  background: linear-gradient(135deg, #f6edf3 0%, #ead9e4 100%);
+  color: #4a1838;
+  border-color: #94607f;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-style: normal;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(77, 25, 58, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 /* Responsive */
