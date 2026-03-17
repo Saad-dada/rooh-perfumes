@@ -273,6 +273,23 @@
   color: #000;
 }
 
+.cart-drawer-discount {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.cart-drawer-delivery-note {
+  margin: 2px 0 0;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.35;
+}
+
 .cart-checkout-btn {
   display: block;
   text-align: center;

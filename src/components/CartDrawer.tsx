@@ -5,11 +5,24 @@ import { formatPrice } from '../lib/store-api'
 import '../styles/CartDrawer.css'
 
 const CartDrawer = () => {
-  const { items, itemCount, total, drawerOpen, closeDrawer, updateQuantity, removeItem, loading } = useCart()
+  const { items, itemCount, cart, drawerOpen, closeDrawer, updateQuantity, removeItem, loading } = useCart()
   const navigate = useNavigate()
-  const [processing, setProcessing] = useState<Record<string, 'updating' | 'removing' | null>>({})
+  const [processing, setProcessing] = useState<Record<string, 'removing' | null>>({})
 
-  const setProcessingState = (key: string, state: 'updating' | 'removing' | null) => {
+  const hasCoupon = (cart?.coupons?.length ?? 0) > 0
+  const couponCode = hasCoupon ? cart?.coupons?.[0]?.code?.toUpperCase() : null
+  const discountMinor = Number.parseInt(cart?.totals.total_discount ?? '0', 10)
+  const hasDiscount = discountMinor > 0
+  const subtotalMinor = Number.parseInt(cart?.totals.total_items ?? '0', 10)
+  const estimatedTotalMinor = Math.max(subtotalMinor - discountMinor, 0)
+  const discountLabel = cart
+    ? formatPrice(String(discountMinor), cart.totals.currency_minor_unit, cart.totals.currency_code)
+    : '$0.00'
+  const estimatedTotalLabel = cart
+    ? formatPrice(String(estimatedTotalMinor), cart.totals.currency_minor_unit, cart.totals.currency_code)
+    : '$0.00'
+
+  const setProcessingState = (key: string, state: 'removing' | null) => {
     setProcessing((prev) => ({ ...prev, [key]: state }))
   }
 
@@ -52,7 +65,6 @@ const CartDrawer = () => {
                   item.totals.currency_code,
                 )
 
-                const isUpdating = processing[item.key] === 'updating'
                 const isRemoving = processing[item.key] === 'removing'
 
                 return (
@@ -70,34 +82,22 @@ const CartDrawer = () => {
                       <div className="cart-item-qty">
                         <button
                           className="cart-qty-btn"
-                          onClick={async () => {
+                          onClick={() => {
                             const newQty = Math.max(1, item.quantity - 1)
-                            setProcessingState(item.key, 'updating')
-                            try {
-                              await updateQuantity(item.key, newQty)
-                            } finally {
-                              setProcessingState(item.key, null)
-                            }
+                            void updateQuantity(item.key, newQty)
                           }}
-                          disabled={loading || isUpdating || item.quantity <= 1}
+                          disabled={loading || item.quantity <= 1}
                         >
                           −
                         </button>
-                        <span className="cart-qty-value">
-                          {isUpdating ? <span className="spinner" aria-hidden /> : item.quantity}
-                        </span>
+                        <span className="cart-qty-value">{item.quantity}</span>
                         <button
                           className="cart-qty-btn"
-                          onClick={async () => {
+                          onClick={() => {
                             const newQty = item.quantity + 1
-                            setProcessingState(item.key, 'updating')
-                            try {
-                              await updateQuantity(item.key, newQty)
-                            } finally {
-                              setProcessingState(item.key, null)
-                            }
+                            void updateQuantity(item.key, newQty)
                           }}
-                          disabled={loading || isUpdating}
+                          disabled={loading}
                         >
                           +
                         </button>
@@ -126,10 +126,22 @@ const CartDrawer = () => {
             </div>
 
             <div className="cart-drawer-footer">
+              {hasDiscount && (
+                <div className="cart-drawer-discount">
+                  <span>{couponCode ? `Coupon (${couponCode})` : 'Coupon Discount'}</span>
+                  <span>-{discountLabel}</span>
+                </div>
+              )}
+
               <div className="cart-drawer-total">
                 <span>Total</span>
-                <span>{total}</span>
+                <span>{estimatedTotalLabel}</span>
               </div>
+
+              <p className="cart-drawer-delivery-note">
+                Delivery charges are based on your location and will be calculated at checkout.
+              </p>
+
               <button
                 className="cart-checkout-btn"
                 onClick={() => {

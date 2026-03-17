@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { CART_SYNC_KEY, useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/store-api'
@@ -8,7 +8,7 @@ import Footer from './Footer'
 import '../styles/CheckoutReviewPage.css'
 
 const CheckoutReviewPage = () => {
-  const { items, total, cart, loading, addToCart, syncCheckout, refreshCart } = useCart()
+  const { items, cart, loading, addToCart, syncCheckout, refreshCart } = useCart()
   const { products, loading: productsLoading } = useWooProducts({ per_page: 8 })
 
   useEffect(() => {
@@ -44,7 +44,6 @@ const CheckoutReviewPage = () => {
   const currencyCode = cart?.totals.currency_code ?? 'AED'
   const currencyMinorUnit = cart?.totals.currency_minor_unit ?? 2
   const subtotalMinor = cart?.totals.total_items ?? '0'
-  const shippingMinor = cart?.totals.total_shipping ?? '0'
   const totalMinor = cart?.totals.total_price ?? '0'
   const hasCoupon = (cart?.coupons?.length ?? 0) > 0
   const couponCode = hasCoupon ? cart?.coupons?.[0]?.code?.toUpperCase() : null
@@ -56,16 +55,19 @@ const CheckoutReviewPage = () => {
   )
   const discountMinor = discountFromTotals > 0 ? discountFromTotals : discountFallback
   const hasDiscount = discountMinor > 0
+  const estimatedTotalMinor = hasDiscount
+    ? String(Math.max(Number.parseInt(subtotalMinor, 10) - discountMinor, 0))
+    : subtotalMinor
 
   const subtotalLabel = formatPrice(subtotalMinor, currencyMinorUnit, currencyCode)
-  const shippingLabel = Number.parseInt(shippingMinor, 10) === 0
-    ? 'Free'
-    : formatPrice(shippingMinor, currencyMinorUnit, currencyCode)
   const discountLabel = formatPrice(String(discountMinor), currencyMinorUnit, currencyCode)
+  const estimatedTotalLabel = formatPrice(estimatedTotalMinor, currencyMinorUnit, currencyCode)
 
-  const quickAddProducts = products
-    .filter((product) => product.stock_status === 'instock')
-    .slice(0, 4)
+  const quickAddProducts = useMemo(() => {
+    const inStockProducts = products.filter((product) => product.stock_status === 'instock')
+    const shuffled = [...inStockProducts].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, 4)
+  }, [products])
 
   if (items.length === 0) {
     return (
@@ -128,11 +130,6 @@ const CheckoutReviewPage = () => {
               <span className={hasDiscount ? 'checkout-review-subtotal-strike' : ''}>{subtotalLabel}</span>
             </div>
 
-            <div className="checkout-review-total-row checkout-review-shipping-row">
-              <span>Shipping</span>
-              <span>{shippingLabel}</span>
-            </div>
-
             {hasDiscount && (
               <div className="checkout-review-total-row checkout-review-discount-row">
                 <span>{couponCode ? `Coupon (${couponCode})` : 'Coupon Discount'}</span>
@@ -141,9 +138,13 @@ const CheckoutReviewPage = () => {
             )}
 
             <div className="checkout-review-total-row checkout-review-grand-total-row">
-              <span>Total</span>
-              <strong>{total}</strong>
+              <span>Estimated Total</span>
+              <strong>{estimatedTotalLabel}</strong>
             </div>
+
+            <p className="checkout-review-delivery-note">
+              Delivery charges are based on your location and will be calculated at checkout.
+            </p>
 
             {!hasDiscount && (
               <p className="checkout-review-coupon-note">

@@ -14,7 +14,8 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="ft-bottom">
           <span className="ft-copy">
-            &copy; Terms 2026 All Right Reserved
+            <span>&copy; Terms 2026 All Right Reserved</span>
+            <span className="ft-credit">Made by <a href="https://webcult.in" target="_blank" rel="noopener noreferrer">Webcult.in</a></span>
           </span>
 
           <div className="ft-socials">
