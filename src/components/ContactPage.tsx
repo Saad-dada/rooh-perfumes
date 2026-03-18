@@ -71,6 +71,23 @@ const ContactPage = () => {
             />
           </section>
         </section>
+
+        <section className="contact-extra-location" aria-label="Additional store location">
+          <div className="contact-extra-location-content">
+            <p className="contact-extra-location-eyebrow">Also available at</p>
+            <h2>Lovisa Perfumes</h2>
+            <p className="contact-extra-location-address">Deira, Dubai, UAE</p>
+          </div>
+
+          <a
+            className="contact-extra-location-link"
+            href="https://maps.app.goo.gl/g3Q6G8UHxMJ4SKrA9"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open in Google Maps
+          </a>
+        </section>
       </main>
 
       <Footer />
