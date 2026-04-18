@@ -1,47 +1,46 @@
-import { useState, useCallback } from 'react'
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './Home'
-import LoadingScreen from './components/LoadingScreen'
-import ShopPage from './components/ShopPage'
-import ProductPage from './components/ProductPage'
-import CollectionPerfume from './components/CollectionPerfume'
-import CollectionBakhoor from './components/CollectionBakhoor'
-import CollectionBodyMist from './components/CollectionBodyMist'
-import CheckoutPage from './components/CheckoutPage'
-import CheckoutReviewPage from './components/CheckoutReviewPage'
-import OrderConfirmation from './components/OrderConfirmation'
-import AboutPage from './components/AboutPage'
-import ContactPage from './components/ContactPage'
-import CartDrawer from './components/CartDrawer'
 import { CartProvider } from './context/CartContext'
 
+const Home = lazy(() => import('./Home'))
+const ShopPage = lazy(() => import('./components/ShopPage'))
+const ProductPage = lazy(() => import('./components/ProductPage'))
+const CollectionPerfume = lazy(() => import('./components/CollectionPerfume'))
+const CollectionBakhoor = lazy(() => import('./components/CollectionBakhoor'))
+const CollectionBodyMist = lazy(() => import('./components/CollectionBodyMist'))
+const CheckoutPage = lazy(() => import('./components/CheckoutPage'))
+const CheckoutReviewPage = lazy(() => import('./components/CheckoutReviewPage'))
+const OrderConfirmation = lazy(() => import('./components/OrderConfirmation'))
+const AboutPage = lazy(() => import('./components/AboutPage'))
+const ContactPage = lazy(() => import('./components/ContactPage'))
+const TermsAndConditionPage = lazy(() => import('./components/TermsAndConditionPage'))
+const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'))
+const CartDrawer = lazy(() => import('./components/CartDrawer'))
+
 function App() {
-  const [loading, setLoading] = useState(true)
-
-  const handleFinished = useCallback(() => {
-    setLoading(false)
-  }, [])
-
   return (
     <BrowserRouter>
       <CartProvider>
         <div className="app-root">
-          {loading && <LoadingScreen onFinished={handleFinished} />}
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/collection/perfume" element={<CollectionPerfume />} />
-            <Route path="/collection/bakhoor" element={<CollectionBakhoor />} />
-            <Route path="/collection/deodorant" element={<CollectionBodyMist />} />
-            <Route path="/collection/body-mist" element={<CollectionBodyMist />} />
-            <Route path="/product/:slug" element={<ProductPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/checkout-review" element={<CheckoutReviewPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
-          </Routes>
-          <CartDrawer />
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/collection/perfume" element={<CollectionPerfume />} />
+              <Route path="/collection/bakhoor" element={<CollectionBakhoor />} />
+              <Route path="/collection/deodorant" element={<CollectionBodyMist />} />
+              <Route path="/collection/body-mist" element={<CollectionBodyMist />} />
+              <Route path="/product/:slug" element={<ProductPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/checkout-review" element={<CheckoutReviewPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+              <Route path="/terms" element={<TermsAndConditionPage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            </Routes>
+            <CartDrawer />
+          </Suspense>
         </div>
       </CartProvider>
     </BrowserRouter>

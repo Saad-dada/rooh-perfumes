@@ -7,7 +7,7 @@ import '../styles/AboutPage.css'
 const features = [
   {
     title: 'Natural Ingredients',
-    text: 'Curated oils, resins, and aroma compounds selected for purity, depth, and smooth burn.',
+    text: 'Curated oils, resins, and aroma compounds selected for purity, depth, and smooth burn.', 
   },
   {
     title: 'Thoughtful Craft',

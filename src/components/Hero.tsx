@@ -87,6 +87,34 @@ const Hero = () => {
 
   useEffect(() => {
     let cancelled = false
+    let idleId: number | null = null
+
+    const runWhenIdle = (task: () => void) => {
+      if (typeof window === 'undefined') return
+
+      if ('requestIdleCallback' in globalThis) {
+        idleId = (globalThis as typeof globalThis & {
+          requestIdleCallback: (cb: () => void) => number
+        }).requestIdleCallback(task)
+        return
+      }
+
+      idleId = globalThis.setTimeout(task, 400)
+    }
+
+    const cancelIdle = () => {
+      if (idleId === null || typeof window === 'undefined') return
+
+      if ('cancelIdleCallback' in globalThis) {
+        ;(globalThis as typeof globalThis & {
+          cancelIdleCallback: (id: number) => void
+        }).cancelIdleCallback(idleId)
+      } else {
+        globalThis.clearTimeout(idleId)
+      }
+
+      idleId = null
+    }
 
     const loadFrames = async () => {
       const firstFolder = HERO_SLIDES[0].frameFolder
@@ -98,8 +126,10 @@ const Hero = () => {
           framesRef.current = { ...framesRef.current, [firstFolder]: firstFrames }
           setIsSequenceReady(true)
         }
-        const all = await preloadHeroFramesMobile()
-        if (!cancelled) framesRef.current = all
+        runWhenIdle(async () => {
+          const all = await preloadHeroFramesMobile()
+          if (!cancelled) framesRef.current = all
+        })
       } else {
         // Desktop: load full 48 frames, first folder first
         const firstFrames = await preloadHeroFolder(firstFolder)
@@ -107,14 +137,19 @@ const Hero = () => {
           framesRef.current = { ...framesRef.current, [firstFolder]: firstFrames }
           setIsSequenceReady(true)
         }
-        const all = await preloadHeroFrames()
-        if (!cancelled) framesRef.current = all
+        runWhenIdle(async () => {
+          const all = await preloadHeroFrames()
+          if (!cancelled) framesRef.current = all
+        })
       }
     }
 
     void loadFrames()
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      cancelIdle()
+    }
   }, [])
 
   useEffect(() => {

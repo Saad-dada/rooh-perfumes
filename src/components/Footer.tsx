@@ -42,9 +42,9 @@ const Footer = () => {
           </div>
 
           <div className="ft-legal">
-            <a href="#">Terms Of Use</a>
+            <a href="/terms">Terms and Conditions</a>
             <span className="ft-legal-sep">|</span>
-            <a href="#">Privacy &amp; Policy</a>
+            <a href="/privacy">Privacy Policy</a>
           </div>
         </div>
       </div>
