@@ -72,11 +72,11 @@ if (str_contains_compat($endpoint, '..')) {
 
 $query = $_GET;
 unset($query['endpoint']);
+$query['consumer_key'] = $wcConsumerKey;
+$query['consumer_secret'] = $wcConsumerSecret;
 
 $target = rtrim($wcBaseUrl, '/') . '/wp-json/wc/v3/' . $endpoint;
-if (!empty($query)) {
-  $target .= (str_contains_compat($target, '?') ? '&' : '?') . http_build_query($query);
-}
+$target .= (str_contains_compat($target, '?') ? '&' : '?') . http_build_query($query);
 
 $ch = curl_init($target);
 if ($ch === false) {
@@ -96,8 +96,6 @@ curl_setopt_array($ch, [
   CURLOPT_HEADER => true,
   CURLOPT_TIMEOUT => 20,
   CURLOPT_CUSTOMREQUEST => $method,
-  CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-  CURLOPT_USERPWD => $wcConsumerKey . ':' . $wcConsumerSecret,
   CURLOPT_HTTPHEADER => $headers,
 ]);
 
