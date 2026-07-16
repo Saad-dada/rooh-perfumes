@@ -143,6 +143,19 @@ storeApi.interceptors.request.use(async (config) => {
 storeApi.interceptors.response.use(
   (response) => {
     captureSessionHeaders(response.headers as Record<string, string>)
+
+    // Validate that the response is JSON, not HTML (which indicates a Vite proxy fallback failure)
+    const contentType = response.headers['content-type'] || ''
+    if (
+      contentType.includes('text/html') ||
+      (typeof response.data === 'string' && response.data.trim().startsWith('<!DOCTYPE html>'))
+    ) {
+      throw new Error(
+        'Expected JSON response from WooCommerce Store API, but received HTML. ' +
+        'This typically happens when the Vite proxy falls back to index.html because the API endpoint is not found, or VITE_WC_BASE_URL is misconfigured.'
+      )
+    }
+
     return response
   },
   async (error) => {
@@ -260,10 +273,17 @@ export function formatPrice(minorUnits: string, currencyMinorUnit: number, curre
 
 // ── API Functions ──
 
+function validateCart(data: unknown): StoreCart {
+  if (!data || typeof data !== 'object' || !('totals' in data)) {
+    throw new Error('Invalid cart data structure received from API')
+  }
+  return data as StoreCart
+}
+
 /** Get the current cart */
 export async function getCart(): Promise<StoreCart> {
   const { data } = await storeApi.get<StoreCart>('/cart')
-  return data
+  return validateCart(data)
 }
 
 /** Add an item to the cart */
@@ -272,7 +292,7 @@ export async function addItemToCart(productId: number, quantity = 1): Promise<St
     id: productId,
     quantity,
   })
-  return data
+  return validateCart(data)
 }
 
 /** Update item quantity */
@@ -281,7 +301,7 @@ export async function updateItemQuantity(itemKey: string, quantity: number): Pro
     key: itemKey,
     quantity,
   })
-  return data
+  return validateCart(data)
 }
 
 /** Remove an item from the cart */
@@ -289,7 +309,7 @@ export async function removeCartItem(itemKey: string): Promise<StoreCart> {
   const { data } = await storeApi.post<StoreCart>('/cart/remove-item', {
     key: itemKey,
   })
-  return data
+  return validateCart(data)
 }
 
 /** Update shipping address (to get shipping rates) */
@@ -305,7 +325,7 @@ export async function updateShippingAddress(address: {
   const { data } = await storeApi.post<StoreCart>('/cart/update-customer', {
     shipping_address: address,
   })
-  return data
+  return validateCart(data)
 }
 
 /** Select a shipping rate */

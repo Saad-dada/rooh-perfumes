@@ -301,7 +301,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const items = cart?.items ?? []
   const itemCount = cart?.items_count ?? 0
 
-  const total = cart
+  const total = cart && cart.totals
     ? formatPrice(
         cart.totals.total_price,
         cart.totals.currency_minor_unit,

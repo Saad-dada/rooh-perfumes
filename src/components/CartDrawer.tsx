@@ -11,14 +11,14 @@ const CartDrawer = () => {
 
   const hasCoupon = (cart?.coupons?.length ?? 0) > 0
   const couponCode = hasCoupon ? cart?.coupons?.[0]?.code?.toUpperCase() : null
-  const discountMinor = Number.parseInt(cart?.totals.total_discount ?? '0', 10)
+  const discountMinor = Number.parseInt(cart?.totals?.total_discount ?? '0', 10)
   const hasDiscount = discountMinor > 0
-  const subtotalMinor = Number.parseInt(cart?.totals.total_items ?? '0', 10)
+  const subtotalMinor = Number.parseInt(cart?.totals?.total_items ?? '0', 10)
   const estimatedTotalMinor = Math.max(subtotalMinor - discountMinor, 0)
-  const discountLabel = cart
+  const discountLabel = cart && cart.totals
     ? formatPrice(String(discountMinor), cart.totals.currency_minor_unit, cart.totals.currency_code)
     : '$0.00'
-  const estimatedTotalLabel = cart
+  const estimatedTotalLabel = cart && cart.totals
     ? formatPrice(String(estimatedTotalMinor), cart.totals.currency_minor_unit, cart.totals.currency_code)
     : '$0.00'
 

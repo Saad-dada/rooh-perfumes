@@ -41,14 +41,14 @@ const CheckoutReviewPage = () => {
     }
   }, [refreshCart])
 
-  const currencyCode = cart?.totals.currency_code ?? 'AED'
-  const currencyMinorUnit = cart?.totals.currency_minor_unit ?? 2
-  const subtotalMinor = cart?.totals.total_items ?? '0'
-  const totalMinor = cart?.totals.total_price ?? '0'
+  const currencyCode = cart?.totals?.currency_code ?? 'AED'
+  const currencyMinorUnit = cart?.totals?.currency_minor_unit ?? 2
+  const subtotalMinor = cart?.totals?.total_items ?? '0'
+  const totalMinor = cart?.totals?.total_price ?? '0'
   const hasCoupon = (cart?.coupons?.length ?? 0) > 0
   const couponCode = hasCoupon ? cart?.coupons?.[0]?.code?.toUpperCase() : null
 
-  const discountFromTotals = Number.parseInt(cart?.totals.total_discount ?? '0', 10)
+  const discountFromTotals = Number.parseInt(cart?.totals?.total_discount ?? '0', 10)
   const discountFallback = Math.max(
     Number.parseInt(subtotalMinor, 10) - Number.parseInt(totalMinor, 10),
     0,

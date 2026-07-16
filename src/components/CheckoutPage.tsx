@@ -15,10 +15,10 @@ const CheckoutForm = () => {
   const navigate = useNavigate()
   // Stripe removed — no stripe or elements
 
-  const subtotalMinor = Number.parseInt(cart?.totals.total_items ?? '0', 10)
-  const discountMinor = Number.parseInt(cart?.totals.total_discount ?? '0', 10)
+  const subtotalMinor = Number.parseInt(cart?.totals?.total_items ?? '0', 10)
+  const discountMinor = Number.parseInt(cart?.totals?.total_discount ?? '0', 10)
   const estimatedTotalMinor = Math.max(subtotalMinor - discountMinor, 0)
-  const estimatedTotalLabel = cart
+  const estimatedTotalLabel = cart && cart.totals
     ? formatPrice(String(estimatedTotalMinor), cart.totals.currency_minor_unit, cart.totals.currency_code)
     : total
 
@@ -329,7 +329,7 @@ const CheckoutForm = () => {
             </div>
 
             <div className="checkout-summary-totals">
-              {cart && (
+              {cart && cart.totals && (
                 <>
                   <div className="checkout-summary-row">
                     <span>Subtotal</span>
